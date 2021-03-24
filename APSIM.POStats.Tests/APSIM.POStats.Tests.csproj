@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\APSIM.POStats.Portal\APSIM.POStats.Portal.csproj" />
     <ProjectReference Include="..\APSIM.POStats.Shared\APSIM.POStats.Shared.csproj" />
   </ItemGroup>
 

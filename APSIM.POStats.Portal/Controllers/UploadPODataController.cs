@@ -32,16 +32,7 @@ namespace APSIM.POStats.Portal.Controllers
         {
             try
             {
-                // Remove the old PR.
-                var oldPRs = statsDb.PullRequests.Where(pr => pr.Number == pullRequest.Number);
-                statsDb.PullRequests.RemoveRange(oldPRs);
-
-                // Set the accepted PR to the latest one.
-                pullRequest.AcceptedPullRequest = statsDb.GetMostRecentAcceptedPullRequest();
-
-                // Send PR to database.
-                statsDb.PullRequests.Add(pullRequest);
-                statsDb.SaveChanges();
+                UploadPullRequest(pullRequest);
 
                 // Send pass/fail to gitHub
                 bool isPass = PullRequestFunctions.IsPass(pullRequest);
@@ -52,6 +43,20 @@ namespace APSIM.POStats.Portal.Controllers
                 return $"Error from POStats web api: {err}";
             }
             return null;
+        }
+
+        public void UploadPullRequest(PullRequest pullRequest)
+        {
+            // Remove the old PR.
+            var oldPRs = statsDb.PullRequests.Where(pr => pr.Number == pullRequest.Number);
+            statsDb.PullRequests.RemoveRange(oldPRs);
+
+            // Set the accepted PR to the latest one.
+            pullRequest.AcceptedPullRequest = statsDb.GetMostRecentAcceptedPullRequest();
+
+            // Send PR to database.
+            statsDb.PullRequests.Add(pullRequest);
+            statsDb.SaveChanges();
         }
     }
 }

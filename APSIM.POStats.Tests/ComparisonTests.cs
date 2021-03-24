@@ -301,14 +301,14 @@ namespace APSIM.POStats.Tests
         [Test]
         public void VariableComparisonPassResuts()
         {
-            var current = new Variable
+            var accepted = new Variable
             {
                 N = 50,
                 NSE = 0.8,
                 RMSE = 1000,
                 RSR = 0.5
             };
-            var accepted = new Variable
+            var current = new Variable
             {
                 N = 50,
                 NSE = 0.9,
@@ -328,14 +328,14 @@ namespace APSIM.POStats.Tests
         [Test]
         public void VariableComparisonFailResuts()
         {
-            var current = new Variable
+            var accepted = new Variable
             {
                 N = 50,
                 NSE = 0.9,
                 RMSE = 900,
                 RSR = 0.2
             };
-            var accepted = new Variable
+            var current = new Variable
             {
                 N = 50,
                 NSE = 0.8,
