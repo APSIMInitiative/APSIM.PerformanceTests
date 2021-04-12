@@ -53,23 +53,10 @@ namespace APSIM.POStats.Portal.Pages
         {
             FindCurrentAndAccepted(id);
 
-            // Add current values to google data table
-            VariableFunctions.GetData(current, out double[] predicted, out double[] observed, out string[] labels);
-            if (predicted.Length != observed.Length)
-                throw new Exception("The number of predicted data points does not equal the number of observed data points.");
-
             DataTable gdt = new DataTable();
             gdt.AddColumn(new Column(ColumnType.Number, "Observed", "Observed"));       // X
+            gdt.AddColumn(new Column(ColumnType.Number, "Accepted", "Accepted"));       // Accepted
             gdt.AddColumn(new Column(ColumnType.Number, "Predicted", "Current"));       // Y
-            gdt.AddColumn(new Column(ColumnType.Number, "Accepted", "Accepted"));      // Accepted
-
-            for (int i = 0; i < predicted.Length; i++)
-            {
-                var r = gdt.NewRow();
-                r.AddCell(new Cell(observed[i], observed[i].ToString("f3")));           // X
-                r.AddCell(new Cell(predicted[i], $"{predicted[i]:f3} ({labels[i]})"));  // Y
-                gdt.AddRow(r);
-            }
 
             // Add in accepted values.
             VariableFunctions.GetData(accepted, out double[] acceptedPredicted, out double[] acceptedObserved, out string[] acceptedLabels);
@@ -82,12 +69,25 @@ namespace APSIM.POStats.Portal.Pages
                     for (int i = 0; i < acceptedPredicted.Length; i++)
                     {
                         var r = gdt.NewRow();
-                        r.AddCell(new Cell(acceptedObserved[i], acceptedObserved[i].ToString("f3")));    // X
-                        r.AddCell(new Cell(null, null));    // X
-                        r.AddCell(new Cell(acceptedPredicted[i], $"{acceptedPredicted[i]:f3} ({acceptedLabels[i]})"));  // Y
+                        r.AddCell(new Cell(acceptedObserved[i], acceptedObserved[i].ToString("f3")));    // observed
+                        r.AddCell(new Cell(acceptedPredicted[i], $"{acceptedPredicted[i]:f3} ({acceptedLabels[i]})"));  // accepted
+                        r.AddCell(new Cell(null, null));    // current
                         gdt.AddRow(r);
                     }
                 }
+            }
+
+            // Add current values to google data table
+            VariableFunctions.GetData(current, out double[] predicted, out double[] observed, out string[] labels);
+            if (predicted.Length != observed.Length)
+                throw new Exception("The number of predicted data points does not equal the number of observed data points.");
+            for (int i = 0; i < predicted.Length; i++)
+            {
+                var r = gdt.NewRow();
+                r.AddCell(new Cell(observed[i], observed[i].ToString("f3")));           // observed
+                r.AddCell(new Cell(null, null));    // accepted
+                r.AddCell(new Cell(predicted[i], $"{predicted[i]:f3} ({labels[i]})"));  // current
+                gdt.AddRow(r);
             }
 
             // Add a 1:1 line
