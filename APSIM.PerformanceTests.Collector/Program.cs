@@ -55,7 +55,7 @@ namespace APSIM.PerformanceTests.Collector
                         throw new Exception(string.Format("ABORTED!  Invalid command passed: {0}.", pullCmd));
                     }
                     pullId = Int32.Parse(args[1]);
-                    runDate = DateTime.ParseExact(args[2], "yyyy.MM.dd-HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal);
+                    runDate = DateTime.ParseExact(args[2], "yyyy.M.d-HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal);
 
                     if (args.Length > 3)
                     {
