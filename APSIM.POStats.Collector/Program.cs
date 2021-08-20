@@ -32,7 +32,7 @@ namespace APSIM.POStats.Collector
 
                 // Convert command line arguments to variables.
                 int pullId = Convert.ToInt32(args[0]);
-                DateTime runDate = DateTime.ParseExact(args[1], "yyyy.MM.dd-HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal);
+                DateTime runDate = DateTime.ParseExact(args[1], "yyyy.M.d-HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal);
                 string author = args[2];
                 var searchDirectories = new List<string>();
                 for (int i = 3; i < args.Length; i++)
