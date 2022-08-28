@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace APSIM.POStats.Collector
@@ -36,7 +37,10 @@ namespace APSIM.POStats.Collector
                 string author = args[2];
                 var searchDirectories = new List<string>();
                 for (int i = 3; i < args.Length; i++)
-                    searchDirectories.Add(args[i]);
+                {
+                    if (Directory.Exists(args[i]))
+                        searchDirectories.Add(args[i]);
+                }
 
                 var pullRequest = Shared.Collector.RetrieveData(pullId, runDate, author, searchDirectories);
 
