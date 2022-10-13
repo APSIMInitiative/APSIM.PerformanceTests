@@ -117,7 +117,8 @@ namespace APSIM.POStats.Shared
                                 });
                             }
 
-                            var matchFields = GetMatchColumnNamesForTable(apsimxFileName, tableName);
+                            var matchFields = GetMatchColumnNamesForTable(apsimxFileName, tableName)
+                                              .Where(f => f != "SimulationName");
 
                             string selectSQL = $"SELECT * FROM {tableName}";
                             using (SqliteCommand cmd = new SqliteCommand(selectSQL, db))
