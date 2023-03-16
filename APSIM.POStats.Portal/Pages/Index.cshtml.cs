@@ -58,10 +58,10 @@ namespace APSIM.POStats.Portal.Pages
         /// <returns>HTML for the tick/cross.</returns>
         public static string EmitTickCross(VariableComparison.Status state)
         {
-            if (state == VariableComparison.Status.Pass)
+            if (state == VariableComparison.Status.Better)
                 return "<span style = \"font-weight: bold; color: Green;\" >&#10004;</span>";
 
-            else if (state == VariableComparison.Status.Fail)
+            else if (state == VariableComparison.Status.Different)
                 return "<span style = \"font-weight: bold; color: Red;\" >&#10008;</span>";
             else
                 return string.Empty;

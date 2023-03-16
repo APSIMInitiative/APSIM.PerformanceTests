@@ -291,8 +291,8 @@ namespace APSIM.POStats.Tests
             var results = VariableFunctions.Compare(current, accepted);
             Assert.AreEqual(VariableComparison.Status.Same, results.NStatus);
             Assert.AreEqual(VariableComparison.Status.Same, results.NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, results.RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, results.RSRStatus);
+            Assert.AreEqual(VariableComparison.Status.Better, results.RMSEStatus);
+            Assert.AreEqual(VariableComparison.Status.Better, results.RSRStatus);
         }
 
         /// <summary>
@@ -317,9 +317,9 @@ namespace APSIM.POStats.Tests
             };
             var results = VariableFunctions.Compare(current, accepted);
             Assert.AreEqual(VariableComparison.Status.Same, results.NStatus);
-            Assert.AreEqual(VariableComparison.Status.Pass, results.NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Pass, results.RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Pass, results.RSRStatus);
+            Assert.AreEqual(VariableComparison.Status.Better, results.NSEStatus);
+            Assert.AreEqual(VariableComparison.Status.Better, results.RMSEStatus);
+            Assert.AreEqual(VariableComparison.Status.Better, results.RSRStatus);
         }
 
         /// <summary>
@@ -345,9 +345,9 @@ namespace APSIM.POStats.Tests
 
             var results = VariableFunctions.Compare(current, accepted);
             Assert.AreEqual(VariableComparison.Status.Same, results.NStatus);
-            Assert.AreEqual(VariableComparison.Status.Fail, results.NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Fail, results.RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Fail, results.RSRStatus);
+            Assert.AreEqual(VariableComparison.Status.Different, results.NSEStatus);
+            Assert.AreEqual(VariableComparison.Status.Different, results.RMSEStatus);
+            Assert.AreEqual(VariableComparison.Status.Different, results.RSRStatus);
         }
 
         /// <summary>

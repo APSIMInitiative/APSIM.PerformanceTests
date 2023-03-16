@@ -53,7 +53,7 @@ namespace APSIM.POStats.Portal.Pages
                 statsDb.SaveChanges();
 
                 // Send pass/fail to gitHub
-                GitHub.SetStatus(pullRequest.Number, pass:true);
+                GitHub.SetStatus(pullRequest.Number, VariableComparison.Status.Same);
                 Response.Redirect($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase.Value}/{pullRequestNumber}");
             }
         }

@@ -42,7 +42,8 @@ namespace APSIM.POStats.Shared.Comparison
             { 
                 if (Current == null) 
                     return StatusType.Missing; 
-                else if (Accepted == null) return StatusType.New; 
+                else if (Accepted == null) 
+                    return StatusType.New; 
                 else 
                     return StatusType.NoChange; 
             } 

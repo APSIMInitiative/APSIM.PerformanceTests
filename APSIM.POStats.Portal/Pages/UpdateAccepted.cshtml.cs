@@ -58,8 +58,8 @@ namespace APSIM.POStats.Portal.Pages
                 statsDb.SaveChanges();
 
                 // Send pass/fail to gitHub
-                bool isPass = PullRequestFunctions.IsPass(pullRequest);
-                GitHub.SetStatus(pullRequest.Number, isPass);
+                VariableComparison.Status status = PullRequestFunctions.GetStatus(pullRequest);
+                GitHub.SetStatus(pullRequest.Number, status);
                 Response.Redirect($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase.Value}/{pullRequestNumber}");
             }
         }

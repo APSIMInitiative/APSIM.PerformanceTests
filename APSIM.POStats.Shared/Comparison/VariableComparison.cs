@@ -22,10 +22,10 @@ namespace APSIM.POStats.Shared
             Same,
 
             /// <summary>The stat for this variable is NOT the same but is BETTER than accepted stat.</summary>
-            Pass,
+            Better,
 
             /// <summary>The stat for this variable is NOT the same and is WORSE than accepted stat.</summary>
-            Fail,
+            Different,
 
             /// <summary>This is a new variable (not in accepted).</summary>
             New,
@@ -84,16 +84,22 @@ namespace APSIM.POStats.Shared
         public double AcceptedRSR => (accepted == null) ? double.NaN : accepted.RSR;
 
         /// <summary>Return overall pass fail status.</summary>
-        public bool IsPass => (NStatus == Status.Pass || NStatus == Status.Same) &&
-                              (RMSEStatus == Status.Pass || RMSEStatus == Status.Same) &&
-                              (NSEStatus == Status.Pass || NSEStatus == Status.Same) &&
-                              (RSRStatus == Status.Pass || RSRStatus == Status.Same);
+        public bool IsBetterOrSame => (NStatus == Status.Better || NStatus == Status.Same) &&
+                                      (RMSEStatus == Status.Better || RMSEStatus == Status.Same) &&
+                                      (NSEStatus == Status.Better || NSEStatus == Status.Same) &&
+                                      (RSRStatus == Status.Better || RSRStatus == Status.Same);
 
         /// <summary>Is this variable the same as the accepted variable?</summary>
         public bool IsSame => NStatus == Status.Same &&
                               RMSEStatus == Status.Same &&
                               NSEStatus == Status.Same &&
                               RSRStatus == Status.Same;
+
+        /// <summary>Is this variable the same as the accepted variable?</summary>
+        public bool IsDifferent => NStatus == Status.Different &&
+                                   RMSEStatus == Status.Different &&
+                                   NSEStatus == Status.Different &&
+                                   RSRStatus == Status.Different;
 
         /// <summary>How does current N compare to accepted N?</summary>
         public Status NStatus => CalculateState(NPercentDifference);
@@ -156,13 +162,13 @@ namespace APSIM.POStats.Shared
             else if (accepted == null)
                 return Status.New;
             else if (double.IsNaN(percentDifference))
-                return Status.Fail;
-            else if (Math.Abs(percentDifference) <= 1)
-                return Status.Same;
-            else if (percentDifference < 0)
-                return Status.Fail;
+                return Status.Different;
+            else if (percentDifference <= -1)
+                return Status.Different;  // very negative - worse
+            else if (percentDifference <= 0)
+                return Status.Same;   // slightly negative - allow slightly negative differences. - same
             else
-                return Status.Pass;
+                return Status.Better; // > 0 - better
         }
     }
 }

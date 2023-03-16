@@ -35,8 +35,8 @@ namespace APSIM.POStats.Portal.Controllers
                 UploadPullRequest(pullRequest);
 
                 // Send pass/fail to gitHub
-                bool isPass = PullRequestFunctions.IsPass(pullRequest);
-                GitHub.SetStatus(pullRequest.Number, isPass);
+                VariableComparison.Status status = PullRequestFunctions.GetStatus(pullRequest);
+                GitHub.SetStatus(pullRequest.Number, status);
             }
             catch (Exception err)
             {

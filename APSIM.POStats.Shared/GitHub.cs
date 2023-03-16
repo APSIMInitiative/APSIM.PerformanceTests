@@ -33,7 +33,7 @@ namespace APSIM.POStats.Shared
         /// </summary>
         /// <param name="pullRequestNumber">The pull request number.</param>
         /// <param name="pass">Set the status to pass?</param>
-        public static void SetStatus(int pullRequestNumber, bool pass)
+        public static void SetStatus(int pullRequestNumber, VariableComparison.Status status)
         {
             GitHubClient github = new GitHubClient(new ProductHeaderValue("ApsimX"));
             string token = Vault.Read("GitHubToken");
@@ -45,12 +45,9 @@ namespace APSIM.POStats.Shared
 
             string header = "Authorization: token " + token;
             string state = "failure";
-            string stateFormatted = "Fail";
-            if (pass)
-            {
+            string stateFormatted = status.ToString();
+            if (status == VariableComparison.Status.Same)
                 state = "success";
-                stateFormatted = "Pass";
-            }
 
             string urlStr = string.Format("https://apsimdev.apsim.info/APSIM.POStats/{0}", pullRequestNumber);
 

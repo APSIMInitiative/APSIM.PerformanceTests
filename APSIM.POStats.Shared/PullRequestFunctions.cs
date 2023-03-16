@@ -14,25 +14,30 @@ namespace APSIM.POStats.Shared
         /// </summary>
         /// <param name="pullRequest"></param>
         /// <returns></returns>
-        public static bool IsPass(PullRequest pullRequest)
+        public static VariableComparison.Status GetStatus(PullRequest pullRequest)
         {
+            bool allBetterOrSame = true;
+            bool allSame = true;
             foreach (var file in GetFiles(pullRequest))
             {
                 if (file.Status != ApsimFileComparison.StatusType.NoChange)
-                    return false;
+                    return VariableComparison.Status.Different;
                 
                 foreach (var table in file.Tables)
                 {
                     if (table.Status != ApsimFileComparison.StatusType.NoChange)
-                        return false;
-                    foreach (var variable in table.Variables)
-                    {
-                        if (!variable.IsPass)
-                            return false;
-                    }
+                        return VariableComparison.Status.Different;
+
+                    allBetterOrSame = allBetterOrSame && table.Variables.All(v => v.IsBetterOrSame);
+                    allSame = allSame && table.Variables.All(v => v.IsSame);
                 }
             }
-            return true;
+            if (allBetterOrSame)
+                return VariableComparison.Status.Better;
+            else if (allSame)
+                return VariableComparison.Status.Same;
+            else
+                return VariableComparison.Status.Different;
         }
 
         /// <summary>Get a list of all files for a pull request.</summary>
