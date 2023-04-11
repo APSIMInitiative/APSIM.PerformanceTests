@@ -40,6 +40,8 @@ namespace APSIM.POStats.Portal.Pages
             PullRequest = statsDb.PullRequests.FirstOrDefault(pr => pr.Number == pullRequestNumber);
             if (PullRequest == null)
                 throw new Exception($"Cannot find pull request #{pullRequestNumber} in stats database");
+
+            VariableComparison.Status status = PullRequestFunctions.GetStatus(PullRequest);
         }
 
         public void OnPost()

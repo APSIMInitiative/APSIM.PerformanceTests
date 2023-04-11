@@ -32,10 +32,10 @@ namespace APSIM.POStats.Shared
                     allSame = allSame && table.Variables.All(v => v.IsSame);
                 }
             }
-            if (allBetterOrSame)
+            if (allSame)
+                return VariableComparison.Status.Same; 
+            else if (allBetterOrSame)
                 return VariableComparison.Status.Better;
-            else if (allSame)
-                return VariableComparison.Status.Same;
             else
                 return VariableComparison.Status.Different;
         }
