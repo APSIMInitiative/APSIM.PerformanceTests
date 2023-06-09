@@ -11,7 +11,7 @@ namespace APSIM.POStats.Shared.Comparison
         {
             Current = currentTable;
             Accepted = acceptedTable;
-            Variables = GetVariables();
+            VariableComparisons = GetVariables();
         }
 
         /// <summary>The current table.</summary>
@@ -45,7 +45,7 @@ namespace APSIM.POStats.Shared.Comparison
                 if (Current == null || Accepted == null)
                     return false;
 
-                foreach (var variable in Variables)
+                foreach (var variable in VariableComparisons)
                     if (!variable.IsSame)
                         return false;
 
@@ -54,7 +54,7 @@ namespace APSIM.POStats.Shared.Comparison
         }
 
         /// <summary>Get a list of all variables for this table.</summary>
-        public List<VariableComparison> Variables { get; }
+        public List<VariableComparison> VariableComparisons { get; }
 
         /// <summary>Get a list of all variables for this table.</summary>
         private List<VariableComparison> GetVariables()

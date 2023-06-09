@@ -102,8 +102,8 @@ namespace APSIM.POStats.Shared
                                    RSRStatus == Status.Different;
 
         /// <summary>How does current N compare to accepted N?</summary>
-        public Status NStatus => NPercentDifference == 0 ? Status.Same : Status.Different;
-       
+        public Status NStatus => CalculateState(NPercentDifference);
+
         /// <summary>How does current RMSE compare to accepted RMSE?</summary>
         public Status RMSEStatus => CalculateState(RMSEPercentDifference);
 

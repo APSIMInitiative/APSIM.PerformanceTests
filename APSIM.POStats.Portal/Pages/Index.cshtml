@@ -95,7 +95,7 @@
 
         <table class="stats-table">
             @{
-                var files = PullRequestFunctions.GetFiles(Model.PullRequest);
+                var files = PullRequestFunctions.GetFileComparisons(Model.PullRequest);
                 if (Model.OnlyShowChangedStats)
                     PullRequestFunctions.RemoveSame(files);
             }
@@ -122,7 +122,7 @@
                         <td class="stats-heading" colspan="3">RSR</td>
                     </tr>
 
-                    @foreach (var variable in table.Variables)
+                    @foreach (var variable in table.VariableComparisons)
                     {
                         <tr>
                             <td class="stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>

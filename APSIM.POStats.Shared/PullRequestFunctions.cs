@@ -18,7 +18,7 @@ namespace APSIM.POStats.Shared
         {
             bool allBetterOrSame = true;
             bool allSame = true;
-            foreach (var file in GetFiles(pullRequest))
+            foreach (var file in GetFileComparisons(pullRequest))
             {
                 if (file.Status != ApsimFileComparison.StatusType.NoChange)
                     return VariableComparison.Status.Different;
@@ -28,8 +28,8 @@ namespace APSIM.POStats.Shared
                     if (table.Status != ApsimFileComparison.StatusType.NoChange)
                         return VariableComparison.Status.Different;
 
-                    allBetterOrSame = allBetterOrSame && table.Variables.All(v => v.IsBetterOrSame);
-                    allSame = allSame && table.Variables.All(v => v.IsSame);
+                    allBetterOrSame = allBetterOrSame && table.VariableComparisons.All(v => v.IsBetterOrSame);
+                    allSame = allSame && table.VariableComparisons.All(v => v.IsSame);
                 }
             }
             if (allSame)
@@ -42,7 +42,7 @@ namespace APSIM.POStats.Shared
 
         /// <summary>Get a list of all files for a pull request.</summary>
         /// <param name="pullRequest">The pull request.</param>
-        public static List<ApsimFileComparison> GetFiles(PullRequest pullRequest)
+        public static List<ApsimFileComparison> GetFileComparisons(PullRequest pullRequest)
         {
             var files = new List<ApsimFileComparison>();
             foreach (var currentFile in pullRequest.Files)
@@ -72,10 +72,10 @@ namespace APSIM.POStats.Shared
             {
                 // Remove variables that are the same.
                 foreach (var table in file.Tables)
-                    table.Variables.RemoveAll(v => v.IsSame);
+                    table.VariableComparisons.RemoveAll(v => v.IsSame);
 
                 // Remove empty tables.
-                file.Tables.RemoveAll(t => t.Variables.Count == 0);
+                file.Tables.RemoveAll(t => t.IsSame && t.VariableComparisons.Count == 0);
             }
 
             files.RemoveAll(f => f.Tables.Count == 0);

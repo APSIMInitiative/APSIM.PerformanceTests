@@ -3,7 +3,6 @@ using APSIM.POStats.Shared.Comparison;
 using APSIM.POStats.Shared.Models;
 using NUnit.Framework;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace APSIM.POStats.Tests
@@ -32,7 +31,7 @@ namespace APSIM.POStats.Tests
                 AcceptedPullRequest = acceptedPullRequest
             };
 
-            var files = PullRequestFunctions.GetFiles(currentPullRequest);
+            var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
             Assert.AreEqual(3, files.Count());
 
             Assert.AreEqual(ApsimFileComparison.StatusType.Missing, files.First(f => f.Name == "file1").Status);
@@ -76,7 +75,7 @@ namespace APSIM.POStats.Tests
                 AcceptedPullRequest = acceptedPullRequest
             };
 
-            var files = PullRequestFunctions.GetFiles(currentPullRequest);
+            var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
             var tables = files.First().Tables;
             Assert.AreEqual(3, tables.Count());
 
@@ -105,7 +104,7 @@ namespace APSIM.POStats.Tests
                 },
             };
 
-            var files = PullRequestFunctions.GetFiles(currentPullRequest);
+            var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
             var tables = files.First().Tables;
             Assert.AreEqual(2, tables.Count());
 
@@ -191,9 +190,9 @@ namespace APSIM.POStats.Tests
                 AcceptedPullRequest = acceptedPullRequest
             };
 
-            var file = PullRequestFunctions.GetFiles(currentPullRequest);
-            var table = file.First().Tables.First();
-            var variables = table.Variables;
+            var fileComparisons = PullRequestFunctions.GetFileComparisons(currentPullRequest);
+            var table = fileComparisons.First().Tables.First();
+            var variables = table.VariableComparisons;
 
             Assert.AreEqual(3, variables.Count());
 
@@ -252,9 +251,9 @@ namespace APSIM.POStats.Tests
                 },
             };
 
-            var file = PullRequestFunctions.GetFiles(currentPullRequest);
+            var file = PullRequestFunctions.GetFileComparisons(currentPullRequest);
             var table = file.First().Tables.First();
-            var variables = table.Variables;
+            var variables = table.VariableComparisons;
 
             Assert.AreEqual(2, variables.Count());
 
@@ -381,6 +380,7 @@ namespace APSIM.POStats.Tests
         /// <summary>
         /// Ensure two variables, when compared, show fail results.
         /// </summary>
+        [Test]
         public void EnsureOnlyShowChangedStatsWorks()
         {
             var acceptedPullRequest = new PullRequest()
@@ -457,9 +457,9 @@ namespace APSIM.POStats.Tests
                 AcceptedPullRequest = acceptedPullRequest
             };
 
-            var file = PullRequestFunctions.GetFiles(currentPullRequest);
+            var file = PullRequestFunctions.GetFileComparisons(currentPullRequest);
             var table = file.First().Tables.First();
-            var variables = table.Variables;
+            var variables = table.VariableComparisons;
 
             Assert.AreEqual(3, variables.Count());
 
@@ -477,5 +477,96 @@ namespace APSIM.POStats.Tests
             Assert.AreEqual(VariableComparison.Status.Same, variables.First(f => f.Name == "variable3").RSRStatus);
 
         }
+
+        /// <summary>Ensure a missing table is detected.</summary>
+        [Test]
+        public void MissingTableDetected()
+        {
+            var acceptedPullRequest = new PullRequest()
+            {
+                Files = new List<ApsimFile>()
+                {
+                    new ApsimFile()
+                    {
+                        Name = "file1",
+                        Tables = new List<Table>()
+                        {
+                            new Table()
+                            {
+                                Name = "table1",
+                                Variables = new List<Variable>()
+                                {
+                                    new Variable()
+                                    {
+                                        Name = "variable1",
+                                        N = 50,
+                                        NSE = 0.8,
+                                        RMSE = 1000,
+                                        RSR = 0.5
+                                    }
+                                }
+                            },
+                            new Table()
+                            {
+                                Name = "table2",
+                                Variables = new List<Variable>()
+                                {
+                                    new Variable()
+                                    {
+                                        Name = "variable2",
+                                        N = 50,
+                                        NSE = 0.8,
+                                        RMSE = 1000,
+                                        RSR = 0.5
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            };
+            var currentPullRequest = new PullRequest()
+            {
+                Files = new List<ApsimFile>()
+                {
+                    new ApsimFile()
+                    {
+                        Name = "file1",
+                        Tables = new List<Table>()
+                        {
+                            new Table()
+                            {
+                                Name = "table2",
+                                Variables = new List<Variable>()
+                                {
+                                    new Variable()
+                                    {
+                                        Name = "variable2",
+                                        N = 50,
+                                        NSE = 0.8,
+                                        RMSE = 1000,
+                                        RSR = 0.5
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                AcceptedPullRequest = acceptedPullRequest
+            };
+
+            var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
+            var tables = files.First().Tables;
+            Assert.AreEqual(2, tables.Count());
+
+            Assert.AreEqual(ApsimFileComparison.StatusType.Missing, tables.First(f => f.Name == "table1").Status);
+            Assert.AreEqual(ApsimFileComparison.StatusType.NoChange, tables.Last(f => f.Name == "table2").Status);
+
+            VariableComparison.Status status = PullRequestFunctions.GetStatus(currentPullRequest);
+            Assert.AreEqual(VariableComparison.Status.Different, status);
+        }
+
+
     }
 }
