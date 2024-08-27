@@ -1,12 +1,9 @@
 using APSIM.POStats.Shared;
 using APSIM.POStats.Shared.Models;
-using NUnit.Framework;
-using System.Collections.Generic;
-using System.IO;
 
 namespace APSIM.POStats.Tests
 {
-    public class Tests
+    public class VariableTests
     {
         /// <summary>
         /// Make sure stats for a variable are calculated correctly.
@@ -27,10 +24,10 @@ namespace APSIM.POStats.Tests
 
             VariableFunctions.EnsureStatsAreCalculated(v);
 
-            Assert.AreEqual(3, v.N);
-            Assert.AreEqual(-26.0526, v.NSE, 0.0001);
-            Assert.AreEqual(29.1464, v.RMSE, 0.0001);
-            Assert.AreEqual(4.2467, v.RSR, 0.0001);
+            Assert.That(v.N, Is.EqualTo(3));
+            Assert.That(v.NSE, Is.EqualTo(-26.0526).Within(0.0001));
+            Assert.That(v.RMSE, Is.EqualTo(29.1464).Within(0.0001));
+            Assert.That(v.RSR, Is.EqualTo(4.2467).Within(0.0001));
         }
 
         /// <summary>
@@ -50,8 +47,8 @@ namespace APSIM.POStats.Tests
                 })
             };
             VariableFunctions.GetData(v, out double[] predicted, out double[] observed, out _);
-            Assert.AreEqual(new double[] { 11.0, 52.0, 11.5 }, predicted);
-            Assert.AreEqual(new double[] { 15.2, 1.7, 10.6 }, observed);
+            Assert.That(predicted, Is.EqualTo(new double[] { 11.0, 52.0, 11.5 }));
+            Assert.That(observed, Is.EqualTo(new double[] { 15.2, 1.7, 10.6 }));
         }
 
         /// <summary>

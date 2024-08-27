@@ -32,11 +32,11 @@ namespace APSIM.POStats.Tests
             };
 
             var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
-            Assert.AreEqual(3, files.Count());
+            Assert.That(files.Count(), Is.EqualTo(3));
 
-            Assert.AreEqual(ApsimFileComparison.StatusType.Missing, files.First(f => f.Name == "file1").Status);
-            Assert.AreEqual(ApsimFileComparison.StatusType.New, files.First(f => f.Name == "file2").Status);
-            Assert.AreEqual(ApsimFileComparison.StatusType.NoChange, files.First(f => f.Name == "file3").Status);
+            Assert.That(files.First(f => f.Name == "file1").Status, Is.EqualTo(ApsimFileComparison.StatusType.Missing));
+            Assert.That(files.First(f => f.Name == "file2").Status, Is.EqualTo(ApsimFileComparison.StatusType.New));
+            Assert.That(files.First(f => f.Name == "file3").Status, Is.EqualTo(ApsimFileComparison.StatusType.NoChange));
         }
 
         /// <summary>Ensure the TableComparison status works.</summary>
@@ -47,11 +47,11 @@ namespace APSIM.POStats.Tests
             {
                 Files = new List<ApsimFile>()
                 {
-                    new ApsimFile() 
-                    { 
+                    new ApsimFile()
+                    {
                         Name = "file1",
                         Tables = new List<Table>()
-                        { 
+                        {
                             new Table() { Name = "table1" },
                             new Table() { Name = "table3" },
                         }
@@ -70,18 +70,18 @@ namespace APSIM.POStats.Tests
                             new Table() { Name = "table2" },
                             new Table() { Name = "table3" },
                         }
-                    }                
+                    }
                 },
                 AcceptedPullRequest = acceptedPullRequest
             };
 
             var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
             var tables = files.First().Tables;
-            Assert.AreEqual(3, tables.Count());
+            Assert.That(tables.Count(), Is.EqualTo(3));
 
-            Assert.AreEqual(ApsimFileComparison.StatusType.Missing, tables.First(f => f.Name == "table1").Status);
-            Assert.AreEqual(ApsimFileComparison.StatusType.New, tables.First(f => f.Name == "table2").Status);
-            Assert.AreEqual(ApsimFileComparison.StatusType.NoChange, tables.First(f => f.Name == "table3").Status);
+            Assert.That(tables.First(f => f.Name == "table1").Status, Is.EqualTo(ApsimFileComparison.StatusType.Missing));
+            Assert.That(tables.First(f => f.Name == "table2").Status, Is.EqualTo(ApsimFileComparison.StatusType.New));
+            Assert.That(tables.First(f => f.Name == "table3").Status, Is.EqualTo(ApsimFileComparison.StatusType.NoChange));
         }
 
         /// <summary>Ensure the TableComparison status works when there is no accepted table.</summary>
@@ -106,10 +106,10 @@ namespace APSIM.POStats.Tests
 
             var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
             var tables = files.First().Tables;
-            Assert.AreEqual(2, tables.Count());
+            Assert.That(tables.Count(), Is.EqualTo(2));
 
-            Assert.AreEqual(ApsimFileComparison.StatusType.New, tables.First(f => f.Name == "table2").Status);
-            Assert.AreEqual(ApsimFileComparison.StatusType.New, tables.First(f => f.Name == "table3").Status);
+            Assert.That(tables.First(f => f.Name == "table2").Status, Is.EqualTo(ApsimFileComparison.StatusType.New));
+            Assert.That(tables.First(f => f.Name == "table3").Status, Is.EqualTo(ApsimFileComparison.StatusType.New));
         }
 
         /// <summary>Ensure the VariableComparison status works.</summary>
@@ -125,11 +125,11 @@ namespace APSIM.POStats.Tests
                         Name = "file1",
                         Tables = new List<Table>()
                         {
-                            new Table() 
+                            new Table()
                             {
                                 Name = "table1",
                                 Variables = new List<Variable>()
-                                { 
+                                {
                                     new Variable()
                                     {
                                         Name = "variable1",
@@ -194,20 +194,20 @@ namespace APSIM.POStats.Tests
             var table = fileComparisons.First().Tables.First();
             var variables = table.VariableComparisons;
 
-            Assert.AreEqual(3, variables.Count());
+            Assert.That(variables.Count(), Is.EqualTo(3));
 
-            Assert.AreEqual(VariableComparison.Status.Missing, variables.First(f => f.Name == "variable1").NStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").NStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, variables.First(f => f.Name == "variable3").NStatus);
-            Assert.AreEqual(VariableComparison.Status.Missing, variables.First(f => f.Name == "variable1").RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, variables.First(f => f.Name == "variable3").RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Missing, variables.First(f => f.Name == "variable1").NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, variables.First(f => f.Name == "variable3").NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Missing, variables.First(f => f.Name == "variable1").RSRStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").RSRStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, variables.First(f => f.Name == "variable3").RSRStatus);
+            Assert.That(variables.First(f => f.Name == "variable1").NStatus, Is.EqualTo(VariableComparison.Status.Missing));
+            Assert.That(variables.First(f => f.Name == "variable2").NStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").NStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(variables.First(f => f.Name == "variable1").RMSEStatus, Is.EqualTo(VariableComparison.Status.Missing));
+            Assert.That(variables.First(f => f.Name == "variable2").RMSEStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").RMSEStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(variables.First(f => f.Name == "variable1").NSEStatus, Is.EqualTo(VariableComparison.Status.Missing));
+            Assert.That(variables.First(f => f.Name == "variable2").NSEStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").NSEStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(variables.First(f => f.Name == "variable1").RSRStatus, Is.EqualTo(VariableComparison.Status.Missing));
+            Assert.That(variables.First(f => f.Name == "variable2").RSRStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").RSRStatus, Is.EqualTo(VariableComparison.Status.Same));
         }
 
         /// <summary>Ensure the VariableComparison status works with no accepted variable.</summary>
@@ -255,16 +255,16 @@ namespace APSIM.POStats.Tests
             var table = file.First().Tables.First();
             var variables = table.VariableComparisons;
 
-            Assert.AreEqual(2, variables.Count());
+            Assert.That(variables.Count(), Is.EqualTo(2));
 
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").NStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable3").NStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable3").RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable3").NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").RSRStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable3").RSRStatus);
+            Assert.That(variables.First(f => f.Name == "variable2").NStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").NStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable2").RMSEStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").RMSEStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable2").NSEStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").NSEStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable2").RSRStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").RSRStatus, Is.EqualTo(VariableComparison.Status.New));
         }
 
         /// <summary>
@@ -288,10 +288,10 @@ namespace APSIM.POStats.Tests
                 RSR = 0.503
             };
             var results = VariableFunctions.Compare(current, accepted);
-            Assert.AreEqual(VariableComparison.Status.Same, results.NStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, results.NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Better, results.RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Better, results.RSRStatus);
+            Assert.That(results.NStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(results.NSEStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(results.RMSEStatus, Is.EqualTo(VariableComparison.Status.Better));
+            Assert.That(results.RSRStatus, Is.EqualTo(VariableComparison.Status.Better));
         }
 
         /// <summary>
@@ -315,10 +315,10 @@ namespace APSIM.POStats.Tests
                 RSR = 0.2
             };
             var results = VariableFunctions.Compare(current, accepted);
-            Assert.AreEqual(VariableComparison.Status.Same, results.NStatus);
-            Assert.AreEqual(VariableComparison.Status.Better, results.NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Better, results.RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Better, results.RSRStatus);
+            Assert.That(results.NStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(results.NSEStatus, Is.EqualTo(VariableComparison.Status.Better));
+            Assert.That(results.RMSEStatus, Is.EqualTo(VariableComparison.Status.Better));
+            Assert.That(results.RSRStatus, Is.EqualTo(VariableComparison.Status.Better));
         }
 
         /// <summary>
@@ -343,10 +343,10 @@ namespace APSIM.POStats.Tests
             };
 
             var results = VariableFunctions.Compare(current, accepted);
-            Assert.AreEqual(VariableComparison.Status.Same, results.NStatus);
-            Assert.AreEqual(VariableComparison.Status.Different, results.NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Different, results.RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Different, results.RSRStatus);
+            Assert.That(results.NStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(results.NSEStatus, Is.EqualTo(VariableComparison.Status.Different));
+            Assert.That(results.RMSEStatus, Is.EqualTo(VariableComparison.Status.Different));
+            Assert.That(results.RSRStatus, Is.EqualTo(VariableComparison.Status.Different));
         }
 
         /// <summary>
@@ -371,10 +371,10 @@ namespace APSIM.POStats.Tests
             };
 
             var results = VariableFunctions.Compare(current, accepted);
-            Assert.AreEqual(VariableComparison.Status.Same, results.NStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, results.NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, results.RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, results.RSRStatus);
+            Assert.That(results.NStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(results.NSEStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(results.RMSEStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(results.RSRStatus, Is.EqualTo(VariableComparison.Status.Same));
         }
 
         /// <summary>
@@ -461,20 +461,20 @@ namespace APSIM.POStats.Tests
             var table = file.First().Tables.First();
             var variables = table.VariableComparisons;
 
-            Assert.AreEqual(3, variables.Count());
+            Assert.That(variables.Count(), Is.EqualTo(3));
 
-            Assert.AreEqual(VariableComparison.Status.Missing, variables.First(f => f.Name == "variable1").NStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").NStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, variables.First(f => f.Name == "variable3").NStatus);
-            Assert.AreEqual(VariableComparison.Status.Missing, variables.First(f => f.Name == "variable1").RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, variables.First(f => f.Name == "variable3").RMSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Missing, variables.First(f => f.Name == "variable1").NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, variables.First(f => f.Name == "variable3").NSEStatus);
-            Assert.AreEqual(VariableComparison.Status.Missing, variables.First(f => f.Name == "variable1").RSRStatus);
-            Assert.AreEqual(VariableComparison.Status.New, variables.First(f => f.Name == "variable2").RSRStatus);
-            Assert.AreEqual(VariableComparison.Status.Same, variables.First(f => f.Name == "variable3").RSRStatus);
+            Assert.That(variables.First(f => f.Name == "variable1").NStatus, Is.EqualTo(VariableComparison.Status.Missing));
+            Assert.That(variables.First(f => f.Name == "variable2").NStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").NStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(variables.First(f => f.Name == "variable1").RMSEStatus, Is.EqualTo(VariableComparison.Status.Missing));
+            Assert.That(variables.First(f => f.Name == "variable2").RMSEStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").RMSEStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(variables.First(f => f.Name == "variable1").NSEStatus, Is.EqualTo(VariableComparison.Status.Missing));
+            Assert.That(variables.First(f => f.Name == "variable2").NSEStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").NSEStatus, Is.EqualTo(VariableComparison.Status.Same));
+            Assert.That(variables.First(f => f.Name == "variable1").RSRStatus, Is.EqualTo(VariableComparison.Status.Missing));
+            Assert.That(variables.First(f => f.Name == "variable2").RSRStatus, Is.EqualTo(VariableComparison.Status.New));
+            Assert.That(variables.First(f => f.Name == "variable3").RSRStatus, Is.EqualTo(VariableComparison.Status.Same));
 
         }
 
@@ -558,13 +558,13 @@ namespace APSIM.POStats.Tests
 
             var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
             var tables = files.First().Tables;
-            Assert.AreEqual(2, tables.Count());
+            Assert.That(tables.Count(), Is.EqualTo(2));
 
-            Assert.AreEqual(ApsimFileComparison.StatusType.Missing, tables.First(f => f.Name == "table1").Status);
-            Assert.AreEqual(ApsimFileComparison.StatusType.NoChange, tables.Last(f => f.Name == "table2").Status);
+            Assert.That(tables.First(f => f.Name == "table1").Status, Is.EqualTo(ApsimFileComparison.StatusType.Missing));
+            Assert.That(tables.Last(f => f.Name == "table2").Status, Is.EqualTo(ApsimFileComparison.StatusType.NoChange));
 
             VariableComparison.Status status = PullRequestFunctions.GetStatus(currentPullRequest);
-            Assert.AreEqual(VariableComparison.Status.Different, status);
+            Assert.That(status, Is.EqualTo(VariableComparison.Status.Different));
         }
 
 
