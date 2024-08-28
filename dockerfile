@@ -2,10 +2,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 as build
 
 # Clone and build the website.
-#RUN git clone --depth 1 https://github.com/APSIMInitiative/APSIM.PerformanceTests /APSIM.POStats
+RUN git clone https://github.com/hol353/APSIM.PerformanceTests /APSIM.POStats
 
-ADD . /APSIM.POStats
+# Uncomment next line (and comment previous line) to use a local repo rather than clone remote.
+#ADD . /APSIM.POStats
 
+# Build POStats
 RUN cd /APSIM.POStats && dotnet publish -c Release -f net6.0 -r linux-x64 --no-self-contained
 
 # Actual container is based on dotnet/aspnet, and doesn't include build tools.
