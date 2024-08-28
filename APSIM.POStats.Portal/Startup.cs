@@ -1,4 +1,5 @@
-﻿using APSIM.POStats.Portal.Data;
+﻿using System;
+using APSIM.POStats.Portal.Data;
 using APSIM.POStats.Shared;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,11 +30,17 @@ namespace APSIM.POStats.Portal
             services.AddControllers();
             services.AddRazorPages();
 
-            var connectionString = Vault.Read("PortalDB");
+            string connectionString = Environment.GetEnvironmentVariable("PORTAL_DB");
+            if (string.IsNullOrEmpty(connectionString))
+                throw new Exception("Cannot find environment variable PORTAL_DB");
+
             if (connectionString.Contains(".db"))
                 services.AddDbContext<StatsDbContext>(options => options.UseLazyLoadingProxies().UseSqlite(connectionString));
             else
-                services.AddDbContext<StatsDbContext>(options => options.UseLazyLoadingProxies().UseSqlServer(connectionString));
+            {
+                var serverVersion = new MySqlServerVersion(new Version(10, 0, 0));
+                services.AddDbContext<StatsDbContext>(options => options.UseLazyLoadingProxies().UseMySql(connectionString, serverVersion));
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

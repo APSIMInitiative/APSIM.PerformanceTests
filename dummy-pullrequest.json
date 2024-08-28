@@ -1,0 +1,65 @@
+{
+    "Number": 1234,
+    "Author": null,
+    "DateRun": "2000-01-01T00:00:00",
+    "DateStatsAccepted": null,
+    "Files": [
+        {
+            "Name": "Test",
+            "Tables": [
+                {
+                    "Name": "PO1",
+                    "Variables": [
+                        {
+                            "Name": "A",
+                            "N": 2,
+                            "RMSE": 1,
+                            "NSE": 0.96,
+                            "RSR": 0.1414213562373095,
+                            "Data": [
+                                {
+                                    "Label": "Simulation: Sim1, Date: 2000-01-01",
+                                    "Predicted": 10,
+                                    "Observed": 11
+                                },
+                                {
+                                    "Label": "Simulation: Sim1, Date: 2000-01-02",
+                                    "Predicted": 20,
+                                    "Observed": 21
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "Name": "PO2",
+                    "Variables": [
+                        {
+                            "Name": "A",
+                            "N": 2,
+                            "RMSE": 10,
+                            "NSE": 0.96,
+                            "RSR": 0.1414213562373095,
+                            "Data": [
+                                {
+                                    "Id": 0,
+                                    "Label": "Simulation: Sim1",
+                                    "Predicted": 100,
+                                    "Observed": 110
+                                },
+                                {
+                                    "Id": 0,
+                                    "Label": "Simulation: Sim1",
+                                    "Predicted": 200,
+                                    "Observed": 210
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "AcceptedPullRequestId": null,
+    "AcceptedPullRequest": null
+}

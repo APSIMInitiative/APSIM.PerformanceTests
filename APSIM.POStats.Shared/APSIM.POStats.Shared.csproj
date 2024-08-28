@@ -5,10 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\ApsimX\APSIM.Shared\Utilities\MathUtilities.cs" Link="APSIM.Shared\MathUtilities.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="APSIM.Shared\" />
   </ItemGroup>
 

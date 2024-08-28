@@ -1,0 +1,32 @@
+version: '3.1'
+
+services:
+  website:
+    image: apsiminitiative/postats:latest
+    container_name: postats-site
+    restart: unless-stopped
+    environment:
+      - PORTAL_DB=${PORTAL_DB}
+      - COLLECTOR_URL=${COLLECTOR_URL}
+      - ACCEPT_PASSWORD=${ACCEPT_PASSWORD}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    ports:
+      - 8001:80
+    networks:
+      - postats_httpd
+      - postats_db
+  db:
+    image: mariadb:10
+    container_name: postats-db
+    restart: unless-stopped
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+    networks:
+      - postats_db
+    volumes:
+      - /data/postats/db:/var/lib/mysql
+networks:
+  postats_db:
+    name: postats_db
+  postats_httpd:
+    name: postats_httpd

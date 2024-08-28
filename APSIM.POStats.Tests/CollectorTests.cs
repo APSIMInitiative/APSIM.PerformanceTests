@@ -2,6 +2,7 @@
 using System.Reflection;
 using Microsoft.Data.Sqlite;
 using APSIM.POStats.Shared;
+using System.Text.Json;
 
 namespace APSIM.POStats.Tests;
 
@@ -66,6 +67,9 @@ public class TestsCollector
             ));
 
         var pullRequest = Collector.RetrieveData(1234, new DateTime(2000, 1, 1), null, new string[] { path });
+
+        string jsonString = JsonSerializer.Serialize(pullRequest);;
+
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(1));
         Assert.That(pullRequest.Files[0].Tables.Count, Is.EqualTo(2));
 

@@ -10,7 +10,7 @@ namespace APSIM.POStats.Portal.Pages
 {
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class UpdateAcceptedModel : PageModel
-    {        
+    {
         /// <summary>The database context.</summary>
         private readonly StatsDbContext statsDb;
 
@@ -47,7 +47,12 @@ namespace APSIM.POStats.Portal.Pages
                 throw new Exception($"Cannot find pull request {PullRequestNumber}");
 
             var password = Request.Form["Password"].ToString();
-            if (password == Vault.Read("AcceptPassword"))
+
+            string acceptedPasword = Environment.GetEnvironmentVariable("ACCEPT_PASSWORD");
+            if (string.IsNullOrEmpty(acceptedPasword))
+                throw new Exception("Cannot find environment variable ACCEPT_PASSWORD");
+
+            if (password == acceptedPasword)
             {
                 // Set the accepted PR to the latest one.
                 pullRequest.AcceptedPullRequest = statsDb.GetMostRecentAcceptedPullRequest();

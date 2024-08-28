@@ -27,11 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\ApsimX\APSIM.Shared\Utilities\DataTableUtilities.cs" Link="DataTableUtilities.cs" />
-    <Compile Include="..\..\ApsimX\APSIM.Shared\Utilities\DateUtilities.cs" Link="DateUtilities.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Test.apsimx" />
   </ItemGroup>
 

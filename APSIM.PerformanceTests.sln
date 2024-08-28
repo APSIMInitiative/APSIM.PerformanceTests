@@ -5,8 +5,6 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSIM.POStats.Collector", "APSIM.POStats.Collector\APSIM.POStats.Collector.csproj", "{98B4115D-9C3B-47B5-8CB2-F9BC40E38371}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSIM.POStats.Migrate", "APSIM.POStats.Migrate\APSIM.POStats.Migrate.csproj", "{176D0A3A-4044-461B-9AB7-087314EACC31}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSIM.POStats.Portal", "APSIM.POStats.Portal\APSIM.POStats.Portal.csproj", "{EC035D89-C442-4D32-854E-18AAC55A26F8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSIM.POStats.Shared", "APSIM.POStats.Shared\APSIM.POStats.Shared.csproj", "{DBB0159E-35A6-4EA0-A88E-364DB33734E6}"

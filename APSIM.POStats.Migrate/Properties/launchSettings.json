@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "APSIM.POStats.Migrate": {
-      "commandName": "Project",
-      "commandLineArgs": "\"C:\\Files\\Repos\\APSIM.PerformanceTests\\PullRequestIdsToMigrate.txt\""
-    }
-  }
-}

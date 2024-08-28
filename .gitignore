@@ -1,4 +1,4 @@
-
+.env
 #ignore thumbnails created by windows
 Thumbs.db
 #Ignore files build by Visual Studio
@@ -40,4 +40,3 @@ APSIM.PerformanceTests.Tests/.vs/
 .vscode/
 **/bin/
 **/obj/
-Vault.json
