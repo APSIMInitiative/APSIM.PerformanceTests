@@ -15,6 +15,7 @@ services:
     networks:
       - postats_httpd
       - postats_db
+
   db:
     image: mariadb:10
     container_name: postats-db
