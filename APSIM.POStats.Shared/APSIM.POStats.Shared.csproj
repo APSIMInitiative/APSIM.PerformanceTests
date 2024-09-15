@@ -5,18 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\ApsimX\APSIM.Shared\Utilities\MathUtilities.cs" Link="APSIM.Shared\MathUtilities.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="APSIM.Shared\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="5.0.0" />
-    <PackageReference Include="Octokit" Version="0.48.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="6.0.33" />
+    <PackageReference Include="Octokit" Version="13.0.1" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
 
 </Project>

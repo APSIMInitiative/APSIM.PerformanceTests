@@ -36,7 +36,9 @@ namespace APSIM.POStats.Shared
         public static void SetStatus(int pullRequestNumber, VariableComparison.Status status)
         {
             GitHubClient github = new GitHubClient(new ProductHeaderValue("ApsimX"));
-            string token = Vault.Read("GitHubToken");
+            string token = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
+            if (string.IsNullOrEmpty(token))
+                throw new Exception("Cannot find environment variable GITHUB_TOKEN");
             github.Credentials = new Credentials(token);
             Task<Octokit.PullRequest> pullRequestTask = github.PullRequest.Get("APSIMInitiative", "ApsimX", pullRequestNumber);
             pullRequestTask.Wait();

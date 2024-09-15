@@ -17,7 +17,7 @@ namespace APSIM.POStats.Shared
         /// <summary>
         /// Retrieves all Apsimx simulation files with for the search directory specified in the App.config file
         /// and then process these files.
-        /// 
+        ///
         /// Returns true iff an error is encountered.
         /// </summary>
         /// <remarks>
@@ -25,7 +25,7 @@ namespace APSIM.POStats.Shared
         /// In configuration editor on APSIM web site:
         /// system->webServer->security->requestFiltering->maxAllowedContentLength = 60000000
         /// </remarks>
-        /// 
+        ///
         /// <param name="pullId"></param>
         /// <param name="runDate"></param>
         /// <param name="submitDetails"></param>
@@ -116,7 +116,6 @@ namespace APSIM.POStats.Shared
                                     Data = new List<VariableData>()
                                 });
                             }
-
                             var matchFields = GetMatchColumnNamesForTable(apsimxFileName, tableName)
                                               .Where(f => f != "SimulationName");
 
@@ -137,7 +136,7 @@ namespace APSIM.POStats.Shared
                                                 predictedValue = Convert.ToDouble(predictedValue);
                                             if (observedValue is int || observedValue is Int64)
                                                 observedValue = Convert.ToDouble(observedValue);
-                                            
+
                                             if (predictedValue is double)
                                             {
                                                 double observedValueAsDouble = double.NaN;

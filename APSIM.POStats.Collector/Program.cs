@@ -58,7 +58,12 @@ namespace APSIM.POStats.Collector
                         if (numAttempts > 0)
                             Console.WriteLine("Retrying....");
                         numAttempts++;
-                        errorMessage = await WebUtilities.PostAsync(Vault.Read("CollectorURL"), pullRequest);
+
+                        string url = Environment.GetEnvironmentVariable("COLLECTOR_URL");
+                        if (string.IsNullOrEmpty(url))
+                            throw new Exception("Cannot find environment variable COLLECTOR_URL");
+
+                        errorMessage = await WebUtilities.PostAsync(url, pullRequest);
                     }
                     catch (Exception err)
                     {

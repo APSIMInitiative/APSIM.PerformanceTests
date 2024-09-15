@@ -2,33 +2,32 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
 
     <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Test.apsimx" />
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit.Analyzers" Version="3.9.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.9" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\ApsimX\APSIM.Shared\Utilities\DataTableUtilities.cs" Link="DataTableUtilities.cs" />
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\APSIM.POStats.Shared\APSIM.POStats.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Test.apsimx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="5.0.0" />
-    <PackageReference Include="nunit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\APSIM.POStats.Portal\APSIM.POStats.Portal.csproj" />
-    <ProjectReference Include="..\APSIM.POStats.Shared\APSIM.POStats.Shared.csproj" />
   </ItemGroup>
 
 </Project>
