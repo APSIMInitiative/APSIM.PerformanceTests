@@ -1,8 +1,8 @@
-name: SensorFlo Tests
+name: Performance Stats Tests
 
 on:
   pull_request_target:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build:
