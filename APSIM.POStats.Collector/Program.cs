@@ -47,7 +47,7 @@ namespace APSIM.POStats.Collector
 
                 // Send POStats data to web api.
                 var stopwatch = Stopwatch.StartNew();
-                await UploadStats(pullRequest, "COLLECTOR_URL");
+                await UploadStats(pullRequest, "CollectorURL");
 
                 // Send POStats data to new POStats web api.
                 await UploadStats(pullRequest, "POSTATS_UPLOAD_URL");
