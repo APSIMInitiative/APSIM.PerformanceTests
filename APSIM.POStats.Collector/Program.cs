@@ -67,8 +67,8 @@ namespace APSIM.POStats.Collector
             int maxNumAttempts = 3;
             int numAttempts = 0;
             string errorMessage = string.Empty;
-
-            while (errorMessage != string.Empty && numAttempts < maxNumAttempts)
+            bool fail = true;
+            while (fail && numAttempts < maxNumAttempts)
             {
                 try
                 {
@@ -87,8 +87,10 @@ namespace APSIM.POStats.Collector
                 {
                     errorMessage = err.ToString();
                 }
+                fail = errorMessage != string.Empty;
             }
-            if (errorMessage != string.Empty)
+
+            if (fail && errorMessage != string.Empty)
                 throw new Exception(errorMessage);
             else
                 Console.WriteLine($"{urlEnvironmentVariable} collector completed successfully");
