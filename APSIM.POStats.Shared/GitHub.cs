@@ -51,13 +51,13 @@ namespace APSIM.POStats.Shared
             if (status == VariableComparison.Status.Same)
                 state = "success";
 
-            string urlStr = string.Format("https://apsimdev.apsim.info/APSIM.POStats/{0}", pullRequestNumber);
+            string urlStr = string.Format("https://postats.apsim.info/APSIM.POStats/{0}", pullRequestNumber);
 
             string body = "{" + Environment.NewLine +
                           "  \"state\": \"" + state + "\"," + Environment.NewLine +
                           "  \"target_url\": \"" + urlStr + "\"," + Environment.NewLine +
                           "  \"description\": \"" + stateFormatted + "\"," + Environment.NewLine +
-                          "  \"context\": \"APSIM.POStats\"" + Environment.NewLine +
+                          "  \"context\": \"APSIM.POStats2\"" + Environment.NewLine +
                           "}";
 
             ASCIIEncoding encoding = new ASCIIEncoding();
