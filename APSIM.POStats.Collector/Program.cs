@@ -1,4 +1,5 @@
 ﻿using APSIM.POStats.Shared;
+using APSIM.POStats.Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -44,40 +45,14 @@ namespace APSIM.POStats.Collector
 
                 var pullRequest = Shared.Collector.RetrieveData(pullId, runDate, author, searchDirectories);
 
-                // Send POStats data to web api. Sometimes it fails so try a number of times.
+                // Send POStats data to web api.
                 var stopwatch = Stopwatch.StartNew();
-                int maxNumAttempts = 3;
-                int numAttempts = 0;
-                bool fail = true;
-                string errorMessage = null;
-                while (fail && numAttempts < maxNumAttempts)
-                {
-                    try
-                    {
-                        Console.WriteLine("Sending POStats data to web api...");
-                        if (numAttempts > 0)
-                            Console.WriteLine("Retrying....");
-                        numAttempts++;
+                await UploadStats(pullRequest, "COLLECTOR_URL");
 
-                        string url = Environment.GetEnvironmentVariable("COLLECTOR_URL");
-                        if (string.IsNullOrEmpty(url))
-                            throw new Exception("Cannot find environment variable COLLECTOR_URL");
+                // Send POStats data to new POStats web api.
+                await UploadStats(pullRequest, "POSTATS_UPLOAD_URL");
 
-                        errorMessage = await WebUtilities.PostAsync(url, pullRequest);
-                    }
-                    catch (Exception err)
-                    {
-                        errorMessage = err.ToString();
-                    }
-                    fail = errorMessage != string.Empty;
-                }
                 Console.WriteLine($"Elapsed time to send data to web api: {stopwatch.Elapsed.TotalSeconds} seconds");
-
-                if (fail && errorMessage != string.Empty)
-                    throw new Exception(errorMessage);
-                else
-                    Console.WriteLine("Collector completed successfully");
-
             }
             catch (Exception ex)
             {
@@ -86,5 +61,38 @@ namespace APSIM.POStats.Collector
             }
             return 0;
         }
+
+        private static async Task UploadStats(PullRequest pullRequest, string urlEnvironmentVariable)
+        {
+            int maxNumAttempts = 3;
+            int numAttempts = 0;
+            string errorMessage = string.Empty;
+
+            while (errorMessage != string.Empty && numAttempts < maxNumAttempts)
+            {
+                try
+                {
+                    Console.WriteLine($"Sending POStats data to {urlEnvironmentVariable} web api...");
+                    if (numAttempts > 0)
+                        Console.WriteLine("Retrying....");
+                    numAttempts++;
+
+                    string url = Environment.GetEnvironmentVariable(urlEnvironmentVariable);
+                    if (string.IsNullOrEmpty(url))
+                        throw new Exception($"Cannot find environment variable {urlEnvironmentVariable}");
+                    Console.WriteLine(url);
+                    errorMessage = await WebUtilities.PostAsync(url, pullRequest);
+                }
+                catch (Exception err)
+                {
+                    errorMessage = err.ToString();
+                }
+            }
+            if (errorMessage != string.Empty)
+                throw new Exception(errorMessage);
+            else
+                Console.WriteLine($"{urlEnvironmentVariable} collector completed successfully");
+        }
+
     }
 }
