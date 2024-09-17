@@ -50,7 +50,7 @@ namespace APSIM.POStats.Collector
                 await UploadStats(pullRequest, "CollectorURL");
 
                 // Send POStats data to new POStats web api.
-                await UploadStats(pullRequest, "POSTATS_UPLOAD_URL");
+                //await UploadStats(pullRequest, "POSTATS_UPLOAD_URL");
 
                 Console.WriteLine($"Elapsed time to send data to web api: {stopwatch.Elapsed.TotalSeconds} seconds");
             }
