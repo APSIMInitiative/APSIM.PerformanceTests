@@ -12,10 +12,6 @@
                     "Variables": [
                         {
                             "Name": "A",
-                            "N": 2,
-                            "RMSE": 1,
-                            "NSE": 0.96,
-                            "RSR": 0.1414213562373095,
                             "Data": [
                                 {
                                     "Label": "Simulation: Sim1, Date: 2000-01-01",
@@ -36,10 +32,6 @@
                     "Variables": [
                         {
                             "Name": "A",
-                            "N": 2,
-                            "RMSE": 10,
-                            "NSE": 0.96,
-                            "RSR": 0.1414213562373095,
                             "Data": [
                                 {
                                     "Id": 0,
