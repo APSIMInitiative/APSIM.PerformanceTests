@@ -1,5 +1,4 @@
-﻿using APSIM.POStats.Portal.Data;
-using APSIM.POStats.Shared;
+﻿using APSIM.POStats.Shared;
 using APSIM.POStats.Shared.Comparison;
 using APSIM.POStats.Shared.Models;
 using APSIM.Shared.Utilities;

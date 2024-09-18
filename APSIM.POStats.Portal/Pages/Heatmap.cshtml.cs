@@ -1,5 +1,4 @@
-﻿using APSIM.POStats.Portal.Data;
-using APSIM.POStats.Shared;
+﻿using APSIM.POStats.Shared;
 using APSIM.POStats.Shared.Models;
 using Google.DataTable.Net.Wrapper;
 using Microsoft.AspNetCore.Mvc;

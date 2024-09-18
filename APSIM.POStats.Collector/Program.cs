@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace APSIM.POStats.Collector
@@ -48,11 +49,11 @@ namespace APSIM.POStats.Collector
                 // Send POStats data to web api.
                 var stopwatch = Stopwatch.StartNew();
                 await UploadStats(pullRequest, "CollectorURL");
+                Console.WriteLine($"Elapsed time to send data to web api: {stopwatch.Elapsed.TotalSeconds} seconds");
 
                 // Send POStats data to new POStats web api.
-                //await UploadStats(pullRequest, "POSTATS_UPLOAD_URL");
-
-                Console.WriteLine($"Elapsed time to send data to web api: {stopwatch.Elapsed.TotalSeconds} seconds");
+                await UploadStatsNew(pullRequest, "POSTATS_UPLOAD_URL");
+                Console.WriteLine($"Elapsed time to send data to new web api: {stopwatch.Elapsed.TotalSeconds} seconds");
             }
             catch (Exception ex)
             {
@@ -80,7 +81,6 @@ namespace APSIM.POStats.Collector
                     string url = Environment.GetEnvironmentVariable(urlEnvironmentVariable);
                     if (string.IsNullOrEmpty(url))
                         throw new Exception($"Cannot find environment variable {urlEnvironmentVariable}");
-                    Console.WriteLine(url);
                     errorMessage = await WebUtilities.PostAsync(url, pullRequest);
                 }
                 catch (Exception err)
@@ -94,6 +94,54 @@ namespace APSIM.POStats.Collector
                 throw new Exception(errorMessage);
             else
                 Console.WriteLine($"{urlEnvironmentVariable} collector completed successfully");
+        }
+
+
+        /// <summary>
+        /// Upload method for new POSTATS endpoints.
+        /// </summary>
+        /// <param name="pullRequest"></param>
+        /// <param name="urlEnvironmentVariable"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private static async Task UploadStatsNew(PullRequest pullRequest, string urlEnvironmentVariable)
+        {
+            Console.WriteLine("Running new uploader.");
+
+            string url = Environment.GetEnvironmentVariable(urlEnvironmentVariable);
+            if (string.IsNullOrEmpty(url))
+                throw new Exception($"Cannot find environment variable {urlEnvironmentVariable}");
+
+            // Tell endpoint we're about to upload data.
+            using var client = new HttpClient();
+            await client.GetAsync($"{url}/open?pullRequestNumber={pullRequest.Number}&author={pullRequest.Author}");
+
+            bool ok = false;
+            List<ApsimFile> files = new();
+            files.AddRange(pullRequest.Files);
+            foreach (var file in files)
+            {
+                // Upload data for one file only.
+                pullRequest.Files.Clear();
+                pullRequest.Files.Add(file);
+
+                Console.WriteLine($"Sending POStats data to web api for file {file.Name}");
+
+                try
+                {
+                    var response = await WebUtilities.PostAsync($"{url}/adddata", pullRequest);
+                    ok = string.IsNullOrEmpty(response);
+                    Console.WriteLine(response);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+
+            // Tell endpoint we're about to upload data.
+            if (ok)
+                await client.GetAsync($"{url}/api/close?pullRequestNumber={pullRequest.Number}");
         }
 
     }

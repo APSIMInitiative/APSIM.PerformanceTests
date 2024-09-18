@@ -1,5 +1,4 @@
 ﻿using System;
-using APSIM.POStats.Portal.Data;
 using APSIM.POStats.Shared;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
