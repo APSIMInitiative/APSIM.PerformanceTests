@@ -51,7 +51,7 @@ namespace APSIM.POStats.Shared
             if (status == VariableComparison.Status.Same)
                 state = "success";
 
-            string urlStr = string.Format("https://postats.apsim.info/APSIM.POStats/{0}", pullRequestNumber);
+            string urlStr = string.Format("https://postats.apsim.info/{0}", pullRequestNumber);
 
             string body = "{" + Environment.NewLine +
                           "  \"state\": \"" + state + "\"," + Environment.NewLine +

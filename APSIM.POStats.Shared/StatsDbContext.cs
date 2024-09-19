@@ -38,12 +38,11 @@ namespace APSIM.POStats.Shared
             // If it does exist, delete the old data.
             var pr = PullRequests.FirstOrDefault(pr => pr.Number == pullRequestNumber);
             if (pr == null)
-                PullRequests.Add(new PullRequest()
-                {
-                    Number = pullRequestNumber,
-                    Files = new()
-                });
-
+            {
+                pr = new PullRequest() { Number = pullRequestNumber };
+                PullRequests.Add(pr);
+            }
+            pr.Files ??= new();
             pr.Files.Clear();
             pr.DateRun = DateTime.Now;
             pr.Author = author;
