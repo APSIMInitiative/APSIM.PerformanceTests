@@ -129,7 +129,9 @@ namespace APSIM.POStats.Collector
 
                 try
                 {
-                    var response = await WebUtilities.PostAsync($"{url}/adddata", pullRequest);
+                    string postUrl = $"{url}/adddata";
+                    Console.WriteLine(postUrl);
+                    var response = await WebUtilities.PostAsync(postUrl, pullRequest);
                     ok = string.IsNullOrEmpty(response);
                     Console.WriteLine(response);
                 }
@@ -141,7 +143,7 @@ namespace APSIM.POStats.Collector
 
             // Tell endpoint we're about to upload data.
             if (ok)
-                await client.GetAsync($"{url}/api/close?pullRequestNumber={pullRequest.Number}");
+                await client.GetAsync($"{url}/close?pullRequestNumber={pullRequest.Number}");
         }
 
     }
