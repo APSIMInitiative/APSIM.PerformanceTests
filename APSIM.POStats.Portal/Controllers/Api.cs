@@ -36,7 +36,7 @@ namespace APSIM.POStats.Portal.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.ToString());
             }
 
             return Ok();
@@ -60,7 +60,7 @@ namespace APSIM.POStats.Portal.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.ToString());
             }
 
             return Ok();
@@ -82,7 +82,7 @@ namespace APSIM.POStats.Portal.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.ToString());
             }
 
             // Send pass/fail to gitHub
