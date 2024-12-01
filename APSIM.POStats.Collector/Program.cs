@@ -48,11 +48,7 @@ namespace APSIM.POStats.Collector
 
                 // Send POStats data to web api.
                 var stopwatch = Stopwatch.StartNew();
-                await UploadStats(pullRequest, "CollectorURL");
-                Console.WriteLine($"Elapsed time to send data to web api: {stopwatch.Elapsed.TotalSeconds} seconds");
-
-                // Send POStats data to new POStats web api.
-                await UploadStatsNew(pullRequest, "POSTATS_UPLOAD_URL");
+                await UploadStats(pullRequest, "POSTATS_UPLOAD_URL");
                 Console.WriteLine($"Elapsed time to send data to new web api: {stopwatch.Elapsed.TotalSeconds} seconds");
             }
             catch (Exception ex)
@@ -63,40 +59,6 @@ namespace APSIM.POStats.Collector
             return 0;
         }
 
-        private static async Task UploadStats(PullRequest pullRequest, string urlEnvironmentVariable)
-        {
-            int maxNumAttempts = 3;
-            int numAttempts = 0;
-            string errorMessage = string.Empty;
-            bool fail = true;
-            while (fail && numAttempts < maxNumAttempts)
-            {
-                try
-                {
-                    Console.WriteLine($"Sending POStats data to {urlEnvironmentVariable} web api...");
-                    if (numAttempts > 0)
-                        Console.WriteLine("Retrying....");
-                    numAttempts++;
-
-                    string url = Environment.GetEnvironmentVariable(urlEnvironmentVariable);
-                    if (string.IsNullOrEmpty(url))
-                        throw new Exception($"Cannot find environment variable {urlEnvironmentVariable}");
-                    errorMessage = await WebUtilities.PostAsync(url, pullRequest);
-                }
-                catch (Exception err)
-                {
-                    errorMessage = err.ToString();
-                }
-                fail = errorMessage != string.Empty;
-            }
-
-            if (fail && errorMessage != string.Empty)
-                throw new Exception(errorMessage);
-            else
-                Console.WriteLine($"{urlEnvironmentVariable} collector completed successfully");
-        }
-
-
         /// <summary>
         /// Upload method for new POSTATS endpoints.
         /// </summary>
@@ -104,7 +66,7 @@ namespace APSIM.POStats.Collector
         /// <param name="urlEnvironmentVariable"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        private static async Task UploadStatsNew(PullRequest pullRequest, string urlEnvironmentVariable)
+        private static async Task UploadStats(PullRequest pullRequest, string urlEnvironmentVariable)
         {
             Console.WriteLine("Running new uploader.");
 
