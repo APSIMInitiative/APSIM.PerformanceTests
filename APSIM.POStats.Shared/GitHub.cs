@@ -1,8 +1,6 @@
 ﻿using Octokit;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,7 +55,7 @@ namespace APSIM.POStats.Shared
                           "  \"state\": \"" + state + "\"," + Environment.NewLine +
                           "  \"target_url\": \"" + urlStr + "\"," + Environment.NewLine +
                           "  \"description\": \"" + stateFormatted + "\"," + Environment.NewLine +
-                          "  \"context\": \"APSIM.POStats2\"" + Environment.NewLine +
+                          "  \"context\": \"APSIM.POStats\"" + Environment.NewLine +
                           "}";
 
             ASCIIEncoding encoding = new ASCIIEncoding();
