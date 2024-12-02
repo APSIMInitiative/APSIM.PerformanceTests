@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 as build
 
 # Clone and build the website.
-RUN git clone https://github.com/hol353/APSIM.PerformanceTests /APSIM.POStats
+RUN git clone https://github.com/APSIMInitiative/APSIM.PerformanceTests /APSIM.POStats
 
 # Uncomment next line (and comment previous line) to use a local repo rather than clone remote.
 #ADD . /APSIM.POStats
