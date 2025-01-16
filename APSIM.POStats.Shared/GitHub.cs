@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -58,18 +59,10 @@ namespace APSIM.POStats.Shared
                           "  \"context\": \"APSIM.POStats\"" + Environment.NewLine +
                           "}";
 
-            ASCIIEncoding encoding = new ASCIIEncoding();
-            byte[] byte1 = encoding.GetBytes(body);
-
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(statusURL);
-            webRequest.Method = "POST";
-            webRequest.ContentType = @"application/x-www-form-urlencoded";
-            webRequest.ContentLength = byte1.Length;
-            webRequest.Headers.Add(header);
-            webRequest.UserAgent = "dummy";
-            using (Stream s = webRequest.GetRequestStream())
-                s.Write(byte1, 0, byte1.Length);
-            webRequest.GetResponse();
+            using (var client = new HttpClient())
+            {
+                var response = client.PostAsync(statusURL, new StringContent(body, Encoding.ASCII, @"application/x-www-form-urlencoded")).GetAwaiter().GetResult();
+            }
         }
     }
 

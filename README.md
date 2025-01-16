@@ -8,3 +8,4 @@ Comment git clone line in dockerfile and uncomment the 'ADD' line. Then build an
 
 To test docker image from a shell script:
     bash upload-dummy-pullrequest.sh
+ 
