@@ -92,14 +92,8 @@ namespace APSIM.POStats.Collector
                 try
                 {
                     string postUrl = $"{url}/adddata";
-                    Console.WriteLine(postUrl);
                     var response = await WebUtilities.PostAsync(postUrl, pullRequest);
                     ok = string.IsNullOrEmpty(response);
-                    if (ok)
-                        Console.WriteLine("Ok");
-                    else
-                        Console.WriteLine("Error");
-                    Console.WriteLine(response);
                 }
                 catch (Exception ex)
                 {
