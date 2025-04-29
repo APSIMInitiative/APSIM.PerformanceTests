@@ -1,7 +1,5 @@
 ﻿using Octokit;
 using System;
-using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -66,8 +64,13 @@ namespace APSIM.POStats.Shared
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
-                var response = client.PostAsync(statusURL, new StringContent(body, Encoding.ASCII, @"application/x-www-form-urlencoded")).GetAwaiter().GetResult();
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer token", token);
+                var response = client.PostAsync(statusURL, new StringContent(body, Encoding.UTF8, @"application/json")).GetAwaiter().GetResult();
+                var data = response.Content.ReadAsStringAsync();
+
+                Console.WriteLine(response.RequestMessage);
+                Console.WriteLine(response.StatusCode);
+                Console.WriteLine(data);
             }
         }
     }
