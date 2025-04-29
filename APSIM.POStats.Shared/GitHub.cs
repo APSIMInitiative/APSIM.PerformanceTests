@@ -30,7 +30,7 @@ namespace APSIM.POStats.Shared
         /// </summary>
         /// <param name="pullRequestNumber">The pull request number.</param>
         /// <param name="pass">Set the status to pass?</param>
-        public static void SetStatus(int pullRequestNumber, VariableComparison.Status status)
+        public static async void SetStatus(int pullRequestNumber, VariableComparison.Status status)
         {
             Console.WriteLine($"\"{pullRequestNumber}\" has a status of \"{status.ToString()}\"");
 
@@ -65,9 +65,10 @@ namespace APSIM.POStats.Shared
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer token", token);
-                var response = client.PostAsync(statusURL, new StringContent(body, Encoding.UTF8, @"application/json")).GetAwaiter().GetResult();
-                var data = response.Content.ReadAsStringAsync();
+                var response = await client.PostAsync(statusURL, new StringContent(body, Encoding.UTF8, @"application/json"));
+                var data = await response.Content.ReadAsStringAsync();
 
+                Console.WriteLine("Response:");
                 Console.WriteLine(response.RequestMessage);
                 Console.WriteLine(response.StatusCode);
                 Console.WriteLine(data);
