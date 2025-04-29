@@ -48,7 +48,6 @@ namespace APSIM.POStats.Shared
 
             Console.WriteLine($"Uri: {statusURL.ToString()}");
 
-            string header = "Authorization: token " + token;
             string state = "failure";
             string stateFormatted = status.ToString();
             if (status == VariableComparison.Status.Same)
@@ -67,6 +66,7 @@ namespace APSIM.POStats.Shared
 
             using (var client = new HttpClient())
             {
+                client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
                 var response = client.PostAsync(statusURL, new StringContent(body, Encoding.ASCII, @"application/x-www-form-urlencoded")).GetAwaiter().GetResult();
             }
         }
