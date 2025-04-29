@@ -26,6 +26,7 @@ namespace APSIM.POStats.Portal.Controllers
         [HttpGet("open")]
         public IActionResult Open(int pullRequestNumber, string author)
         {
+            Console.WriteLine($"\"{author}\" opening PR \"{pullRequestNumber}\"");
             if (pullRequestNumber == 0)
                 return BadRequest("You must supply a pull request number");
             if (string.IsNullOrEmpty(author))
@@ -48,8 +49,12 @@ namespace APSIM.POStats.Portal.Controllers
         [HttpGet("close")]
         public IActionResult Close(int pullRequestNumber)
         {
+            Console.WriteLine($"api/close called");
+            
             if (pullRequestNumber == 0)
                 return BadRequest("You must supply a pull request number");
+
+            Console.WriteLine($"Closing PR \"{pullRequestNumber}\"");
 
             try
             {
@@ -73,8 +78,12 @@ namespace APSIM.POStats.Portal.Controllers
         [RequestSizeLimit(100_000_000)]
         public IActionResult Post([FromBody]PullRequest pullRequest)
         {
+            Console.WriteLine($"api/adddata called");
+
             if (pullRequest == null)
                 return BadRequest("You must supply a pull request");
+
+            Console.WriteLine($"Adding Data to PR \"{pullRequest.Number}\"");
 
             try
             {
