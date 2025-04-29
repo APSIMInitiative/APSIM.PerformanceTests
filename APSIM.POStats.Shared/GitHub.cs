@@ -34,6 +34,8 @@ namespace APSIM.POStats.Shared
         /// <param name="pass">Set the status to pass?</param>
         public static void SetStatus(int pullRequestNumber, VariableComparison.Status status)
         {
+            Console.WriteLine($"\"{pullRequestNumber}\" has a status of \"{status.ToString()}\"");
+
             GitHubClient github = new GitHubClient(new ProductHeaderValue("ApsimX"));
             string token = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
             if (string.IsNullOrEmpty(token))
@@ -43,6 +45,8 @@ namespace APSIM.POStats.Shared
             pullRequestTask.Wait();
             Octokit.PullRequest pullRequest = pullRequestTask.Result;
             Uri statusURL = new System.Uri(pullRequest.StatusesUrl);
+
+            Console.WriteLine($"Uri: {statusURL.ToString()}");
 
             string header = "Authorization: token " + token;
             string state = "failure";
@@ -58,6 +62,8 @@ namespace APSIM.POStats.Shared
                           "  \"description\": \"" + stateFormatted + "\"," + Environment.NewLine +
                           "  \"context\": \"APSIM.POStats\"" + Environment.NewLine +
                           "}";
+
+            Console.WriteLine(body);
 
             using (var client = new HttpClient())
             {
