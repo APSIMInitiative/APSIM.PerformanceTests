@@ -63,6 +63,9 @@ namespace APSIM.POStats.Shared
             // Find the pull request. Should always exist if OpenPullRequest has been called.
             var pr = PullRequests.FirstOrDefault(pr => pr.Number == fromPullRequest.Number)
                      ?? throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.Number}");
+                     
+            foreach(ApsimFile file in fromPullRequest.Files)
+                Console.WriteLine($"File \"{file.Name}\" added to PR {fromPullRequest.Number}");
 
             pr.Files.AddRange(fromPullRequest.Files);
             SaveChanges();
