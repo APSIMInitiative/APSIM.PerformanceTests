@@ -15,6 +15,8 @@ namespace APSIM.POStats.Shared
                 httpClient.Timeout = new TimeSpan(0, 10, 0);  // 10 minutes
                 var json = JsonSerializer.Serialize(content);
                 Console.WriteLine($"Length of json {json.Length} characters");
+                Console.WriteLine(requestUrl);
+                Console.WriteLine(json);
                 using var response = await httpClient.PostAsync(requestUrl, new StringContent(json, Encoding.UTF8, "application/json"));
                 using var i = response.EnsureSuccessStatusCode();
                 var data = await response.Content.ReadAsStringAsync();
