@@ -65,8 +65,12 @@ namespace APSIM.POStats.Shared
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                var productHeaderValue = new System.Net.Http.Headers.ProductHeaderValue(name: "ApsimPOStatsWebApp", version: "1.0");
+                var productInfoHeaderValue = new System.Net.Http.Headers.ProductInfoHeaderValue(productHeaderValue);
                 client.DefaultRequestHeaders.UserAgent.Clear();
-                client.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue("APSIM POStats C# App"));
+                client.DefaultRequestHeaders.UserAgent.Add(productInfoHeaderValue);
+
                 var response = await client.PostAsync(statusURL, new StringContent(body, Encoding.UTF8, @"application/json"));
                 var data = await response.Content.ReadAsStringAsync();
 
