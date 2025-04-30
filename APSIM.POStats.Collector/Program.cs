@@ -87,7 +87,7 @@ namespace APSIM.POStats.Collector
             Task<string> response = WebUtilities.GetAsync($"{url}/open?pullRequestNumber={pullRequest.Number}&author={pullRequest.Author}");
             response.Wait();
 
-            bool ok = false;
+            bool ok = true;
             List<ApsimFile> files = new();
             files.AddRange(pullRequest.Files);
             foreach (var file in files)
@@ -98,9 +98,16 @@ namespace APSIM.POStats.Collector
 
                 Console.WriteLine($"Sending POStats data to web api for file {file.Name}");
 
-                response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
-                response.Wait();
-                ok = string.IsNullOrEmpty(response.Result);
+                try 
+                {
+                    response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
+                    response.Wait();
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception.Message);
+                    ok = false;
+                }
             }
 
             // Tell endpoint we're about to upload data.
@@ -108,6 +115,10 @@ namespace APSIM.POStats.Collector
             {
                 response = WebUtilities.GetAsync($"{url}/close?pullRequestNumber={pullRequest.Number}");
                 response.Wait();
+            }
+            else
+            {
+                throw new Exception("Errors Uploading data to POStats");
             }
         }
     }
