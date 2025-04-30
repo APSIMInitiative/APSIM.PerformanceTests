@@ -1,5 +1,6 @@
 using APSIM.POStats.Shared;
 using APSIM.POStats.Shared.Models;
+using APSIM.POStats.Shared.GitHub;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
