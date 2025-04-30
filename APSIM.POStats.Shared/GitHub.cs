@@ -64,7 +64,7 @@ namespace APSIM.POStats.Shared
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer token", token);
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
                 var response = await client.PostAsync(statusURL, new StringContent(body, Encoding.UTF8, @"application/json"));
                 var data = await response.Content.ReadAsStringAsync();
 
