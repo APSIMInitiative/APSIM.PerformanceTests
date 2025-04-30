@@ -1,6 +1,7 @@
 ﻿using System;
 using APSIM.POStats.Shared;
 using APSIM.POStats.Shared.Models;
+using APSIM.POStats.Shared.GitHub;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APSIM.POStats.Portal.Controllers
