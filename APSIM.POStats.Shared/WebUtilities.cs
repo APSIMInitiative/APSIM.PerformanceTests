@@ -55,7 +55,7 @@ namespace APSIM.POStats.Shared
                     output += "Contents: " + Environment.NewLine + jsonString;
                     output += "Request: " + Environment.NewLine + response.ToString();
                     output += "Message: " + Environment.NewLine + response.Content.ToString();
-                    throw new Exception("Error sending POST Request" + Environment.NewLine + output);
+                    throw new Exception($"Error sending {type} Request" + Environment.NewLine + output);
                 }
 
                 return response.Content.ToString();
