@@ -49,6 +49,8 @@ namespace APSIM.POStats.Shared
                     response = await httpClient.PostAsync(requestUrl, new StringContent(jsonString, Encoding.UTF8, "application/json"));
                 }
                 
+                string body = await response.Content.ReadAsStringAsync();
+
                 Console.WriteLine($"Status: {response.StatusCode}");
                 if (response.StatusCode >= HttpStatusCode.BadRequest)
                 {
@@ -57,9 +59,10 @@ namespace APSIM.POStats.Shared
                     output += $"Has Authorization: {hasAuthorization}\n";
                     output += $"Contents:\n{jsonString}\n";
                     output += $"Request:\n{response}\n";
+                    output += $"Response:\n{body}\n";
                     throw new Exception($"Error sending POST Request\n{output}");
                 }
-                return response.Content.ToString();
+                return body;
             }
         }
 

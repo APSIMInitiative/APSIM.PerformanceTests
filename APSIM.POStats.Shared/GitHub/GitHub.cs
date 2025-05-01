@@ -26,14 +26,16 @@ namespace APSIM.POStats.Shared.GitHub
             Task<string> response = WebUtilities.GetAsync(url, token);
             response.Wait();
 
-            Dictionary<string, string> dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(response.Result);
-            Dictionary<string, string> user = JsonSerializer.Deserialize<Dictionary<string, string>>(dictionary["User"]);
+            //deseralize json response
+            Dictionary<string, object> dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(response.Result);
+            Dictionary<string, object> user = JsonSerializer.Deserialize<Dictionary<string, object>>(dictionary["user"].ToString());
 
-            int number = Convert.ToInt32(dictionary["number"]);
-            string author = user["login"];
-            DateTime dateTime = DateTime.Parse(dictionary["created_at"]);
-            string state = dictionary["state"];
-            string statusURL = dictionary["statuses_url"];
+            //get variables we need
+            int number = Convert.ToInt32(dictionary["number"].ToString());
+            string author = user["login"].ToString();
+            DateTime dateTime = DateTime.Parse(dictionary["created_at"].ToString());
+            string state = dictionary["state"].ToString();
+            string statusURL = dictionary["statuses_url"].ToString();
 
             //return the result as a GitHubPullRequestDetails because we don't need all the data the base class has
             return new GitHubPullRequestDetails(number, author, dateTime, state, statusURL);
