@@ -1,11 +1,9 @@
-# This dockerfile is used to build a docker image for the POStats website.
-FROM mcr.microsoft.com/dotnet/sdk:8.0 as build
-
-# Clone and build the website.
-RUN git clone https://github.com/APSIMInitiative/APSIM.PerformanceTests /APSIM.POStats
+# This dockerfile is used to build a local docker image for the POStats website.
+# When running on the server, use deploy script
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 # Uncomment next line (and comment previous line) to use a local repo rather than clone remote.
-#ADD . /APSIM.POStats
+ADD . /APSIM.POStats
 
 # Build POStats
 RUN cd /APSIM.POStats && dotnet publish -c Release -f net8.0 -r linux-x64 --no-self-contained

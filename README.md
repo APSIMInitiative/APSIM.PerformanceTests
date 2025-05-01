@@ -1,11 +1,12 @@
-# Performance Stats
+# Predicted Observed Stats
 
 ## To build, run and test docker image from a local repo
-Comment git clone line in dockerfile and uncomment the 'ADD' line. Then build and run docker image:
-    docker build -t apsiminitiative/postats .
-    docker compose up -d
+The Docker image in the repo is set up to locally build the project with the following commands:
 
+docker build -t apsiminitiative/postats .
 
-To test docker image from a shell script:
-    bash upload-dummy-pullrequest.sh
- 
+docker compose up -d
+
+## To build, run and test docker image on the web server
+
+Refer to apsim-web repo which has a server-wide deployment script that is used.

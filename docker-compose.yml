@@ -2,16 +2,15 @@ version: '3.1'
 
 services:
   website:
-    image: apsiminitiative/postats:latest
+    image: apsiminitiative/postats
     container_name: postats-site
     restart: unless-stopped
     environment:
       - PORTAL_DB=${PORTAL_DB}
-      - COLLECTOR_URL=${COLLECTOR_URL}
       - ACCEPT_PASSWORD=${ACCEPT_PASSWORD}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
     ports:
-      - 8001:80
+      - 8081:8080
     networks:
       - postats_httpd
       - postats_db
