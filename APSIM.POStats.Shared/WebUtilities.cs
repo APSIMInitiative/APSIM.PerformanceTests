@@ -1,16 +1,15 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.Json;
 using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace APSIM.POStats.Shared
 {
-
     public class WebUtilities
     {
-
         private enum RequestType 
         {
             GET,
@@ -50,17 +49,16 @@ namespace APSIM.POStats.Shared
                     response = await httpClient.PostAsync(requestUrl, new StringContent(jsonString, Encoding.UTF8, "application/json"));
                 }
                 
-                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                Console.WriteLine($"Status: {response.StatusCode}");
+                if (response.StatusCode >= HttpStatusCode.BadRequest)
                 {
                     string output = "";
-                    output += $"Status: {response.StatusCode}\n";
                     output += $"User Agent: {productHeaderValue}\n";
                     output += $"Has Authorization: {hasAuthorization}\n";
                     output += $"Contents:\n{jsonString}\n";
                     output += $"Request:\n{response}\n";
                     throw new Exception($"Error sending POST Request\n{output}");
                 }
-
                 return response.Content.ToString();
             }
         }
