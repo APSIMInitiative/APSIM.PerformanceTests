@@ -35,6 +35,9 @@ namespace APSIM.POStats.Shared
                 httpClient.DefaultRequestHeaders.UserAgent.Clear();
                 httpClient.DefaultRequestHeaders.UserAgent.Add(productInfoHeaderValue);
 
+                //httpClient.DefaultRequestHeaders.Accept.Clear();
+                //httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
+
                 Console.WriteLine($"{type} Request: {requestUrl}");
 
                 HttpResponseMessage response = null;
@@ -46,17 +49,16 @@ namespace APSIM.POStats.Shared
                 {
                     response = await httpClient.PostAsync(requestUrl, new StringContent(jsonString, Encoding.UTF8, "application/json"));
                 }
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    string output = "";
-                    output += "User Agent: " + productHeaderValue.ToString();
-                    output += "Has Authorization: " + hasAuthorization.ToString();
-                    output += "Contents: " + Environment.NewLine + jsonString;
-                    output += "Request: " + Environment.NewLine + response.ToString();
-                    output += "Message: " + Environment.NewLine + response.Content.ToString();
-                    throw new Exception($"Error sending {type} Request" + Environment.NewLine + output);
-                }
+                
+                string output = "";
+                output += $"Status:\n{response.StatusCode}\n";
+                output += $"User Agent:\n{productHeaderValue}\n";
+                output += $"Has Authorization:\n{hasAuthorization}\n";
+                output += $"Contents:\n{jsonString}\n";
+                output += $"Request:\n{response}\n";
+                output += $"Message:\n{response.Content}\n";
+                Console.WriteLine(output);
+                //throw new Exception($"Error sending POST Request\n{output}");
 
                 return response.Content.ToString();
             }
