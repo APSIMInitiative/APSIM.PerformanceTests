@@ -1,37 +1,42 @@
-﻿using Octokit;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace APSIM.POStats.Shared.GitHub
 {
     public class GitHub
     {
+        private static readonly string GITHUB_API = "https://api.github.com/";
+        private static readonly string REPO = "repos/APSIMInitiative/ApsimX/";
+
         /// <summary>Get details about a given pull request.</summary>
         /// <param name="pullRequestID">The pull request id.</param>
         public static GitHubPullRequestDetails GetPullRequest(int pullRequestID)
         {
-            //get our user-agent from the web utilties
-            System.Net.Http.Headers.ProductHeaderValue agent = WebUtilities.GetUserAgent();
+            //check we have our login token
+            string token = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
+            if (string.IsNullOrEmpty(token))
+                throw new Exception("Cannot find environment variable GITHUB_TOKEN");
 
-            //convert to octokit value
-            ProductHeaderValue octoAgent = new ProductHeaderValue(agent.Name, agent.Version);
+            //build url we need
+            string url = GITHUB_API + REPO + "pulls/" + pullRequestID.ToString();
 
-            //create github client for request
-            GitHubClient githubClient = new GitHubClient(octoAgent);
+            //do the request
+            Task<string> response = WebUtilities.GetAsync(url, token);
+            response.Wait();
 
-            try
-            {
-                //do the request
-                Task<PullRequest> pullRequestTask = githubClient.PullRequest.Get("APSIMInitiative", "ApsimX", pullRequestID);
-                pullRequestTask.Wait();
+            Dictionary<string, string> dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(response.Result);
+            Dictionary<string, string> user = JsonSerializer.Deserialize<Dictionary<string, string>>(dictionary["User"]);
 
-                //return the result as a GitHubPullRequestDetails because we don't need all the data the base class has
-                return new GitHubPullRequestDetails(pullRequestTask.Result);
-            }
-            catch (Exception exception)
-            {
-                throw new Exception($"GitHub cannot return details for pull request: {pullRequestID}" + Environment.NewLine + exception.Message);
-            }
+            int number = Convert.ToInt32(dictionary["number"]);
+            string author = user["login"];
+            DateTime dateTime = DateTime.Parse(dictionary["created_at"]);
+            string state = dictionary["state"];
+            string statusURL = dictionary["statuses_url"];
+
+            //return the result as a GitHubPullRequestDetails because we don't need all the data the base class has
+            return new GitHubPullRequestDetails(number, author, dateTime, state, statusURL);
         }
 
         /// <summary>
@@ -48,8 +53,8 @@ namespace APSIM.POStats.Shared.GitHub
 
             //check the Pull request is open
             GitHubPullRequestDetails pullRequestTask = GetPullRequest(pullRequestNumber);
-            if (pullRequestTask.State.ToLower() == "closed")
-                throw new Exception($"Cannot set the status of a closed Pull Request (id: {pullRequestNumber})");
+            if (pullRequestTask.State.ToLower() != "open")
+                throw new Exception($"Cannot set the status of a Pull Request that is not open (id: {pullRequestNumber})");
 
             //check the status of POStats for this PR
             string state = "failure";

@@ -1,5 +1,4 @@
-﻿using Octokit;
-using System;
+﻿using System;
 
 namespace APSIM.POStats.Shared.GitHub
 {
@@ -23,13 +22,13 @@ namespace APSIM.POStats.Shared.GitHub
 
         /// <summary>Constructor.</summary>
         /// <param name="result">A pull request instance.</param>
-        public GitHubPullRequestDetails(PullRequest result) 
+        public GitHubPullRequestDetails(int number, string author, DateTime dateCreated, string state, string statusURL) 
         {
-            Number = result.Number;
-            Author = result.User.Login;
-            DateCreated = result.CreatedAt.DateTime;
-            State = result.State.ToString();
-            StatusURL = result.StatusesUrl;
+            Number = number;
+            Author = author;
+            DateCreated = dateCreated;
+            State = state;
+            StatusURL = statusURL;
         }
     }
 }
