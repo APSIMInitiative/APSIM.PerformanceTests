@@ -105,6 +105,7 @@ namespace APSIM.POStats.Collector
                 }
                 catch (Exception exception)
                 {
+                    Console.WriteLine($"Error when collecting file {file.Name}");
                     Console.WriteLine(exception.Message);
                     ok = false;
                 }
