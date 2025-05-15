@@ -237,7 +237,7 @@ namespace APSIM.POStats.Shared
         private static string CreateLabel(SqliteDataReader reader, IEnumerable<string> matchFields, Dictionary<long, string> simulationIdNamePairs)
         {
             // Get the simulation name for the readers current id.
-            var simulationId = (long) reader["SimulationID"];
+            var simulationId = Convert.ToInt64(reader["SimulationID"]);
             if (!simulationIdNamePairs.TryGetValue(simulationId, out string simulationName))
                 throw new Exception($"Cannot find a simulation name for id {simulationId}");
 
