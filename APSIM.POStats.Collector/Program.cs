@@ -57,7 +57,7 @@ namespace APSIM.POStats.Collector
 
                 // Send POStats data to web api.
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                UploadStats(pullRequest, "POSTATS_UPLOAD_URL");
+                UploadStats(pullRequest);
                 Console.WriteLine($"Elapsed time to send data to new web api: {stopwatch.Elapsed.TotalSeconds} seconds");
             }
             catch (Exception ex)
@@ -75,13 +75,16 @@ namespace APSIM.POStats.Collector
         /// <param name="urlEnvironmentVariable"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        private static void UploadStats(PullRequest pullRequest, string urlEnvironmentVariable)
+        private static void UploadStats(PullRequest pullRequest)
         {
             Console.WriteLine("Running POStats Uploader.");
 
-            string url = Environment.GetEnvironmentVariable(urlEnvironmentVariable);
+            string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
+            Console.WriteLine($"{url}");
             if (string.IsNullOrEmpty(url))
-                throw new Exception($"Cannot find environment variable {urlEnvironmentVariable}");
+                throw new Exception($"Cannot find environment variable POSTATS_UPLOAD_URL");
+
+            url = url + "api";
 
             // Tell endpoint we're about to upload data.
             Task<string> response = WebUtilities.GetAsync($"{url}/open?pullRequestNumber={pullRequest.Number}&author={pullRequest.Author}");

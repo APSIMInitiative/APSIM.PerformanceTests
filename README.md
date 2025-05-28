@@ -1,11 +1,10 @@
 # Predicted Observed Stats
 
 ## To build, run and test docker image from a local repo
-The Docker image in the repo is set up to locally build the project with the following commands:
+The Docker image in the repo is set up to locally build the project with the ./build.sh file
 
-docker build -t apsiminitiative/postats .
+Then to run it locally, call the ./deploy.sh script
 
-docker compose up -d
 
 ## To build, run and test docker image on the web server
 

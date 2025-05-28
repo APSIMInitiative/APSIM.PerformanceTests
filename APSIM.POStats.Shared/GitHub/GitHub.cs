@@ -65,7 +65,8 @@ namespace APSIM.POStats.Shared.GitHub
                 state = "success";
 
             //build our check link that refers back to POStats from github
-            string urlStr = $"https://postats.apsim.info/{pullRequestNumber}";
+            string serverURL = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
+            string urlStr = $"{serverURL}{pullRequestNumber}";
 
             //Status POST body details
             GitHubStatusDetails body = new GitHubStatusDetails(state, urlStr, stateFormatted, "APSIM.POStats");

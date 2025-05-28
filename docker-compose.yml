@@ -1,9 +1,7 @@
-version: '3.1'
-
 services:
-  website:
-    image: apsiminitiative/postats
-    container_name: postats-site
+  portal:
+    image: apsiminitiative/postats-portal
+    container_name: postats-portal
     restart: unless-stopped
     environment:
       - PORTAL_DB=${PORTAL_DB}
@@ -25,6 +23,7 @@ services:
       - postats_db
     volumes:
       - /data/postats/db:/var/lib/mysql
+      
 networks:
   postats_db:
     name: postats_db
