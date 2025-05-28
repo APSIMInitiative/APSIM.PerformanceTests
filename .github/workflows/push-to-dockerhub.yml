@@ -20,10 +20,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Extract metadata (tags, labels) for Docker
-        id: metadata
+        id: metadata-portal
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: apsiminitiative/postats
+          images: apsiminitiative/postats-portal
           flavor: latest=true
           tags: |
             type=ref,event=branch
@@ -35,5 +35,26 @@ jobs:
           context: .
           file: ./dockerfile
           push: true
-          tags: ${{ steps.metadata.outputs.tags }}
-          labels: ${{ steps.metadata.outputs.labels }}
+          target: postats-portal
+          tags: ${{ steps.metadata-portal.outputs.tags }}
+          labels: ${{ steps.metadata-portal.outputs.labels }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: metadata-collector
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: apsiminitiative/postats-collector
+          flavor: latest=true
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        with:
+          context: .
+          file: ./dockerfile
+          push: true
+          target: postats-collector
+          tags: ${{ steps.metadata-collector.outputs.tags }}
+          labels: ${{ steps.metadata-collector.outputs.labels }}
