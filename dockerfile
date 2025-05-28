@@ -6,6 +6,8 @@ ADD ./ /code/
 WORKDIR /code/
 RUN dotnet publish -c Release -f net8.0 -r linux-x64 --no-self-contained
 
+RUN ls
+
 COPY ./APSIM.POStats.Collector/bin/Release/net8.0/linux-x64/publish/ ./bin/postats-collector/
 COPY ./APSIM.POStats.Portal/bin/Release/net8.0/linux-x64/publish/ ./bin/postats-portal/
 
