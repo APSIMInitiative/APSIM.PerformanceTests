@@ -3,12 +3,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS postats-build
 
 ADD . /code/
 
-WORKDIR /code/
-RUN dotnet publish -c Release -f net8.0 -r linux-x64 --no-self-contained
+WORKDIR /code/APSIM.POStats.Collector/
+RUN dotnet publish -c Release -f net8.0 -r linux-x64 --no-self-contained --output /code/bin/postats-collector/
 
-COPY /code/APSIM.POStats.Collector/bin/Release/net8.0/linux-x64/publish/ /code/bin/postats-collector/
-COPY /code/APSIM.POStats.Portal/bin/Release/net8.0/linux-x64/publish/ /code/bin/postats-portal/
-
+WORKDIR /code/APSIM.POStats.Portal/
+RUN dotnet publish -c Release -f net8.0 -r linux-x64 --no-self-contained --output /code/bin/postats-portal/
 
 # Create the POStats-Collector image without all the other project and source code
 FROM mcr.microsoft.com/dotnet/runtime:8.0-noble-chiseled AS postats-collector
