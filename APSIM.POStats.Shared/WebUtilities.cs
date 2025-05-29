@@ -51,7 +51,7 @@ namespace APSIM.POStats.Shared
                 
                 string body = await response.Content.ReadAsStringAsync();
 
-                Console.WriteLine($"Status: {response.StatusCode}");
+                Console.WriteLine($"Status: {(int)response.StatusCode} {response.StatusCode}");
                 if (response.StatusCode >= HttpStatusCode.BadRequest)
                 {
                     string output = "";
@@ -60,7 +60,9 @@ namespace APSIM.POStats.Shared
                     output += $"Contents:\n{jsonString}\n";
                     output += $"Request:\n{response}\n";
                     output += $"Response:\n{body}\n";
-                    throw new Exception($"Error sending POST Request\n{output}");
+
+                    Console.WriteLine($"Error sending POST Request\n{output}");
+                    throw new Exception();
                 }
                 return body;
             }

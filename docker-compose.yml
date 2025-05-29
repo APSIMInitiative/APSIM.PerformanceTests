@@ -7,6 +7,7 @@ services:
       - PORTAL_DB=${PORTAL_DB}
       - ACCEPT_PASSWORD=${ACCEPT_PASSWORD}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - POSTATS_UPLOAD_URL=${POSTATS_UPLOAD_URL}
     ports:
       - 8081:8080
     networks:
