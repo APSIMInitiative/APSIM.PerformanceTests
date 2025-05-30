@@ -10,9 +10,8 @@ WORKDIR /code/APSIM.POStats.Portal/
 RUN dotnet publish -c Release -f net8.0 -r linux-x64 --no-self-contained --output /code/bin/postats-portal/
 
 # Create the POStats-Collector image without all the other project and source code
-FROM mcr.microsoft.com/dotnet/runtime:8.0-noble-chiseled AS postats-collector
+FROM mcr.microsoft.com/dotnet/runtime:8.0 AS postats-collector
 
-USER root
 COPY --from=postats-build /code/bin/postats-collector/ /code/postats-collector/
 
 WORKDIR /code/postats-collector/
