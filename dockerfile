@@ -19,7 +19,7 @@ WORKDIR /code/postats-collector/
 # Set the environment variable for the collector for the WorkFlo tool. The wd is overridden by WorkFlo
 ENV PATH=$PATH:/code/postats-collector/
 
-ENTRYPOINT ["APSIM.POStats.Collector.dll"]
+ENTRYPOINT ["APSIM.POStats.Collector"]
 
 
 # Create the POStats-Portal image without all the other project and source code
