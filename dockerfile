@@ -12,6 +12,8 @@ RUN dotnet publish -c Release -f net8.0 -r linux-x64 --no-self-contained --outpu
 # Create the POStats-Collector image without all the other project and source code
 FROM mcr.microsoft.com/dotnet/runtime:8.0 AS postats-collector
 
+USER root
+
 COPY --from=postats-build /code/bin/postats-collector/ /code/postats-collector/
 
 WORKDIR /code/postats-collector/
