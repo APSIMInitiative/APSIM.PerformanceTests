@@ -1,7 +1,6 @@
 # Build the source code into an image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS postats-build
 
-USER root
 ADD . /code/
 
 WORKDIR /code/APSIM.POStats.Collector/
@@ -13,12 +12,14 @@ RUN dotnet publish -c Release -f net8.0 -r linux-x64 --no-self-contained --outpu
 # Create the POStats-Collector image without all the other project and source code
 FROM mcr.microsoft.com/dotnet/runtime:8.0 AS postats-collector
 
-USER root
-
 COPY --from=postats-build /code/bin/postats-collector/ /code/postats-collector/
 
 WORKDIR /code/postats-collector/
-ENTRYPOINT ["dotnet", "APSIM.POStats.Collector.dll"]
+
+# Set the environment variable for the collector for the WorkFlo tool. The wd is overridden by WorkFlo
+ENV PATH=$PATH:/code/postats-collector/
+
+ENTRYPOINT ["APSIM.POStats.Collector.dll"]
 
 
 # Create the POStats-Portal image without all the other project and source code
