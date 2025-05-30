@@ -1,6 +1,7 @@
 # Build the source code into an image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS postats-build
 
+USER root
 ADD . /code/
 
 WORKDIR /code/APSIM.POStats.Collector/
