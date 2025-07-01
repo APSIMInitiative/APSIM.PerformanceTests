@@ -32,6 +32,9 @@ namespace APSIM.POStats.Shared
 
             /// <summary>This is a missing variable in current (is in accepted).</summary>
             Missing,
+
+            /// <summary>Validation is currently running.</summary>
+            Running
         };
 
         /// <summary>Constructor</summary>

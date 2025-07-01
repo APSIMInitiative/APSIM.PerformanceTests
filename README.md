@@ -5,6 +5,8 @@ The Docker image in the repo is set up to locally build the project with the ./b
 
 Then to run it locally, call the ./deploy.sh script
 
+Service runs on http://localhost:8081/
+
 
 ## To build, run and test docker image on the web server
 

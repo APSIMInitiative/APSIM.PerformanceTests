@@ -23,9 +23,10 @@ namespace APSIM.POStats.Collector
             {
                 Console.WriteLine("Arguments required are: ");
                 Console.WriteLine("  1. (int) Pull Request Id");
-                Console.WriteLine("  2. (datetime) Date");
+                Console.WriteLine("  2. (int) Commit Id");
                 Console.WriteLine("  3. (string) UserID");
-                Console.WriteLine("  4. (string) Directories (space separated)");
+                Console.WriteLine("  4. (datetime) Date");
+                Console.WriteLine("  5. (string) Directories (space separated)");
                 Console.WriteLine(@"  Example: APSIM.POStats.Collector 1111 2016.12.01-06:33 hol353 c:\Apsimx\Tests c:\Apsimx\UnderReview");
                 return 1;
             }
@@ -36,11 +37,14 @@ namespace APSIM.POStats.Collector
                 //get the PR id
                 int pullId = Convert.ToInt32(args[0]);
 
-                //get the run date
-                DateTime runDate = DateTime.ParseExact(args[1], "yyyy.M.d-HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal);
+                //get the commit id
+                string commitId = args[1];
 
                 //get the author
                 string author = args[2];
+
+                //get the run date
+                DateTime runDate = DateTime.ParseExact(args[3], "yyyy.M.d-HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal);
 
                 //get the directories
                 List<string> searchDirectories = new List<string>();
@@ -53,7 +57,7 @@ namespace APSIM.POStats.Collector
                 }
 
                 //get the Pull Request details
-                PullRequest pullRequest = Shared.Collector.RetrieveData(pullId, runDate, author, searchDirectories);
+                PullRequest pullRequest = Shared.Collector.RetrieveData(pullId, commitId, author, runDate, searchDirectories);
 
                 // Send POStats data to web api.
                 Stopwatch stopwatch = Stopwatch.StartNew();
@@ -87,7 +91,7 @@ namespace APSIM.POStats.Collector
             url = url + "api";
 
             // Tell endpoint we're about to upload data.
-            Task<string> response = WebUtilities.GetAsync($"{url}/open?pullRequestNumber={pullRequest.Number}&author={pullRequest.Author}");
+            Task<string> response = WebUtilities.GetAsync($"{url}/open?pullRequestNumber={pullRequest.Number}&commitNumber={pullRequest.LastCommit}&author={pullRequest.Author}");
             response.Wait();
 
             bool ok = true;
