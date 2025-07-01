@@ -23,8 +23,6 @@ namespace APSIM.POStats.Portal.Controllers
                 throw new Exception($"Cannot find environment variable POSTATS_UPLOAD_URL");
 
             TimeoutTimer timer = source as TimeoutTimer;
-
-            // Tell endpoint we're about to upload data.
             Task<string> response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequestNumber}&commitId={timer.CommitId}");
             response.Wait();
         }
@@ -55,8 +53,7 @@ namespace APSIM.POStats.Portal.Controllers
                 statsDb.OpenPullRequest(pullRequestNumber, commitId, author, count);
 
                 // Create a timer to close the PR after 30 minutes
-                //TimeoutTimer timeoutTimer = new TimeoutTimer {Interval=1800000, PullRequestNumber=pullRequestNumber, CommitId=commitId};
-                TimeoutTimer timeoutTimer = new TimeoutTimer {Interval=1800, PullRequestNumber=pullRequestNumber, CommitId=commitId};
+                TimeoutTimer timeoutTimer = new TimeoutTimer {Interval=1800000, PullRequestNumber=pullRequestNumber, CommitId=commitId};
                 timeoutTimer.Elapsed += OnTimeout;
                 timeoutTimer.AutoReset = false;
                 timeoutTimer.Start();
