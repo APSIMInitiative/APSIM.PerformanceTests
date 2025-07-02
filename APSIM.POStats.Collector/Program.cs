@@ -22,33 +22,38 @@ namespace APSIM.POStats.Collector
             if (args.Length < 4)
             {
                 Console.WriteLine("Arguments required are: ");
-                Console.WriteLine("  1. (int) Pull Request Id");
-                Console.WriteLine("  2. (int) Commit Id");
-                Console.WriteLine("  3. (string) UserID");
-                Console.WriteLine("  4. (datetime) Date");
-                Console.WriteLine("  5. (string) Directories (space separated)");
-                Console.WriteLine(@"  Example: APSIM.POStats.Collector 1111 2016.12.01-06:33 hol353 c:\Apsimx\Tests c:\Apsimx\UnderReview");
+                Console.WriteLine("  1. (string) Command [Open, Upload, Close]");
+                Console.WriteLine("  2. (int) Pull Request Id");
+                Console.WriteLine("  3. (int) Commit Id");
+                Console.WriteLine("  4. (string) UserID");
+                Console.WriteLine("  5. (datetime) Date");
+                Console.WriteLine("  6. (string) Directories (space separated)");
+                Console.WriteLine(@"  Example: APSIM.POStats.Collector Upload 1111 2016.12.01-06:33 hol353 c:\Apsimx\Tests c:\Apsimx\UnderReview");
                 return 1;
             }
 
             try
             {
                 // Convert command line arguments to variables.
+
                 //get the PR id
-                int pullId = Convert.ToInt32(args[0]);
+                string command = args[0];
+
+                //get the PR id
+                int pullId = Convert.ToInt32(args[1]);
 
                 //get the commit id
-                string commitId = args[1];
+                string commitId = args[2];
 
                 //get the author
-                string author = args[2];
+                string author = args[3];
 
                 //get the run date
-                DateTime runDate = DateTime.ParseExact(args[3], "yyyy.M.d-HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal);
+                DateTime runDate = DateTime.ParseExact(args[4], "yyyy.M.d-HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal);
 
                 //get the directories
                 List<string> searchDirectories = new List<string>();
-                for (int i = 3; i < args.Length; i++)
+                for (int i = 5; i < args.Length; i++)
                 {
                     if (Directory.Exists(args[i]))
                         searchDirectories.Add(args[i]);
@@ -59,10 +64,35 @@ namespace APSIM.POStats.Collector
                 //get the Pull Request details
                 PullRequest pullRequest = Shared.Collector.RetrieveData(pullId, commitId, author, runDate, searchDirectories);
 
-                // Send POStats data to web api.
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                UploadStats(pullRequest);
-                Console.WriteLine($"Elapsed time to send data to new web api: {stopwatch.Elapsed.TotalSeconds} seconds");
+                string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
+                Console.WriteLine($"{url}");
+                if (string.IsNullOrEmpty(url))
+                    throw new Exception($"Cannot find environment variable POSTATS_UPLOAD_URL");
+
+                url = url + "api";
+
+                if (command == "Open")
+                {
+                    // Tell endpoint we're about to upload data.
+                    Task<string> response = WebUtilities.GetAsync($"{url}/open?pullRequestNumber={pullRequest.Number}&commitNumber={pullRequest.LastCommit}&author={pullRequest.Author}");
+                    response.Wait();
+                }
+                else if (command == "Upload")
+                {
+                    // Send POStats data to web api.
+                    Stopwatch stopwatch = Stopwatch.StartNew();
+                    UploadStats(pullRequest, url);
+                    Console.WriteLine($"Elapsed time to send data to new web api: {stopwatch.Elapsed.TotalSeconds} seconds");
+                }
+                else if (command == "Close")
+                {
+                    Task<string> response = WebUtilities.GetAsync($"{url}/close?pullRequestNumber={pullRequest.Number}");
+                    response.Wait();
+                }
+                else
+                {
+                    throw new Exception($"Command \"{command}\" is not valid.");
+                }
             }
             catch (Exception ex)
             {
@@ -79,22 +109,8 @@ namespace APSIM.POStats.Collector
         /// <param name="urlEnvironmentVariable"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        private static void UploadStats(PullRequest pullRequest)
+        private static void UploadStats(PullRequest pullRequest, string url)
         {
-            Console.WriteLine("Running POStats Uploader.");
-
-            string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
-            Console.WriteLine($"{url}");
-            if (string.IsNullOrEmpty(url))
-                throw new Exception($"Cannot find environment variable POSTATS_UPLOAD_URL");
-
-            url = url + "api";
-
-            // Tell endpoint we're about to upload data.
-            Task<string> response = WebUtilities.GetAsync($"{url}/open?pullRequestNumber={pullRequest.Number}&commitNumber={pullRequest.LastCommit}&author={pullRequest.Author}");
-            response.Wait();
-
-            bool ok = true;
             List<ApsimFile> files = new();
             files.AddRange(pullRequest.Files);
             foreach (var file in files)
@@ -103,30 +119,16 @@ namespace APSIM.POStats.Collector
                 pullRequest.Files.Clear();
                 pullRequest.Files.Add(file);
 
-                Console.WriteLine($"Sending POStats data to web api for file {file.Name}");
-
                 try 
                 {
-                    response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
+                    Task<string> response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
                     response.Wait();
                 }
                 catch (Exception exception)
                 {
                     Console.WriteLine($"Error when collecting file {file.Name}");
                     Console.WriteLine(exception.Message);
-                    ok = false;
                 }
-            }
-
-            // Tell endpoint we're about to upload data.
-            if (ok)
-            {
-                response = WebUtilities.GetAsync($"{url}/close?pullRequestNumber={pullRequest.Number}");
-                response.Wait();
-            }
-            else
-            {
-                throw new Exception("Errors Uploading data to POStats");
             }
         }
     }
