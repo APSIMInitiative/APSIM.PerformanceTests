@@ -32,20 +32,23 @@ namespace APSIM.POStats.Shared
         /// </remarks>
         /// <param name="pullRequestNumber">The pull request number.</param>
         /// <param name="author">The author of the pull request</param>
-        public void OpenPullRequest(int pullRequestNumber, string author)
+        public void OpenPullRequest(int pullRequestNumber, string commitNumber, string author, int count)
         {
             // Try and locate the pull request. If it doesn't exist, create a new pull request instance.
             // If it does exist, delete the old data.
-            var pr = PullRequests.FirstOrDefault(pr => pr.Number == pullRequestNumber);
+            var pr = GetPullRequest(pullRequestNumber);
             if (pr == null)
             {
                 pr = new PullRequest() { Number = pullRequestNumber };
                 PullRequests.Add(pr);
             }
+            pr.LastCommit = commitNumber;
+            pr.Author = author;
+            pr.Count = count;
+
             pr.Files ??= new();
             pr.Files.Clear();
             pr.DateRun = DateTime.Now;
-            pr.Author = author;
             pr.DateStatsAccepted = null;
             pr.AcceptedPullRequest = null;
             SaveChanges();
@@ -67,7 +70,12 @@ namespace APSIM.POStats.Shared
             foreach(ApsimFile file in fromPullRequest.Files)
                 Console.WriteLine($"File \"{file.Name}\" added to PR {fromPullRequest.Number}");
 
-            pr.Files.AddRange(fromPullRequest.Files);
+            if (fromPullRequest.Files != null)
+                pr.Files.AddRange(fromPullRequest.Files);
+
+            if (fromPullRequest.Output != null)
+                pr.Output.AddRange(fromPullRequest.Output);
+
             SaveChanges();
         }
 
@@ -102,6 +110,34 @@ namespace APSIM.POStats.Shared
             return PullRequests.Where(pr => pr.DateStatsAccepted != null)
                                .OrderBy(pr => pr.DateStatsAccepted)
                                .LastOrDefault();
+        }
+
+        /// <summary>
+        /// Returns if a PullRequest with the given commit is in the collection
+        /// </summary>
+        /// <param name="pullRequestNumber">The pull request number.</param>
+        /// <param name="commitNumber">The commit number.</param>
+        public bool PullRequestWithCommitExists(int pullRequestNumber, string commitNumber)
+        {
+            // Try and locate the pull request
+            PullRequest pr = GetPullRequest(pullRequestNumber);
+            if (pr == null)
+                return false;
+            else if (pr.LastCommit == commitNumber)
+                return true;
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Get a PullRequest data from the stored collection
+        /// </summary>
+        /// <param name="pullRequestNumber">The pull request number.</param>
+        /// <param name="commitNumber">The commit number.</param>
+        public PullRequest GetPullRequest(int pullRequestNumber)
+        {
+            // Try and locate the pull request
+            return PullRequests.FirstOrDefault(pr => pr.Number == pullRequestNumber);
         }
 
         /// <summary>

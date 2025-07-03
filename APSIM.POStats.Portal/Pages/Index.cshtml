@@ -64,6 +64,10 @@
                 <input name="PullRequestNumber" value="@Model.PullRequest.Number" readonly />
             </div>
             <div>
+                <label for="Commit Number">Commit:</label>
+                <input name="CommitNumber" value="@Model.PullRequest.LastCommit" readonly />
+            </div>
+            <div>
                 <label for="Author">Author:</label>
                 <input name="Author" value="@Model.PullRequest.Author" readonly />
             </div>

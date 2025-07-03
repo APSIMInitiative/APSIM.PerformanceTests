@@ -66,7 +66,7 @@ public class TestsCollector
             " 1,2000-01-04, 200.0, 210.0" + Environment.NewLine
             ));
 
-        var pullRequest = Collector.RetrieveData(1234, new DateTime(2000, 1, 1), null, new string[] { path });
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), new string[] { path });
 
         string jsonString = JsonSerializer.Serialize(pullRequest);;
 
@@ -123,7 +123,7 @@ public class TestsCollector
             ));
         database.Close();
 
-        var pullRequest = Collector.RetrieveData(1234, new DateTime(2000, 1, 1), null, new string[] { path });
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), new string[] { path });
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(0));
     }
 
@@ -142,7 +142,7 @@ public class TestsCollector
             ));
         database.Close();
 
-        var pullRequest = Collector.RetrieveData(1234, new DateTime(2000, 1, 1), null, new string[] { path });
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), new string[] { path });
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(0));
     }
 
@@ -161,7 +161,7 @@ public class TestsCollector
             ));
         database.Close();
 
-        var pullRequest = Collector.RetrieveData(1234, new DateTime(2000, 1, 1), null, new string[] { path });
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), new string[] { path });
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(1));
         Assert.That(pullRequest.Files[0].Tables.Count, Is.EqualTo(1));
 
@@ -189,7 +189,7 @@ public class TestsCollector
             ));
         database.Close();
 
-        var pullRequest = Collector.RetrieveData(1234, new DateTime(2000, 1, 1), null, new string[] { path });
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), new string[] { path });
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(1));
         Assert.That(pullRequest.Files[0].Tables.Count, Is.EqualTo(1));
 
@@ -216,7 +216,7 @@ public class TestsCollector
             ));
         database.Close();
 
-        var pullRequest = Collector.RetrieveData(1234, new DateTime(2000, 1, 1), null, new string[] { path });
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), new string[] { path });
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(1));
         Assert.That(pullRequest.Files[0].Tables.Count, Is.EqualTo(1));
 
