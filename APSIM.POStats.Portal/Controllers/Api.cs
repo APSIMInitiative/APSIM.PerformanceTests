@@ -41,9 +41,11 @@ namespace APSIM.POStats.Portal.Controllers
         [HttpGet("open")]
         public IActionResult Open(int pullrequestnumber, string commitid, int count, string author)
         {
-            Console.WriteLine($"\"{author}\" opening PR \"{pullrequestnumber}\"");
+            Console.WriteLine($"\"{author}\" opening PR \"{pullrequestnumber}\" with commit \"{commitid}\" and count \"{count}\"");
             if (pullrequestnumber == 0)
-                return BadRequest("You must supply a pull request number");
+                return BadRequest("You must supply a pullrequestnumber");
+            if (string.IsNullOrEmpty(commitid))
+                return BadRequest("You must supply a commitid");
             if (string.IsNullOrEmpty(author))
                 return BadRequest("You must supply an author");
             try

@@ -37,6 +37,8 @@ namespace APSIM.POStats.Shared.GitHub
             string state = dictionary["state"].ToString();
             string statusURL = dictionary["statuses_url"].ToString();
 
+            Console.WriteLine($"Github Status Update: {number} {author} {dateTime} {state} {statusURL}");
+
             //return the result as a GitHubPullRequestDetails because we don't need all the data the base class has
             return new GitHubPullRequestDetails(number, author, dateTime, state, statusURL);
         }
