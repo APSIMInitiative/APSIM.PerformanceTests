@@ -36,8 +36,9 @@ namespace APSIM.POStats.Collector
             {
                 // Convert command line arguments to variables.
 
-                //get the PR id
+                //get the command
                 string command = args[0];
+                command = command.ToLower();
 
                 //get the PR id
                 int pullId = Convert.ToInt32(args[1]);
@@ -71,22 +72,22 @@ namespace APSIM.POStats.Collector
 
                 url = url + "api";
 
-                if (command == "Open")
+                if (command == "open")
                 {
                     // Tell endpoint we're about to upload data.
-                    Task<string> response = WebUtilities.GetAsync($"{url}/open?pullRequestNumber={pullRequest.Number}&commitNumber={pullRequest.LastCommit}&author={pullRequest.Author}");
+                    Task<string> response = WebUtilities.GetAsync($"{url}/open?pullrequestnumber={pullRequest.Number}&commitnumber={pullRequest.LastCommit}&author={pullRequest.Author}");
                     response.Wait();
                 }
-                else if (command == "Upload")
+                else if (command == "upload")
                 {
                     // Send POStats data to web api.
                     Stopwatch stopwatch = Stopwatch.StartNew();
                     UploadStats(pullRequest, url);
                     Console.WriteLine($"Elapsed time to send data to new web api: {stopwatch.Elapsed.TotalSeconds} seconds");
                 }
-                else if (command == "Close")
+                else if (command == "close")
                 {
-                    Task<string> response = WebUtilities.GetAsync($"{url}/close?pullRequestNumber={pullRequest.Number}");
+                    Task<string> response = WebUtilities.GetAsync($"{url}/close?pullrequestnumber={pullRequest.Number}");
                     response.Wait();
                 }
                 else
