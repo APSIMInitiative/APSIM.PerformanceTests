@@ -63,7 +63,7 @@ namespace APSIM.POStats.Collector
                 }
 
                 //get the Pull Request details
-                PullRequest pullRequest = Shared.Collector.RetrieveData(pullId, commitId, author, runDate, searchDirectories);
+                PullRequestDetails pullRequest = Shared.Collector.RetrieveData(pullId, commitId, author, runDate, searchDirectories);
 
                 string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
                 Console.WriteLine($"{url}");
@@ -75,7 +75,7 @@ namespace APSIM.POStats.Collector
                 if (command == "open")
                 {
                     // Tell endpoint we're about to upload data.
-                    Task<string> response = WebUtilities.GetAsync($"{url}/open?pullrequestnumber={pullRequest.Number}&commitnumber={pullRequest.LastCommit}&author={pullRequest.Author}");
+                    Task<string> response = WebUtilities.GetAsync($"{url}/open?pullrequestnumber={pullRequest.PullRequest}&commitnumber={pullRequest.Commit}&author={pullRequest.Author}");
                     response.Wait();
                 }
                 else if (command == "upload")
@@ -87,7 +87,7 @@ namespace APSIM.POStats.Collector
                 }
                 else if (command == "close")
                 {
-                    Task<string> response = WebUtilities.GetAsync($"{url}/close?pullrequestnumber={pullRequest.Number}&commitid={pullRequest.LastCommit}");
+                    Task<string> response = WebUtilities.GetAsync($"{url}/close?pullrequestnumber={pullRequest.PullRequest}&commitid={pullRequest.Commit}");
                     response.Wait();
                 }
                 //this is provided for Jenkins so it can continue to run with the original uploading code
@@ -96,7 +96,7 @@ namespace APSIM.POStats.Collector
                     //get the Pull Request details
                     PullRequestJenkins pullRequestJenkins = new PullRequestJenkins();
                     pullRequestJenkins.Id = pullRequest.Id;
-                    pullRequestJenkins.Number = pullRequest.Number;
+                    pullRequestJenkins.Number = pullRequest.PullRequest;
                     pullRequestJenkins.Author = pullRequest.Author;
                     pullRequestJenkins.DateRun = pullRequest.DateRun;
                     pullRequestJenkins.DateStatsAccepted = pullRequest.DateStatsAccepted;
@@ -125,7 +125,7 @@ namespace APSIM.POStats.Collector
         /// <param name="urlEnvironmentVariable"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        private static void UploadStats(PullRequest pullRequest, string url)
+        private static void UploadStats(PullRequestDetails pullRequest, string url)
         {
             List<ApsimFile> files = new();
             files.AddRange(pullRequest.Files);

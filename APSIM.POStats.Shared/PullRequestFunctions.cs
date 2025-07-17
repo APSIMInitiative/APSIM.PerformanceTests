@@ -12,7 +12,7 @@ namespace APSIM.POStats.Shared
         /// </summary>
         /// <param name="pullRequest"></param>
         /// <returns></returns>
-        public static VariableComparison.Status GetStatus(PullRequest pullRequest)
+        public static VariableComparison.Status GetStatus(PullRequestDetails pullRequest)
         {
             bool allBetterOrSame = true;
             bool allSame = true;
@@ -40,7 +40,7 @@ namespace APSIM.POStats.Shared
 
         /// <summary>Get a list of all files for a pull request.</summary>
         /// <param name="pullRequest">The pull request.</param>
-        public static List<ApsimFileComparison> GetFileComparisons(PullRequest pullRequest)
+        public static List<ApsimFileComparison> GetFileComparisons(PullRequestDetails pullRequest)
         {
             var files = new List<ApsimFileComparison>();
             foreach (var currentFile in pullRequest.Files)
@@ -81,7 +81,7 @@ namespace APSIM.POStats.Shared
 
         /// <summary>Update the stats in the specified pull request.</summary>
         /// <param name="pullRequest"></param>
-        public static void UpdateStats(PullRequest pullRequest)
+        public static void UpdateStats(PullRequestDetails pullRequest)
         {
             foreach (var file in pullRequest.Files)
                 foreach (var table in file.Tables)

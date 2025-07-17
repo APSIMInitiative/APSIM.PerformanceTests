@@ -48,7 +48,7 @@ namespace APSIM.POStats.Shared.GitHub
         /// </summary>
         /// <param name="pullRequestNumber">The pull request number.</param>
         /// <param name="pass">Set the status to pass?</param>
-        public static void SetStatus(int pullRequestNumber, string commitId, VariableComparison.Status status)
+        public static void SetStatus(int pullRequestNumber, string commitId, VariableComparison.Status status, string message = "")
         {
             //check we have our login token
             string token = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
@@ -65,7 +65,7 @@ namespace APSIM.POStats.Shared.GitHub
 
             //check the status of POStats for this PR
             string state = "failure";
-            string stateFormatted = status.ToString();
+           
 
             if (status == VariableComparison.Status.Same)
                 state = "success";
@@ -73,8 +73,12 @@ namespace APSIM.POStats.Shared.GitHub
             if (status == VariableComparison.Status.Running)
                 state = "pending";
 
-            //build our check link that refers back to POStats from github
-            string serverURL = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
+            string stateFormatted = status.ToString();
+            if (String.IsNullOrEmpty(message))
+                stateFormatted = message;
+
+                //build our check link that refers back to POStats from github
+                string serverURL = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
             string urlStr = $"{serverURL}{pullRequestNumber}";
 
             //Status POST body details
