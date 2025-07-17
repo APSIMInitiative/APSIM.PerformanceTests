@@ -37,6 +37,8 @@ namespace APSIM.POStats.Shared.GitHub
             string state = dictionary["state"].ToString();
             string statusURL = dictionary["statuses_url"].ToString();
 
+            Console.WriteLine($"Github Status Update: {number} {author} {dateTime} {state} {statusURL}");
+
             //return the result as a GitHubPullRequestDetails because we don't need all the data the base class has
             return new GitHubPullRequestDetails(number, author, dateTime, state, statusURL);
         }
@@ -46,7 +48,7 @@ namespace APSIM.POStats.Shared.GitHub
         /// </summary>
         /// <param name="pullRequestNumber">The pull request number.</param>
         /// <param name="pass">Set the status to pass?</param>
-        public static void SetStatus(int pullRequestNumber, VariableComparison.Status status)
+        public static void SetStatus(int pullRequestNumber, string commitId, VariableComparison.Status status)
         {
             //check we have our login token
             string token = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
@@ -58,18 +60,25 @@ namespace APSIM.POStats.Shared.GitHub
             if (pullRequestTask.State.ToLower() != "open")
                 throw new Exception($"Cannot set the status of a Pull Request that is not open (id: {pullRequestNumber})");
 
+            //if (!pullRequestTask.StatusURL.Contains(commitId))
+            //    throw new Exception($"Cannot set the status of a Pull Request as the commit id is not the latest (PR: {pullRequestNumber}, Commit:{commitId})");
+
             //check the status of POStats for this PR
             string state = "failure";
             string stateFormatted = status.ToString();
+
             if (status == VariableComparison.Status.Same)
                 state = "success";
+
+            if (status == VariableComparison.Status.Running)
+                state = "pending";
 
             //build our check link that refers back to POStats from github
             string serverURL = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
             string urlStr = $"{serverURL}{pullRequestNumber}";
 
             //Status POST body details
-            GitHubStatusDetails body = new GitHubStatusDetails(state, urlStr, stateFormatted, "APSIM.POStats");
+            GitHubStatusDetails body = new GitHubStatusDetails(state, urlStr, stateFormatted, "APSIM.POStats2");
 
             //Send POST request
             Task<string> response = WebUtilities.PostAsync(pullRequestTask.StatusURL, body, token);

@@ -26,15 +26,17 @@ namespace APSIM.POStats.Shared
         /// </remarks>
         ///
         /// <param name="pullId"></param>
+        /// <param name="commitId"></param>
+        /// <param name="author"></param>
         /// <param name="runDate"></param>
-        /// <param name="submitDetails"></param>
         /// <param name="filePaths">A collection of file paths to search.</param>
-        public static PullRequest RetrieveData(int pullId, DateTime runDate, string submitDetails, IEnumerable<string> filePaths)
+        public static PullRequest RetrieveData(int pullId, string commitId, string author, DateTime runDate, IEnumerable<string> filePaths)
         {
             var pullRequest = new PullRequest()
             {
                 Number = pullId,
-                Author = submitDetails,
+                LastCommit = commitId,
+                Author = author,
                 DateRun = runDate,
                 Files = new List<ApsimFile>()
             };

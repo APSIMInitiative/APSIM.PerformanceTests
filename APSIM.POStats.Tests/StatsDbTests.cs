@@ -14,7 +14,7 @@ public class StatsDbTests
     {
         using var db = CreateInMemoryDB("db1");
 
-        db.OpenPullRequest(1234, "author");
+        db.OpenPullRequest(1234, "1", "author", 0);
 
         // Make sure the pr exists and has no data.
         var pr = db.PullRequests.First(pr => pr.Number == 1234);
@@ -29,7 +29,7 @@ public class StatsDbTests
     {
         using var db = CreateInMemoryDB("db2");
 
-        db.OpenPullRequest(5678, "author");
+        db.OpenPullRequest(5678, "1", "author", 0);
 
         // Make sure the pr exists and has no ydata.
         var pr = db.PullRequests.First(pr => pr.Number == 5678);
@@ -44,7 +44,7 @@ public class StatsDbTests
     {
         using var db = CreateInMemoryDB("db3");
 
-        db.OpenPullRequest(1234, "author");
+        db.OpenPullRequest(1234, "1", "author", 0);
         PullRequest prToAdd = new()
         {
             Number = 1234,

@@ -64,7 +64,7 @@ namespace APSIM.POStats.Portal.Pages
 
                 // Send pass/fail to gitHub
                 VariableComparison.Status status = PullRequestFunctions.GetStatus(pullRequest);
-                GitHub.SetStatus(pullRequest.Number, status);
+                GitHub.SetStatus(pullRequest.Number, pullRequest.LastCommit, status);
                 Response.Redirect($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase.Value}/{pullRequestNumber}");
             }
         }

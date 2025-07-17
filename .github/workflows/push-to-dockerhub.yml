@@ -26,7 +26,7 @@ jobs:
         id: metadata-portal
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: apsiminitiative/postats-portal
+          images: apsiminitiative/postats-portal2
           flavor: latest=true
           tags: |
             type=ref,event=branch
@@ -38,7 +38,7 @@ jobs:
           context: .
           file: ./dockerfile
           push: true
-          target: postats-portal
+          target: postats-portal2
           tags: ${{ steps.metadata-portal.outputs.tags }}
           labels: ${{ steps.metadata-portal.outputs.labels }}
 
@@ -46,7 +46,7 @@ jobs:
         id: metadata-collector
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: apsiminitiative/postats-collector
+          images: apsiminitiative/postats-collector2
           flavor: latest=true
           tags: |
             type=ref,event=branch
@@ -58,6 +58,6 @@ jobs:
           context: .
           file: ./dockerfile
           push: true
-          target: postats-collector
+          target: postats-collector2
           tags: ${{ steps.metadata-collector.outputs.tags }}
           labels: ${{ steps.metadata-collector.outputs.labels }}
