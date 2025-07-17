@@ -61,11 +61,11 @@
         <form method="post">
             <div>
                 <label for="PullRequestNumber">Number:</label>
-                <input name="PullRequestNumber" value="@Model.PullRequest.Number" readonly />
+                <input name="PullRequestNumber" value="@Model.PullRequest.PullRequest" readonly />
             </div>
             <div>
                 <label for="Commit Number">Commit:</label>
-                <input name="CommitNumber" value="@Model.PullRequest.LastCommit" readonly />
+                <input name="CommitNumber" value="@Model.PullRequest.Commit" readonly />
             </div>
             <div>
                 <label for="Author">Author:</label>
@@ -77,7 +77,7 @@
             </div>
             <div>
                 <label for="AcceptedPullRequestNumber">Accepted pull request number:</label>
-                <input name="AcceptedPullRequestNumber" value="@Model.PullRequest.AcceptedPullRequest?.Number" readonly />
+                <input name="AcceptedPullRequestNumber" value="@Model.PullRequest.AcceptedPullRequest?.PullRequest" readonly />
             </div>
             <br />
             <br />

@@ -13,7 +13,7 @@ namespace APSIM.POStats.Tests
         [Test]
         public void FileStatusWorks()
         {
-            var acceptedPullRequest = new PullRequest()
+            var acceptedPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {
@@ -21,7 +21,7 @@ namespace APSIM.POStats.Tests
                     new ApsimFile() { Name = "file3" }
                 }
             };
-            var currentPullRequest = new PullRequest()
+            var currentPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {
@@ -43,7 +43,7 @@ namespace APSIM.POStats.Tests
         [Test]
         public void TableStatusWorks()
         {
-            var acceptedPullRequest = new PullRequest()
+            var acceptedPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {
@@ -58,7 +58,7 @@ namespace APSIM.POStats.Tests
                     }
                 }
             };
-            var currentPullRequest = new PullRequest()
+            var currentPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {
@@ -88,7 +88,7 @@ namespace APSIM.POStats.Tests
         [Test]
         public void TableStatusWorksWithNoAccepted()
         {
-            var currentPullRequest = new PullRequest()
+            var currentPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {
@@ -116,7 +116,7 @@ namespace APSIM.POStats.Tests
         [Test]
         public void VariableStatusWork()
         {
-            var acceptedPullRequest = new PullRequest()
+            var acceptedPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {
@@ -152,7 +152,7 @@ namespace APSIM.POStats.Tests
                     }
                 }
             };
-            var currentPullRequest = new PullRequest()
+            var currentPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {
@@ -214,7 +214,7 @@ namespace APSIM.POStats.Tests
         [Test]
         public void VariableStatusWorksWithNoAccepted()
         {
-            var currentPullRequest = new PullRequest()
+            var currentPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {
@@ -383,7 +383,7 @@ namespace APSIM.POStats.Tests
         [Test]
         public void EnsureOnlyShowChangedStatsWorks()
         {
-            var acceptedPullRequest = new PullRequest()
+            var acceptedPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {
@@ -419,7 +419,7 @@ namespace APSIM.POStats.Tests
                     }
                 }
             };
-            var currentPullRequest = new PullRequest()
+            var currentPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {
@@ -482,7 +482,7 @@ namespace APSIM.POStats.Tests
         [Test]
         public void MissingTableDetected()
         {
-            var acceptedPullRequest = new PullRequest()
+            var acceptedPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {
@@ -526,7 +526,7 @@ namespace APSIM.POStats.Tests
                     }
                 }
             };
-            var currentPullRequest = new PullRequest()
+            var currentPullRequest = new PullRequestDetails()
             {
                 Files = new List<ApsimFile>()
                 {

@@ -27,7 +27,7 @@ namespace APSIM.POStats.Portal.Pages
         public bool OnlyShowChangedStats { get; set; } = true;
 
         /// <summary>The pull request being analysed.</summary>
-        public PullRequest PullRequest { get; private set; }
+        public PullRequestDetails PullRequest { get; private set; }
 
         /// <summary>The Url for the web site.</summary>
         public string BaseUrl { get { return $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}"; } }
@@ -36,7 +36,7 @@ namespace APSIM.POStats.Portal.Pages
         /// <param name="pullRequestNumber">The pull request to work with.</param>
         public void OnGet(int pullRequestNumber)
         {
-            PullRequest = statsDb.PullRequests.FirstOrDefault(pr => pr.Number == pullRequestNumber);
+            PullRequest = statsDb.PullRequests.FirstOrDefault(pr => pr.PullRequest == pullRequestNumber);
             if (PullRequest == null)
                 throw new Exception($"Cannot find pull request #{pullRequestNumber} in stats database");
 
@@ -46,7 +46,7 @@ namespace APSIM.POStats.Portal.Pages
         public void OnPost()
         {
             int pullRequestNumber = Convert.ToInt32(Request.Form["PullRequestNumber"]);
-            PullRequest = statsDb.PullRequests.FirstOrDefault(pr => pr.Number == pullRequestNumber);
+            PullRequest = statsDb.PullRequests.FirstOrDefault(pr => pr.PullRequest == pullRequestNumber);
             if (PullRequest == null)
                 throw new Exception($"Cannot find pull request #{pullRequestNumber} in stats database");
 
