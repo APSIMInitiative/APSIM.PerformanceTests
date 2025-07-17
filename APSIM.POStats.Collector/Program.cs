@@ -22,13 +22,13 @@ namespace APSIM.POStats.Collector
             if (args.Length < 4)
             {
                 Console.WriteLine("Arguments required are: ");
-                Console.WriteLine("  1. (string) Command [Open, Upload, Close]");
+                Console.WriteLine("  1. (string) Command [open, upload, close, jenkins]");
                 Console.WriteLine("  2. (int) Pull Request Id");
                 Console.WriteLine("  3. (int) Commit Id");
                 Console.WriteLine("  4. (string) UserID");
                 Console.WriteLine("  5. (datetime) Date");
                 Console.WriteLine("  6. (string) Directories (space separated)");
-                Console.WriteLine(@"  Example: APSIM.POStats.Collector Upload 1111 2016.12.01-06:33 hol353 c:\Apsimx\Tests c:\Apsimx\UnderReview");
+                Console.WriteLine(@"  Example: APSIM.POStats.Collector Upload 1111 abcdef12345 2016.12.01-06:33 hol353 c:\Apsimx\Tests c:\Apsimx\UnderReview");
                 return 1;
             }
 
@@ -87,8 +87,23 @@ namespace APSIM.POStats.Collector
                 }
                 else if (command == "close")
                 {
-                    Task<string> response = WebUtilities.GetAsync($"{url}/close?pullrequestnumber={pullRequest.Number}");
+                    Task<string> response = WebUtilities.GetAsync($"{url}/close?pullrequestnumber={pullRequest.Number}&commitid={pullRequest.LastCommit}");
                     response.Wait();
+                }
+                //this is provided for Jenkins so it can continue to run with the original uploading code
+                else if (command == "jenkins")
+                {
+                    //get the Pull Request details
+                    PullRequestJenkins pullRequestJenkins = new PullRequestJenkins();
+                    pullRequestJenkins.Id = pullRequest.Id;
+                    pullRequestJenkins.Number = pullRequest.Number;
+                    pullRequestJenkins.Author = pullRequest.Author;
+                    pullRequestJenkins.DateRun = pullRequest.DateRun;
+                    pullRequestJenkins.DateStatsAccepted = pullRequest.DateStatsAccepted;
+                    pullRequestJenkins.Files = pullRequest.Files;
+                    pullRequestJenkins.AcceptedPullRequestId = pullRequest.AcceptedPullRequestId;
+                    pullRequestJenkins.AcceptedPullRequest = null;
+                    UploadStatsJenkins(pullRequestJenkins);
                 }
                 else
                 {
@@ -120,7 +135,7 @@ namespace APSIM.POStats.Collector
                 pullRequest.Files.Clear();
                 pullRequest.Files.Add(file);
 
-                try 
+                try
                 {
                     Task<string> response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
                     response.Wait();
@@ -130,6 +145,64 @@ namespace APSIM.POStats.Collector
                     Console.WriteLine($"Error when collecting file {file.Name}");
                     Console.WriteLine(exception.Message);
                 }
+            }
+        }
+        
+        /// <summary>
+        /// Upload method for Jenkins
+        /// </summary>
+        /// <param name="pullRequest"></param>
+        /// <param name="urlEnvironmentVariable"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private static void UploadStatsJenkins(PullRequestJenkins pullRequest)
+        {
+            Console.WriteLine("Running POStats Uploader.");
+
+            string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
+            Console.WriteLine($"{url}");
+            if (string.IsNullOrEmpty(url))
+                throw new Exception($"Cannot find environment variable POSTATS_UPLOAD_URL");
+
+            url = url + "api";
+
+            // Tell endpoint we're about to upload data.
+            Task<string> response = WebUtilities.GetAsync($"{url}/open?pullRequestNumber={pullRequest.Number}&author={pullRequest.Author}");
+            response.Wait();
+
+            bool ok = true;
+            List<ApsimFile> files = new();
+            files.AddRange(pullRequest.Files);
+            foreach (var file in files)
+            {
+                // Upload data for one file only.
+                pullRequest.Files.Clear();
+                pullRequest.Files.Add(file);
+
+                Console.WriteLine($"Sending POStats data to web api for file {file.Name}");
+
+                try 
+                {
+                    response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
+                    response.Wait();
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine($"Error when collecting file {file.Name}");
+                    Console.WriteLine(exception.Message);
+                    ok = false;
+                }
+            }
+
+            // Tell endpoint we're about to upload data.
+            if (ok)
+            {
+                response = WebUtilities.GetAsync($"{url}/close?pullRequestNumber={pullRequest.Number}");
+                response.Wait();
+            }
+            else
+            {
+                throw new Exception("Errors Uploading data to POStats");
             }
         }
     }
