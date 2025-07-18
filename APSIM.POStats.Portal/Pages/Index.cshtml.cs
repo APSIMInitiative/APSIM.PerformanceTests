@@ -26,6 +26,9 @@ namespace APSIM.POStats.Portal.Pages
         /// <summary>Only show changed stats?</summary>
         public bool OnlyShowChangedStats { get; set; } = true;
 
+        /// <summary>Show standard output logs</summary>
+        public bool ShowLogs { get; set; } = true;
+
         /// <summary>The pull request being analysed.</summary>
         public PullRequestDetails PullRequest { get; private set; }
 
@@ -52,6 +55,9 @@ namespace APSIM.POStats.Portal.Pages
 
             var statsLabel = Request.Form["StatsLabel"].ToString();
             OnlyShowChangedStats = statsLabel == "Showing all stats.";
+
+            var logsLabel = Request.Form["LogsLabel"].ToString();
+            ShowLogs = logsLabel == "Show Output Logs";
         }
 
         /// <summary>Emit html to display tick/cross.</summary>

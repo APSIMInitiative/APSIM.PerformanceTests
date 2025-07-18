@@ -60,7 +60,7 @@
 
         <form method="post">
             <div>
-                <label for="PullRequestNumber">Number:</label>
+                <label for="PullRequestNumber">Pull Request:</label>
                 <input name="PullRequestNumber" value="@Model.PullRequest.PullRequest" readonly />
             </div>
             <div>
@@ -91,6 +91,18 @@
                 {
                     <input type="hidden" name="StatsLabel" value="Showing all stats." readonly />
                     <button name="toggle-button" type="submit">Show changed stats</button>
+                }
+            </div>
+            <div>
+                @if (Model.ShowLogs)
+                {
+                    <input type="hidden" name="LogsLabel" value="Hide Output Logs" readonly />
+                    <button name="toggle-button-logs" type="submit">Hide Output Logs</button>
+                }
+                else
+                {
+                    <input type="hidden" name="LogsLabel" value="Show Output Logs" readonly />
+                    <button name="toggle-button-logs" type="submit">Show Output Logs</button>
                 }
             </div>
             <br />
@@ -157,5 +169,19 @@
                 }
             }
         </table>
+        <div class="output-logs">
+            logs:
+            @if (Model.ShowLogs) 
+            {
+                @foreach (string line in @Model.PullRequest.Output.Split("\n"))
+                {
+                    @Html.Encode(line)<br />
+                }
+            }
+            else
+            {
+                @Html.Raw("Hidden")
+            }
+        </div>
     </div>
 </div>

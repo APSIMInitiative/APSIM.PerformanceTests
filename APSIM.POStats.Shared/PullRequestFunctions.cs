@@ -31,7 +31,7 @@ namespace APSIM.POStats.Shared
                 }
             }
             if (allSame)
-                return VariableComparison.Status.Same; 
+                return VariableComparison.Status.Same;
             else if (allBetterOrSame)
                 return VariableComparison.Status.Better;
             else

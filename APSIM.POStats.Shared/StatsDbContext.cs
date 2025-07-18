@@ -46,6 +46,7 @@ namespace APSIM.POStats.Shared
             pr.Author = author;
             pr.CountTotal = count;
             pr.CountReturned = 0;
+            pr.Output = "";
 
             pr.Files ??= new();
             pr.Files.Clear();
