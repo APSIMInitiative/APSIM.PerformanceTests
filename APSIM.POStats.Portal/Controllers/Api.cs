@@ -129,6 +129,7 @@ namespace APSIM.POStats.Portal.Controllers
                 try
                 {
                     PullRequestDetails pr = statsDb.AddDataToPullRequest(pullrequest);
+                    Console.WriteLine($"{pr.CountReturned} of {pr.CountTotal} completed.");
                     if (pr.CountReturned == pr.CountTotal)
                     {
                         string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
@@ -138,7 +139,7 @@ namespace APSIM.POStats.Portal.Controllers
                     else
                     {
                         string message = $"Running. {pr.CountReturned} of {pr.CountTotal} completed";
-                        GitHub.SetStatus(pr.PullRequest, pr.Commit, VariableComparison.Status.Running);
+                        GitHub.SetStatus(pr.PullRequest, pr.Commit, VariableComparison.Status.Running, message);
                     }
                 }
                 catch (Exception ex)

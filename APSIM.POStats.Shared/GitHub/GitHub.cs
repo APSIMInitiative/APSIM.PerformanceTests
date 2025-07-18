@@ -37,8 +37,6 @@ namespace APSIM.POStats.Shared.GitHub
             string state = dictionary["state"].ToString();
             string statusURL = dictionary["statuses_url"].ToString();
 
-            Console.WriteLine($"Github Status Update: {number} {author} {dateTime} {state} {statusURL}");
-
             //return the result as a GitHubPullRequestDetails because we don't need all the data the base class has
             return new GitHubPullRequestDetails(number, author, dateTime, state, statusURL);
         }
@@ -74,12 +72,14 @@ namespace APSIM.POStats.Shared.GitHub
                 state = "pending";
 
             string stateFormatted = status.ToString();
-            if (String.IsNullOrEmpty(message))
+            if (!String.IsNullOrEmpty(message))
                 stateFormatted = message;
 
-                //build our check link that refers back to POStats from github
-                string serverURL = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
+            //build our check link that refers back to POStats from github
+            string serverURL = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
             string urlStr = $"{serverURL}{pullRequestNumber}";
+
+            Console.WriteLine($"Github Status Update: {state} {urlStr} {stateFormatted} {"APSIM.POStats2"}");
 
             //Status POST body details
             GitHubStatusDetails body = new GitHubStatusDetails(state, urlStr, stateFormatted, "APSIM.POStats2");
