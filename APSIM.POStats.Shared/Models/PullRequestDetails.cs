@@ -14,7 +14,7 @@ namespace APSIM.POStats.Shared.Models
         public virtual List<ApsimFile> Files { get; set; }
         public int CountTotal { get; set; }
         public int CountReturned { get; set; }
-        public virtual List<StdOutput> Output { get; set; }
+        public string Output { get; set; }
         public int? AcceptedPullRequestId { get; set; }
         public virtual PullRequestDetails AcceptedPullRequest { get; set; }
     }

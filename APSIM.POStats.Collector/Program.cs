@@ -129,21 +129,23 @@ namespace APSIM.POStats.Collector
         {
             List<ApsimFile> files = new();
             files.AddRange(pullRequest.Files);
-            foreach (var file in files)
-            {
-                // Upload data for one file only.
-                pullRequest.Files.Clear();
-                pullRequest.Files.Add(file);
 
-                try
+            //In the case we have no files produced, just send it back empty.
+            if (files.Count == 0)
+            {
+                Task<string> response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
+                response.Wait();
+            }
+            else
+            {
+                foreach (var file in files)
                 {
+                    // Upload data for one file only.
+                    pullRequest.Files = new List<ApsimFile>();
+                    pullRequest.Files.Add(file);
+
                     Task<string> response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
                     response.Wait();
-                }
-                catch (Exception exception)
-                {
-                    Console.WriteLine($"Error when collecting file {file.Name}");
-                    Console.WriteLine(exception.Message);
                 }
             }
         }

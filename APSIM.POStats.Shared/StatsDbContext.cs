@@ -77,8 +77,7 @@ namespace APSIM.POStats.Shared
             if (fromPullRequest.Files != null)
                 pr.Files.AddRange(fromPullRequest.Files);
 
-            if (fromPullRequest.Output != null)
-                pr.Output.AddRange(fromPullRequest.Output);
+            pr.Output += fromPullRequest.Output;
 
             SaveChanges();
 

@@ -50,12 +50,12 @@ namespace APSIM.POStats.Portal.Controllers
                 return BadRequest("You must supply an author");
             try
             {
-                GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running);
+                GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running, $"Running: 0 of {count} completed");
 
                 statsDb.OpenPullRequest(pullrequestnumber, commitid, author, count);
 
                 // Create a timer to close the PR after 30 minutes
-                TimeoutTimer timeoutTimer = new TimeoutTimer {Interval=1800000, PullRequestNumber=pullrequestnumber, CommitId=commitid};
+                TimeoutTimer timeoutTimer = new TimeoutTimer {Interval=3600000, PullRequestNumber=pullrequestnumber, CommitId=commitid};
                 timeoutTimer.Elapsed += OnTimeout;
                 timeoutTimer.AutoReset = false;
                 timeoutTimer.Start();
@@ -138,7 +138,7 @@ namespace APSIM.POStats.Portal.Controllers
                     }
                     else
                     {
-                        string message = $"Running. {pr.CountReturned} of {pr.CountTotal} completed";
+                        string message = $"Running: {pr.CountReturned} of {pr.CountTotal} completed";
                         GitHub.SetStatus(pr.PullRequest, pr.Commit, VariableComparison.Status.Running, message);
                     }
                 }

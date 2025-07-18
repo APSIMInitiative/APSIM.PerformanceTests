@@ -67,6 +67,18 @@ namespace APSIM.POStats.Shared
                         errorMessages += ex.ToString();
                     }
                 }
+                pullRequest.Output = "";
+                foreach (FileInfo fileInfo in info.GetFiles("stdout.txt", SearchOption.AllDirectories))
+                {
+                    using (StreamReader sr = fileInfo.OpenText())
+                    {
+                        string text = "";
+                        while ((text = sr.ReadLine()) != null)
+                        {
+                            pullRequest.Output += text + "\n";
+                        }
+                    }
+                }
             }
             if (errorMessages.Length > 0)
                 throw new Exception(errorMessages);
