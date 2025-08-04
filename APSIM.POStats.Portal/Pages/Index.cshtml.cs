@@ -4,6 +4,7 @@ using APSIM.POStats.Shared.Models;
 using APSIM.Shared.Utilities;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace APSIM.POStats.Portal.Pages
@@ -27,13 +28,15 @@ namespace APSIM.POStats.Portal.Pages
         public bool OnlyShowChangedStats { get; set; } = true;
 
         /// <summary>Show standard output logs</summary>
-        public bool ShowLogs { get; set; } = true;
+        public bool ShowLogs { get; set; } = false;
 
         /// <summary>The pull request being analysed.</summary>
         public PullRequestDetails PullRequest { get; private set; }
 
         /// <summary>The Url for the web site.</summary>
         public string BaseUrl { get { return $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}"; } }
+
+        public string Filter { get; set; } = "";
 
         /// <summary>Invoked when page is first loaded.</summary>
         /// <param name="pullRequestNumber">The pull request to work with.</param>
@@ -53,11 +56,15 @@ namespace APSIM.POStats.Portal.Pages
             if (PullRequest == null)
                 throw new Exception($"Cannot find pull request #{pullRequestNumber} in stats database");
 
-            var statsLabel = Request.Form["StatsLabel"].ToString();
-            OnlyShowChangedStats = statsLabel == "Showing all stats.";
+            this.OnlyShowChangedStats = Request.Form["stats-value"].ToString().ToLower() == "true";
+            this.ShowLogs = Request.Form["logs-value"].ToString().ToLower() == "true";
+            this.Filter = Request.Form["filter-value"].ToString();
 
-            var logsLabel = Request.Form["LogsLabel"].ToString();
-            ShowLogs = logsLabel == "Show Output Logs";
+            if (!String.IsNullOrEmpty(Request.Form["stats-button"].ToString()))
+                this.OnlyShowChangedStats = !this.OnlyShowChangedStats;
+
+            if (!String.IsNullOrEmpty(Request.Form["logs-button"].ToString()))
+                this.ShowLogs = !this.ShowLogs;
         }
 
         /// <summary>Emit html to display tick/cross.</summary>
@@ -154,6 +161,36 @@ namespace APSIM.POStats.Portal.Pages
                 return $"{file.Name}<span title=\"New file - not in accepted\" style = \"font-weight: bold; color: Red;\" >&#10008 new</span>";
             else
                 return file.Name;
+        }
+
+        public static bool FilterVariables(List<ApsimFileComparison> files, string filter, string fileName, string tableName = "", string variableName = "")
+        {
+            if (String.IsNullOrEmpty(filter))
+                return true;
+                
+            foreach (ApsimFileComparison file in files)
+            {
+                if (file.Name == fileName)
+                {
+                    foreach (TableComparison table in file.Tables)
+                    {
+                        if (String.IsNullOrEmpty(tableName) || tableName == table.Name)
+                        {
+                            foreach (VariableComparison variable in table.VariableComparisons)
+                            {
+                                if (String.IsNullOrEmpty(variableName) || variableName == variable.Name)
+                                {
+                                    if (variable.Name.ToLower().Contains(filter.ToLower()))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 }
