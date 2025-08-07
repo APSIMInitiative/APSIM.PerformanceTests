@@ -3,8 +3,10 @@ using APSIM.POStats.Shared;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 
 namespace APSIM.POStats.Portal
 {
@@ -34,11 +36,26 @@ namespace APSIM.POStats.Portal
                 throw new Exception("Cannot find environment variable PORTAL_DB");
 
             if (connectionString.Contains(".db"))
+            {
+                Console.WriteLine("Using SQLite database");
                 services.AddDbContext<StatsDbContext>(options => options.UseLazyLoadingProxies().UseSqlite(connectionString));
+            }
             else
             {
+                Console.WriteLine("Using MySQL database");
                 var serverVersion = new MySqlServerVersion(new Version(10, 0, 0));
-                services.AddDbContext<StatsDbContext>(options => options.UseLazyLoadingProxies().UseMySql(connectionString, serverVersion));
+                services.AddDbContext<StatsDbContext>(options => options.UseLazyLoadingProxies().UseMySql(
+                    connectionString,
+                    serverVersion,
+                    mySqlOptionsAction: sqlOptions =>
+                    {
+                        sqlOptions.CommandTimeout(60);
+                        sqlOptions.EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null);
+                    })
+                );
             }
         }
 

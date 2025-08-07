@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace APSIM.POStats.Shared
 {
@@ -64,25 +66,68 @@ namespace APSIM.POStats.Shared
         /// </remarks>
         /// <param name="pullRequest">The pull request to copy the data from..</param>
         /// <returns>Reference to stored PullRequest</returns>
-        public PullRequestDetails AddDataToPullRequest(PullRequestDetails fromPullRequest)
+        public async Task<PullRequestDetails> AddDataToPullRequest(PullRequestDetails fromPullRequest, int retryCount = 0)
         {
-            // Find the pull request. Should always exist if OpenPullRequest has been called.
-            var pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == fromPullRequest.PullRequest)
-                     ?? throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.PullRequest}");
 
-            pr.CountReturned += 1;
+            var pr = new PullRequestDetails();
+            try
+            {
+                // Find the pull request. Should always exist if OpenPullRequest has been called.
+                pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == fromPullRequest.PullRequest)
+                        ?? throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.PullRequest}");
 
-            foreach (ApsimFile file in fromPullRequest.Files)
-                Console.WriteLine($"File \"{file.Name}\" added to PR {fromPullRequest.PullRequest}");
+                pr.CountReturned += 1;
 
-            if (fromPullRequest.Files != null)
-                pr.Files.AddRange(fromPullRequest.Files);
+                foreach (ApsimFile file in fromPullRequest.Files)
+                    Console.WriteLine($"File \"{file.Name}\" added to PR {fromPullRequest.PullRequest}");
 
-            pr.Output += fromPullRequest.Output;
+                if (fromPullRequest.Files != null)
+                    pr.Files.AddRange(fromPullRequest.Files);
 
-            SaveChanges();
+                pr.Output += fromPullRequest.Output;
 
-            return pr;
+                await SaveChangesAsync();
+
+                return pr;
+            }
+            catch (Exception ex)
+            {
+                // Console.WriteLine($"Retry Number: {retryCount} An issue was encountered while adding data to the pull request: " + ex.ToString());
+                // if (retryCount < 5)
+                // {
+                //     // Wait for a random amount of time before retrying
+                //     Console.WriteLine("Retrying to add data to pull request...");
+                //     Thread.Sleep(new Random().Next(100, 1000));
+                //     AddDataToPullRequest(fromPullRequest, retryCount + 1);
+                // }
+                // Console.WriteLine("Add data retry attempts exceeded: " + ex.ToString());
+                // throw;
+                try
+                {
+                    var wait = new Random().Next(5000, 10000);
+                    Thread.Sleep(wait);
+                    Console.WriteLine("Unable to add data to pull request, retrying in " + wait + "ms");
+                    await SaveChangesAsync();
+                    return pr;
+                }
+                catch (Exception)
+                {
+                    try
+                    {
+                        var wait = new Random().Next(100, 1000);
+                        Thread.Sleep(wait);
+                        Console.WriteLine("Unable to add data again to pull request, retrying in " + wait + "ms");
+                        await SaveChangesAsync();
+                        return pr;
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Unable to add data to pull request after retries: " + ex.ToString());
+                        throw new Exception("Unable to add data to pull request after two retries", ex);
+                    }
+                }
+                throw new Exception("Unable to add data: " + ex.ToString());
+            }
         }
 
         /// <summary>
