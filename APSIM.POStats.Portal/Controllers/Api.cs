@@ -50,7 +50,7 @@ namespace APSIM.POStats.Portal.Controllers
                 return BadRequest("You must supply an author");
             try
             {
-                GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running, $"Running: 0 of {count} completed");
+                GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running, $"Running {count} Validation Tasks");
 
                 statsDb.OpenPullRequest(pullrequestnumber, commitid, author, count);
 
@@ -135,11 +135,6 @@ namespace APSIM.POStats.Portal.Controllers
                         string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
                         Task<string> response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={pr.PullRequest}&commitId={pr.Commit}");
                         response.Wait();
-                    }
-                    else
-                    {
-                        string message = $"Running: {pr.CountReturned} of {pr.CountTotal} completed";
-                        GitHub.SetStatus(pr.PullRequest, pr.Commit, VariableComparison.Status.Running, message);
                     }
                 }
                 catch (Exception ex)
