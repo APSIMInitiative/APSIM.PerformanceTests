@@ -68,65 +68,47 @@ namespace APSIM.POStats.Shared
         /// <returns>Reference to stored PullRequest</returns>
         public async Task<PullRequestDetails> AddDataToPullRequest(PullRequestDetails fromPullRequest, int retryCount = 0)
         {
-
             var pr = new PullRequestDetails();
+
+            // Find the pull request. Should always exist if OpenPullRequest has been called.
+            pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == fromPullRequest.PullRequest)
+                    ?? throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.PullRequest}");
+
+            pr.CountReturned += 1;
+
+            foreach (ApsimFile file in fromPullRequest.Files)
+                Console.WriteLine($"File \"{file.Name}\" added to PR {fromPullRequest.PullRequest}");
+
+            if (fromPullRequest.Files != null)
+                pr.Files.AddRange(fromPullRequest.Files);
+
+            pr.Output += fromPullRequest.Output;
+
+            SaveChangesMultipleTries();
+
+            return pr;
+        }
+
+        public bool SaveChangesMultipleTries(int retries = 0)
+        {
             try
             {
-                // Find the pull request. Should always exist if OpenPullRequest has been called.
-                pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == fromPullRequest.PullRequest)
-                        ?? throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.PullRequest}");
-
-                pr.CountReturned += 1;
-
-                foreach (ApsimFile file in fromPullRequest.Files)
-                    Console.WriteLine($"File \"{file.Name}\" added to PR {fromPullRequest.PullRequest}");
-
-                if (fromPullRequest.Files != null)
-                    pr.Files.AddRange(fromPullRequest.Files);
-
-                pr.Output += fromPullRequest.Output;
-
-                await SaveChangesAsync();
-
-                return pr;
+                SaveChanges();
+                return true;
             }
             catch (Exception ex)
             {
-                // Console.WriteLine($"Retry Number: {retryCount} An issue was encountered while adding data to the pull request: " + ex.ToString());
-                // if (retryCount < 5)
-                // {
-                //     // Wait for a random amount of time before retrying
-                //     Console.WriteLine("Retrying to add data to pull request...");
-                //     Thread.Sleep(new Random().Next(100, 1000));
-                //     AddDataToPullRequest(fromPullRequest, retryCount + 1);
-                // }
-                // Console.WriteLine("Add data retry attempts exceeded: " + ex.ToString());
-                // throw;
-                try
+                if (retries < 10)
                 {
-                    var wait = new Random().Next(5000, 10000);
-                    Thread.Sleep(wait);
+                    var wait = new Random().Next(1000, 5000);
                     Console.WriteLine("Unable to add data to pull request, retrying in " + wait + "ms");
-                    await SaveChangesAsync();
-                    return pr;
+                    Thread.Sleep(wait);
+                    return SaveChangesMultipleTries(retries + 1);
                 }
-                catch (Exception)
+                else
                 {
-                    try
-                    {
-                        var wait = new Random().Next(100, 1000);
-                        Thread.Sleep(wait);
-                        Console.WriteLine("Unable to add data again to pull request, retrying in " + wait + "ms");
-                        await SaveChangesAsync();
-                        return pr;
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Unable to add data to pull request after retries: " + ex.ToString());
-                        throw new Exception("Unable to add data to pull request after two retries", ex);
-                    }
+                    throw new Exception(ex.Message);
                 }
-                throw new Exception("Unable to add data: " + ex.ToString());
             }
         }
 
