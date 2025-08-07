@@ -21,7 +21,7 @@ namespace APSIM.POStats.Portal.Pages
         }
 
         /// <summary>The pull request being analysed.</summary>
-        public PullRequest PullRequest { get; private set; }
+        public PullRequestDetails PullRequest { get; private set; }
 
         public string BaseUrl {  get { return $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}"; } }
 

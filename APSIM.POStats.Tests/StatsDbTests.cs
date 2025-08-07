@@ -17,7 +17,7 @@ public class StatsDbTests
         db.OpenPullRequest(1234, "1", "author", 0);
 
         // Make sure the pr exists and has no data.
-        var pr = db.PullRequests.First(pr => pr.Number == 1234);
+        var pr = db.PullRequests.First(pr => pr.PullRequest == 1234);
         Assert.That(pr, !Is.Null);
         Assert.That(pr.Files.Count, Is.EqualTo(0));
     }
@@ -32,7 +32,7 @@ public class StatsDbTests
         db.OpenPullRequest(5678, "1", "author", 0);
 
         // Make sure the pr exists and has no ydata.
-        var pr = db.PullRequests.First(pr => pr.Number == 5678);
+        var pr = db.PullRequests.First(pr => pr.PullRequest == 5678);
         Assert.That(pr, !Is.Null);
         Assert.That(pr.Files.Count, Is.EqualTo(0));
     }
@@ -45,9 +45,9 @@ public class StatsDbTests
         using var db = CreateInMemoryDB("db3");
 
         db.OpenPullRequest(1234, "1", "author", 0);
-        PullRequest prToAdd = new()
+        PullRequestDetails prToAdd = new()
         {
-            Number = 1234,
+            PullRequest = 1234,
             Files = new()
             {
                 new ApsimFile()
@@ -85,10 +85,10 @@ public class StatsDbTests
         db.ClosePullRequest(1234);
 
         // Make sure the pr exists and has no data.
-        var pr = db.PullRequests.First(pr => pr.Number == 1234);
+        var pr = db.PullRequests.First(pr => pr.PullRequest == 1234);
         Assert.That(pr, !Is.Null);
         Assert.That(pr.DateStatsAccepted, Is.Null); // stats not accepted
-        Assert.That(pr.AcceptedPullRequest.Number, Is.EqualTo(5678));     // most recent pr that has been accepted.
+        Assert.That(pr.AcceptedPullRequest.PullRequest, Is.EqualTo(5678));     // most recent pr that has been accepted.
         Assert.That(pr.Files.Count, Is.EqualTo(1));
         var variable = pr.Files[0].Tables[0].Variables[0];
         Assert.That(variable.Name, Is.EqualTo("B"));
@@ -115,10 +115,10 @@ public class StatsDbTests
             .UseInMemoryDatabase(databaseName)
             .Options;
         var db = new StatsDbContext(options);
-        db.PullRequests.Add(new PullRequest
+        db.PullRequests.Add(new PullRequestDetails
         {
             Id = 1,
-            Number = 1234,
+            PullRequest = 1234,
             DateStatsAccepted = new DateTime(2021,1,1),
             Files = new()
             {
@@ -153,10 +153,10 @@ public class StatsDbTests
                 }
             }
         });
-        db.PullRequests.Add(new PullRequest
+        db.PullRequests.Add(new PullRequestDetails
         {
             Id = 2,
-            Number = 5678,
+            PullRequest = 5678,
             DateStatsAccepted = new DateTime(2020,1,1),
             Files = new()
             {

@@ -4,6 +4,6 @@
 
 docker build --target postats-build -t postats-build .
 docker build --target postats-collector -t apsiminitiative/postats-collector .
-docker build --target postats-portal -t apsiminitiative/postats-portal .
+docker build --target postats-portal -t apsiminitiative/postats2-portal .
 
 docker rmi postats-build

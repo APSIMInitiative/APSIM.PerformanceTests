@@ -30,18 +30,19 @@ namespace APSIM.POStats.Shared
         /// <param name="author"></param>
         /// <param name="runDate"></param>
         /// <param name="filePaths">A collection of file paths to search.</param>
-        public static PullRequest RetrieveData(int pullId, string commitId, string author, DateTime runDate, IEnumerable<string> filePaths)
+        public static PullRequestDetails RetrieveData(int pullId, string commitId, string author, DateTime runDate, IEnumerable<string> filePaths)
         {
-            var pullRequest = new PullRequest()
+            var pullRequest = new PullRequestDetails()
             {
-                Number = pullId,
-                LastCommit = commitId,
+                PullRequest = pullId,
+                Commit = commitId,
                 Author = author,
                 DateRun = runDate,
                 Files = new List<ApsimFile>()
             };
 
             string errorMessages = string.Empty;
+            pullRequest.Output = "";
             foreach (var filePath in filePaths)
             {
                 string currentPath = filePath.Trim();
@@ -64,12 +65,30 @@ namespace APSIM.POStats.Shared
                     }
                     catch (Exception ex)
                     {
-                        errorMessages += ex.ToString();
+                        errorMessages += ex.ToString() + "\n";
                     }
                 }
             }
+
+            FileInfo[] files = new DirectoryInfo("./").GetFiles("*stdout.txt", SearchOption.AllDirectories);
+            foreach (FileInfo fileInfo in files)
+            {
+                Console.WriteLine(fileInfo.FullName);
+                using (StreamReader sr = fileInfo.OpenText())
+                {
+                    string text = "";
+                    while ((text = sr.ReadLine()) != null)
+                    {
+                        pullRequest.Output += text + "\n";
+                    }
+                }
+            }
+
             if (errorMessages.Length > 0)
-                throw new Exception(errorMessages);
+            {
+                pullRequest.Output += errorMessages;
+                pullRequest.Files.Clear();
+            }
 
             return pullRequest;
         }

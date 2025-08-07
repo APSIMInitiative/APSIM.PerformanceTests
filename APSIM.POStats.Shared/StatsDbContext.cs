@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace APSIM.POStats.Shared
 {
@@ -10,7 +12,7 @@ namespace APSIM.POStats.Shared
     /// </summary>
     public class StatsDbContext : DbContext
     {
-        public DbSet<PullRequest> PullRequests { get; set; }
+        public DbSet<PullRequestDetails> PullRequests { get; set; }
         public DbSet<ApsimFile> ApsimFiles { get; set; }
         public DbSet<Table> Tables { get; set; }
         public DbSet<Variable> Variables { get; set; }
@@ -39,12 +41,14 @@ namespace APSIM.POStats.Shared
             var pr = GetPullRequest(pullRequestNumber);
             if (pr == null)
             {
-                pr = new PullRequest() { Number = pullRequestNumber };
+                pr = new PullRequestDetails() { PullRequest = pullRequestNumber };
                 PullRequests.Add(pr);
             }
-            pr.LastCommit = commitNumber;
+            pr.Commit = commitNumber;
             pr.Author = author;
-            pr.Count = count;
+            pr.CountTotal = count;
+            pr.CountReturned = 0;
+            pr.Output = "";
 
             pr.Files ??= new();
             pr.Files.Clear();
@@ -61,22 +65,51 @@ namespace APSIM.POStats.Shared
         /// Use case: A collector calls this method to add data to a pull request.
         /// </remarks>
         /// <param name="pullRequest">The pull request to copy the data from..</param>
-        public void AddDataToPullRequest(PullRequest fromPullRequest)
+        /// <returns>Reference to stored PullRequest</returns>
+        public async Task<PullRequestDetails> AddDataToPullRequest(PullRequestDetails fromPullRequest, int retryCount = 0)
         {
+            var pr = new PullRequestDetails();
+
             // Find the pull request. Should always exist if OpenPullRequest has been called.
-            var pr = PullRequests.FirstOrDefault(pr => pr.Number == fromPullRequest.Number)
-                     ?? throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.Number}");
-                     
-            foreach(ApsimFile file in fromPullRequest.Files)
-                Console.WriteLine($"File \"{file.Name}\" added to PR {fromPullRequest.Number}");
+            pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == fromPullRequest.PullRequest)
+                    ?? throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.PullRequest}");
+
+            pr.CountReturned += 1;
+
+            foreach (ApsimFile file in fromPullRequest.Files)
+                Console.WriteLine($"File \"{file.Name}\" added to PR {fromPullRequest.PullRequest}");
 
             if (fromPullRequest.Files != null)
                 pr.Files.AddRange(fromPullRequest.Files);
 
-            if (fromPullRequest.Output != null)
-                pr.Output.AddRange(fromPullRequest.Output);
+            pr.Output += fromPullRequest.Output;
 
-            SaveChanges();
+            SaveChangesMultipleTries();
+
+            return pr;
+        }
+
+        public bool SaveChangesMultipleTries(int retries = 0)
+        {
+            try
+            {
+                SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (retries < 10)
+                {
+                    var wait = new Random().Next(1000, 5000);
+                    Console.WriteLine("Unable to add data to pull request, retrying in " + wait + "ms");
+                    Thread.Sleep(wait);
+                    return SaveChangesMultipleTries(retries + 1);
+                }
+                else
+                {
+                    throw new Exception(ex.Message);
+                }
+            }
         }
 
         /// <summary>
@@ -86,10 +119,10 @@ namespace APSIM.POStats.Shared
         /// Use case: A collector calls this method to indicate that it has finished sending data to the pr.
         /// </remarks>
         /// <param name="pullRequestNumber">The pull request number.</param>
-        public PullRequest ClosePullRequest(int pullRequestNumber)
+        public PullRequestDetails ClosePullRequest(int pullRequestNumber)
         {
             // Find the pull request. Should always exist if OpenPullRequest has been called.
-            var pr = PullRequests.FirstOrDefault(pr => pr.Number == pullRequestNumber)
+            var pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == pullRequestNumber)
                      ?? throw new Exception($"Cannot find POStats pull request number: {pullRequestNumber}");
 
             // Assign the current accepted pull request.
@@ -105,7 +138,7 @@ namespace APSIM.POStats.Shared
         }
 
         /// <summary>Get the most recent accepted pull request.</summary>
-        public PullRequest GetMostRecentAcceptedPullRequest()
+        public PullRequestDetails GetMostRecentAcceptedPullRequest()
         {
             return PullRequests.Where(pr => pr.DateStatsAccepted != null)
                                .OrderBy(pr => pr.DateStatsAccepted)
@@ -120,10 +153,10 @@ namespace APSIM.POStats.Shared
         public bool PullRequestWithCommitExists(int pullRequestNumber, string commitNumber)
         {
             // Try and locate the pull request
-            PullRequest pr = GetPullRequest(pullRequestNumber);
+            PullRequestDetails pr = GetPullRequest(pullRequestNumber);
             if (pr == null)
                 return false;
-            else if (pr.LastCommit == commitNumber)
+            else if (pr.Commit == commitNumber)
                 return true;
             else
                 return false;
@@ -134,10 +167,10 @@ namespace APSIM.POStats.Shared
         /// </summary>
         /// <param name="pullRequestNumber">The pull request number.</param>
         /// <param name="commitNumber">The commit number.</param>
-        public PullRequest GetPullRequest(int pullRequestNumber)
+        public PullRequestDetails GetPullRequest(int pullRequestNumber)
         {
             // Try and locate the pull request
-            return PullRequests.FirstOrDefault(pr => pr.Number == pullRequestNumber);
+            return PullRequests.FirstOrDefault(pr => pr.PullRequest == pullRequestNumber);
         }
 
         /// <summary>
@@ -147,7 +180,7 @@ namespace APSIM.POStats.Shared
         /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<PullRequest>().ToTable("PullRequest");
+            modelBuilder.Entity<PullRequestDetails>().ToTable("PullRequest");
             modelBuilder.Entity<ApsimFile>().ToTable("ApsimFile");
             modelBuilder.Entity<Table>().ToTable("Table");
             modelBuilder.Entity<Variable>().ToTable("Variable");

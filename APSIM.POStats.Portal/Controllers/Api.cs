@@ -50,12 +50,12 @@ namespace APSIM.POStats.Portal.Controllers
                 return BadRequest("You must supply an author");
             try
             {
-                GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running);
+                GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running, $"Running {count} Validation Tasks");
 
                 statsDb.OpenPullRequest(pullrequestnumber, commitid, author, count);
 
                 // Create a timer to close the PR after 30 minutes
-                TimeoutTimer timeoutTimer = new TimeoutTimer {Interval=1800000, PullRequestNumber=pullrequestnumber, CommitId=commitid};
+                TimeoutTimer timeoutTimer = new TimeoutTimer {Interval=3600000, PullRequestNumber=pullrequestnumber, CommitId=commitid};
                 timeoutTimer.Elapsed += OnTimeout;
                 timeoutTimer.AutoReset = false;
                 timeoutTimer.Start();
@@ -101,11 +101,11 @@ namespace APSIM.POStats.Portal.Controllers
             }
             else
             {
-                PullRequest pr = statsDb.GetPullRequest(pullrequestnumber);
+                PullRequestDetails pr = statsDb.GetPullRequest(pullrequestnumber);
                 if (pr == null)
                     return BadRequest($"A PR with {pullrequestnumber} does not exist in the database");
                 else
-                    return BadRequest($"A PR with {pullrequestnumber} does exist, but has commit number {pr.LastCommit}, and you submitted a commit of {commitid}");
+                    return BadRequest($"A PR with {pullrequestnumber} does exist, but has commit number {pr.Commit}, and you submitted a commit of {commitid}");
             }
 
             return Ok();
@@ -116,19 +116,26 @@ namespace APSIM.POStats.Portal.Controllers
         /// <returns></returns>
         [HttpPost("adddata")]
         [RequestSizeLimit(100_000_000)]
-        public IActionResult Post([FromBody]PullRequest pullrequest)
+        public async Task<IActionResult> PostAsync([FromBody]PullRequestDetails pullrequest)
         {
             Console.WriteLine($"api/adddata called");
 
             if (pullrequest == null)
                 return BadRequest("You must supply a pull request");
 
-            if (statsDb.PullRequestWithCommitExists(pullrequest.Number, pullrequest.LastCommit))
+            if (statsDb.PullRequestWithCommitExists(pullrequest.PullRequest, pullrequest.Commit))
             {
-                Console.WriteLine($"Adding Data to PR \"{pullrequest.Number}\"");
+                Console.WriteLine($"Adding Data to PR \"{pullrequest.PullRequest}\"");
                 try
                 {
-                    statsDb.AddDataToPullRequest(pullrequest);
+                    PullRequestDetails pr = await statsDb.AddDataToPullRequest(pullrequest);
+                    Console.WriteLine($"{pr.CountReturned} of {pr.CountTotal} completed.");
+                    if (pr.CountReturned == pr.CountTotal)
+                    {
+                        string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
+                        Task<string> response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={pr.PullRequest}&commitId={pr.Commit}");
+                        response.Wait();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -137,11 +144,11 @@ namespace APSIM.POStats.Portal.Controllers
             }
             else
             {
-                PullRequest pr = statsDb.GetPullRequest(pullrequest.Number);
+                PullRequestDetails pr = statsDb.GetPullRequest(pullrequest.PullRequest);
                 if (pr == null)
-                    return BadRequest($"A PR with {pullrequest.Number} does not exist in the database");
+                    return BadRequest($"A PR with {pullrequest.PullRequest} does not exist in the database");
                 else
-                    return BadRequest($"A PR with {pullrequest.Number} does exist, but has commit number {pr.LastCommit}, and you submitted a commit of {pullrequest.LastCommit}");
+                    return BadRequest($"A PR with {pullrequest.PullRequest} does exist, but has commit number {pr.Commit}, and you submitted a commit of {pullrequest.Commit}");
             }
 
             return Ok();

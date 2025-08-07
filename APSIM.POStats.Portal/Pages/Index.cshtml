@@ -25,11 +25,12 @@
             </tr>
             <tr class="ratings-table-heading">
                 <td class="ratings-table-column">&nbsp;</td>
-                <td class="ratings-table-column">Performance Rating</td>
-                <td class="ratings-table-column">RSR</td>
-                <td class="ratings-table-column">NSE</td>
-            </tr>
-            <tr class="ratings-table-row">
+                <td class="ratings-tab
+    using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
+#nullable disable
+#line default
+        <tr class="ratings-table-row">
                 <td class="ratings-table-column">***</td>
                 <td class="ratings-table-column">Very Good</td>
                 <td class="ratings-table-column">0.00 ≤ RSR ≤ 0.50</td>
@@ -60,12 +61,12 @@
 
         <form method="post">
             <div>
-                <label for="PullRequestNumber">Number:</label>
-                <input name="PullRequestNumber" value="@Model.PullRequest.Number" readonly />
+                <label for="PullRequestNumber">Pull Request:</label>
+                <input name="PullRequestNumber" value="@Model.PullRequest.PullRequest" readonly />
             </div>
             <div>
                 <label for="Commit Number">Commit:</label>
-                <input name="CommitNumber" value="@Model.PullRequest.LastCommit" readonly />
+                <input name="CommitNumber" value="@Model.PullRequest.Commit" readonly />
             </div>
             <div>
                 <label for="Author">Author:</label>
@@ -77,85 +78,125 @@
             </div>
             <div>
                 <label for="AcceptedPullRequestNumber">Accepted pull request number:</label>
-                <input name="AcceptedPullRequestNumber" value="@Model.PullRequest.AcceptedPullRequest?.Number" readonly />
+                <input name="AcceptedPullRequestNumber" value="@Model.PullRequest.AcceptedPullRequest?.PullRequest" readonly />
             </div>
             <br />
             <br />
             <div>
+                <input type="hidden" name="stats-value" value="@Model.OnlyShowChangedStats.ToString()" readonly />
                 @if (Model.OnlyShowChangedStats)
                 {
-                    <input type="hidden" name="StatsLabel" value="Showing stats that have changed." readonly />
-                    <button name="toggle-button" type="submit">Show all stats</button>
+                    <button name="stats-button" type="submit" value="True">Show all stats</button>
                 }
                 else
                 {
-                    <input type="hidden" name="StatsLabel" value="Showing all stats." readonly />
-                    <button name="toggle-button" type="submit">Show changed stats</button>
+                    <button name="stats-button" type="submit" value="True">Show changed stats</button>
                 }
             </div>
             <br />
             <br />
+            <div>
+                <input type="hidden" name="logs-value" value="@Model.ShowLogs.ToString()" readonly />
+                @if (Model.ShowLogs)
+                {
+                    <button name="logs-button" type="submit" value="True">Hide Logs</button>
+                }
+                else
+                {
+                    <button name="logs-button" type="submit" value="True">Show Logs</button>
+                }
+            </div>
+            <br />
+            <br />
+            <div>
+                <label for="Filter">Filter By:</label>
+                <input name="filter-value" value="@Model.Filter" />
+                <button name="filter-button" type="submit" value="True">Enter</button>
+            </div>
         </form>
 
         <table class="stats-table">
             @{
-                var files = PullRequestFunctions.GetFileComparisons(Model.PullRequest);
+                List<ApsimFileComparison> files = PullRequestFunctions.GetFileComparisons(Model.PullRequest);
                 if (Model.OnlyShowChangedStats)
                     PullRequestFunctions.RemoveSame(files);
             }
             @foreach (var file in files)
             {
-                <tr></tr>
-                <tr>
-                    <td class="stats-table-heading" colspan="18">
-                        <b>@Html.Raw(IndexModel.EmitFileName(file))</b>
-                    </td>
-                </tr>
-                @foreach (var table in file.Tables)
+                @if (IndexModel.FilterVariables(files, Model.Filter, file.Name, "", ""))
                 {
+                    <tr></tr>
                     <tr>
-                        <td class=".stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td class="stats-table-heading" colspan="2"><i>@Html.Raw(IndexModel.EmitTableName(@table))</i></td>
-                        <td class="stats-heading">&nbsp;&nbsp;</td>
-                        <td class="stats-heading" colspan="3">n</td>
-                        <td class="stats-heading">&nbsp;&nbsp;</td>
-                        <td class="stats-heading" colspan="3">RMSE</td>
-                        <td class="stats-heading">&nbsp;&nbsp;</td>
-                        <td class="stats-heading" colspan="3">NSE</td>
-                        <td class="stats-heading">&nbsp;&nbsp;</td>
-                        <td class="stats-heading" colspan="3">RSR</td>
+                        <td class="stats-table-heading" colspan="18">
+                            <b>@Html.Raw(IndexModel.EmitFileName(file))</b>
+                        </td>
                     </tr>
-
-                    @foreach (var variable in table.VariableComparisons)
+                    @foreach (var table in file.Tables)
                     {
-                        <tr>
-                            <td class="stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td class="stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td class="stats-variablename"><a asp-page="/Chart" asp-route-id="@variable.Id">@Html.Raw(IndexModel.EmitVariableName(@variable))</a></td>
-                            <td class="stats-cell">&nbsp;&nbsp;</td>
+                        @if (IndexModel.FilterVariables(files, Model.Filter, file.Name, table.Name, ""))
+                        {
+                            <tr>
+                                <td class=".stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                <td class="stats-table-heading" colspan="2"><i>@Html.Raw(IndexModel.EmitTableName(@table))</i></td>
+                                <td class="stats-heading">&nbsp;&nbsp;</td>
+                                <td class="stats-heading" colspan="3">n</td>
+                                <td class="stats-heading">&nbsp;&nbsp;</td>
+                                <td class="stats-heading" colspan="3">RMSE</td>
+                                <td class="stats-heading">&nbsp;&nbsp;</td>
+                                <td class="stats-heading" colspan="3">NSE</td>
+                                <td class="stats-heading">&nbsp;&nbsp;</td>
+                                <td class="stats-heading" colspan="3">RSR</td>
+                            </tr>
 
-                            <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.CurrentN, isAccepted: false))</td>
-                            <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.AcceptedN, isAccepted: true))</td>
-                            <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.NStatus))</td>
-                            <td class="stats-cell">&nbsp;&nbsp;</td>
+                            @foreach (var variable in table.VariableComparisons)
+                            {
+                                @if (IndexModel.FilterVariables(files, Model.Filter, file.Name, table.Name, variable.Name))
+                                {
+                                    <tr>
+                                        <td class="stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                        <td class="stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                        <td class="stats-variablename"><a asp-page="/Chart" asp-route-id="@variable.Id">@Html.Raw(IndexModel.EmitVariableName(@variable))</a></td>
+                                        <td class="stats-cell">&nbsp;&nbsp;</td>
 
-                            <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(variable.CurrentRMSE, 0, 6, isAccepted: false))</td>
-                            <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(variable.AcceptedRMSE, 0, 6, isAccepted: true))</td>
-                            <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.RMSEStatus))</td>
-                            <td class="stats-cell">&nbsp;&nbsp;</td>
+                                        <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.CurrentN, isAccepted: false))</td>
+                                        <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.AcceptedN, isAccepted: true))</td>
+                                        <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.NStatus))</td>
+                                        <td class="stats-cell">&nbsp;&nbsp;</td>
 
-                            <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.CurrentNSE, 3, 0, isAccepted: false))</td>
-                            <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.AcceptedNSE, 3, 0, isAccepted: true))</td>
-                            <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.NSEStatus))@VariableFunctions.NSERating(variable.CurrentNSE)</td>
-                            <td class="stats-cell">&nbsp;&nbsp;</td>
+                                        <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(variable.CurrentRMSE, 0, 6, isAccepted: false))</td>
+                                        <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(variable.AcceptedRMSE, 0, 6, isAccepted: true))</td>
+                                        <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.RMSEStatus))</td>
+                                        <td class="stats-cell">&nbsp;&nbsp;</td>
 
-                            <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.CurrentRSR, 3, 0, isAccepted: false))</td>
-                            <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.AcceptedRSR, 3, 0, isAccepted: true))</td>
-                            <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.RSRStatus))@VariableFunctions.RSRRating(variable.CurrentRSR)</td>
-                        </tr>
+                                        <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.CurrentNSE, 3, 0, isAccepted: false))</td>
+                                        <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.AcceptedNSE, 3, 0, isAccepted: true))</td>
+                                        <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.NSEStatus))@VariableFunctions.NSERating(variable.CurrentNSE)</td>
+                                        <td class="stats-cell">&nbsp;&nbsp;</td>
+
+                                        <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.CurrentRSR, 3, 0, isAccepted: false))</td>
+                                        <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.AcceptedRSR, 3, 0, isAccepted: true))</td>
+                                        <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.RSRStatus))@VariableFunctions.RSRRating(variable.CurrentRSR)</td>
+                                    </tr>
+                                }
+                            }
+                        }
                     }
                 }
             }
         </table>
+        <div class="output-logs">
+            Logs:
+            @if (Model.ShowLogs) 
+            {
+                @foreach (string line in @Model.PullRequest.Output.Split("\n"))
+                {
+                    @Html.Encode(line)<br />
+                }
+            }
+            else
+            {
+                @Html.Raw("Hidden")
+            }
+        </div>
     </div>
 </div>
