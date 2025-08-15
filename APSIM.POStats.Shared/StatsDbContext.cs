@@ -66,7 +66,7 @@ namespace APSIM.POStats.Shared
         /// </remarks>
         /// <param name="pullRequest">The pull request to copy the data from..</param>
         /// <returns>Reference to stored PullRequest</returns>
-        public async Task<PullRequestDetails> AddDataToPullRequest(PullRequestDetails fromPullRequest, int retryCount = 0)
+        public PullRequestDetails AddDataToPullRequest(PullRequestDetails fromPullRequest, int retryCount = 0)
         {
             var pr = new PullRequestDetails();
 
@@ -84,7 +84,8 @@ namespace APSIM.POStats.Shared
 
             pr.Output += fromPullRequest.Output;
 
-            SaveChangesMultipleTries();
+            // SaveChangesMultipleTries();
+            SaveChanges();
 
             return pr;
         }
@@ -98,7 +99,7 @@ namespace APSIM.POStats.Shared
             }
             catch (Exception ex)
             {
-                if (retries < 10)
+                if (retries < 5)
                 {
                     var wait = new Random().Next(1000, 5000);
                     Console.WriteLine("Unable to add data to pull request, retrying in " + wait + "ms");

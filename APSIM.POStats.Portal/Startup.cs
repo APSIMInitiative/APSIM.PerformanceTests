@@ -50,10 +50,11 @@ namespace APSIM.POStats.Portal
                     mySqlOptionsAction: sqlOptions =>
                     {
                         sqlOptions.CommandTimeout(60);
-                        sqlOptions.EnableRetryOnFailure(
-                            maxRetryCount: 5,
+                        sqlOptions.EnableRetryOnFailure(                           
+                            maxRetryCount: 20,
                             maxRetryDelay: TimeSpan.FromSeconds(30),
-                            errorNumbersToAdd: null);
+                            errorNumbersToAdd: null
+                        );
                     })
                 );
             }

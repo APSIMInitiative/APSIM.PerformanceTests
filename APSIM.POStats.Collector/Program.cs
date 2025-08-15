@@ -52,18 +52,20 @@ namespace APSIM.POStats.Collector
                 //get the run date
                 DateTime runDate = DateTime.ParseExact(args[4], "yyyy.M.d-HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal);
 
-                //get the directories
-                List<string> searchDirectories = new List<string>();
+                //get the file paths
+                List<string> filePaths = new List<string>();
                 for (int i = 5; i < args.Length; i++)
                 {
-                    if (Directory.Exists(args[i]))
-                        searchDirectories.Add(args[i]);
+                    if (File.Exists(args[i]))
+                    {
+                        filePaths.Add(args[i]);
+                    }
                     else
-                        throw new Exception($"Directory \"{args[i]}\" does not exist.");
+                        throw new Exception($"File \"{args[i]}\" does not exist.");
                 }
 
                 //get the Pull Request details
-                PullRequestDetails pullRequest = Shared.Collector.RetrieveData(pullId, commitId, author, runDate, searchDirectories);
+                PullRequestDetails pullRequest = Shared.Collector.RetrieveData(pullId, commitId, author, runDate, filePaths);
 
                 string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
                 Console.WriteLine($"{url}");

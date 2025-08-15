@@ -116,7 +116,7 @@ namespace APSIM.POStats.Portal.Controllers
         /// <returns></returns>
         [HttpPost("adddata")]
         [RequestSizeLimit(100_000_000)]
-        public async Task<IActionResult> PostAsync([FromBody]PullRequestDetails pullrequest)
+        public IActionResult PostAsync([FromBody]PullRequestDetails pullrequest)
         {
             Console.WriteLine($"api/adddata called");
 
@@ -128,7 +128,7 @@ namespace APSIM.POStats.Portal.Controllers
                 Console.WriteLine($"Adding Data to PR \"{pullrequest.PullRequest}\"");
                 try
                 {
-                    PullRequestDetails pr = await statsDb.AddDataToPullRequest(pullrequest);
+                    PullRequestDetails pr = statsDb.AddDataToPullRequest(pullrequest);
                     Console.WriteLine($"{pr.CountReturned} of {pr.CountTotal} completed.");
                     if (pr.CountReturned == pr.CountTotal)
                     {
