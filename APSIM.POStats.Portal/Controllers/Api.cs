@@ -15,16 +15,39 @@ namespace APSIM.POStats.Portal.Controllers
         /// <summary>The database context.</summary>
         private readonly StatsDbContext statsDb;
 
-        /// <summary>Event handler for timeout timer.</summary>
-        private static void OnTimeout(Object source, ElapsedEventArgs e)
-        {
-            string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
-            if (string.IsNullOrEmpty(url))
-                throw new Exception($"Cannot find environment variable POSTATS_UPLOAD_URL");
+        /// <summary>Lock for adding to the db</summary>
+        private readonly object _lock = new();
 
-            TimeoutTimer timer = source as TimeoutTimer;
-            Task<string> response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequestNumber}&commitId={timer.CommitId}");
-            response.Wait();
+        /// <summary>Event handler for finish timer.</summary>
+        private void OnCheckIfFinished(Object source, ElapsedEventArgs e)
+        {
+            Console.WriteLine($"Tick");
+            PullRequestTimer timer = source as PullRequestTimer;
+            timer.Stop();
+
+            lock (_lock)
+            {
+                PullRequestDetails pr = statsDb.GetPullRequest(timer.PullRequestNumber);
+                double minutes = (DateTime.Now - timer.StartTime).TotalMinutes;
+                Console.WriteLine($"{pr.PullRequest} ({pr.Commit}): {pr.Files.Count} of {pr.CountTotal} completed in {Math.Round(minutes, 1)} minutes");
+
+                if (pr.Commit == timer.CommitId)
+                {
+                    if (pr.Files.Count >= pr.CountTotal || minutes >= 40)
+                    {
+                        string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
+                        if (string.IsNullOrEmpty(url))
+                            throw new Exception($"Cannot find environment variable POSTATS_UPLOAD_URL");
+
+                        Task<string> response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequestNumber}&commitId={timer.CommitId}");
+                        response.Wait();
+                    }
+                    else
+                    {
+                        timer.Start();
+                    }
+                }
+            }
         }
 
         /// <summary>Constructor.</summary>
@@ -54,11 +77,12 @@ namespace APSIM.POStats.Portal.Controllers
 
                 statsDb.OpenPullRequest(pullrequestnumber, commitid, author, count);
 
-                // Create a timer to close the PR after 30 minutes
-                TimeoutTimer timeoutTimer = new TimeoutTimer {Interval=3600000, PullRequestNumber=pullrequestnumber, CommitId=commitid};
-                timeoutTimer.Elapsed += OnTimeout;
-                timeoutTimer.AutoReset = false;
-                timeoutTimer.Start();
+                // Create a timer to check how many files have been returned
+                PullRequestTimer finishTimer = new PullRequestTimer {Interval=10000, PullRequestNumber=pullrequestnumber, CommitId=commitid};
+                finishTimer.Elapsed += new ElapsedEventHandler(OnCheckIfFinished);
+                finishTimer.AutoReset = true;
+                finishTimer.StartTime = DateTime.Now;
+                finishTimer.Start();
             }
             catch (Exception ex)
             {
@@ -123,34 +147,28 @@ namespace APSIM.POStats.Portal.Controllers
             if (pullrequest == null)
                 return BadRequest("You must supply a pull request");
 
-            if (statsDb.PullRequestWithCommitExists(pullrequest.PullRequest, pullrequest.Commit))
+            lock (_lock)
             {
-                Console.WriteLine($"Adding Data to PR \"{pullrequest.PullRequest}\"");
-                try
+                if (statsDb.PullRequestWithCommitExists(pullrequest.PullRequest, pullrequest.Commit))
                 {
-                    PullRequestDetails pr = statsDb.AddDataToPullRequest(pullrequest);
-                    Console.WriteLine($"{pr.CountReturned} of {pr.CountTotal} completed.");
-                    if (pr.CountReturned == pr.CountTotal)
+                    try
                     {
-                        string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
-                        Task<string> response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={pr.PullRequest}&commitId={pr.Commit}");
-                        response.Wait();
+                        PullRequestDetails pr = statsDb.AddDataToPullRequest(pullrequest);
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest(ex.ToString());
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    return BadRequest(ex.ToString());
+                    PullRequestDetails pr = statsDb.GetPullRequest(pullrequest.PullRequest);
+                    if (pr == null)
+                        return BadRequest($"A PR with {pullrequest.PullRequest} does not exist in the database");
+                    else
+                        return BadRequest($"A PR with {pullrequest.PullRequest} does exist, but has commit number {pr.Commit}, and you submitted a commit of {pullrequest.Commit}");
                 }
             }
-            else
-            {
-                PullRequestDetails pr = statsDb.GetPullRequest(pullrequest.PullRequest);
-                if (pr == null)
-                    return BadRequest($"A PR with {pullrequest.PullRequest} does not exist in the database");
-                else
-                    return BadRequest($"A PR with {pullrequest.PullRequest} does exist, but has commit number {pr.Commit}, and you submitted a commit of {pullrequest.Commit}");
-            }
-
             return Ok();
         }
     }

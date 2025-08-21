@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace APSIM.POStats.Shared
 {
@@ -47,7 +46,6 @@ namespace APSIM.POStats.Shared
             pr.Commit = commitNumber;
             pr.Author = author;
             pr.CountTotal = count;
-            pr.CountReturned = 0;
             pr.Output = "";
 
             pr.Files ??= new();
@@ -74,8 +72,6 @@ namespace APSIM.POStats.Shared
             pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == fromPullRequest.PullRequest)
                     ?? throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.PullRequest}");
 
-            pr.CountReturned += 1;
-
             foreach (ApsimFile file in fromPullRequest.Files)
                 Console.WriteLine($"File \"{file.Name}\" added to PR {fromPullRequest.PullRequest}");
 
@@ -84,7 +80,6 @@ namespace APSIM.POStats.Shared
 
             pr.Output += fromPullRequest.Output;
 
-            // SaveChangesMultipleTries();
             SaveChanges();
 
             return pr;
