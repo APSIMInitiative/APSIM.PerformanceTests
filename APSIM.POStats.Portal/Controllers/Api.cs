@@ -13,13 +13,13 @@ namespace APSIM.POStats.Portal.Controllers
     public class Api : ControllerBase
     {
         /// <summary>The database context.</summary>
-        private readonly StatsDbContext statsDb;
+        private static StatsDbContext statsDb;
 
         /// <summary>Lock for adding to the db</summary>
-        private readonly object _lock = new();
+        private static object _lock = new();
 
         /// <summary>Event handler for finish timer.</summary>
-        private void OnCheckIfFinished(Object source, ElapsedEventArgs e)
+        private static void OnCheckIfFinished(Object source, ElapsedEventArgs e)
         {
             Console.WriteLine($"Tick");
             PullRequestTimer timer = source as PullRequestTimer;
@@ -54,7 +54,10 @@ namespace APSIM.POStats.Portal.Controllers
         /// <param name="stats">The database context.</param>
         public Api(StatsDbContext stats)
         {
-            statsDb = stats;
+            lock (_lock)
+            {
+                statsDb = stats;
+            }
         }
 
         /// <summary>Invoked by collector to open a pull request.</summary>
