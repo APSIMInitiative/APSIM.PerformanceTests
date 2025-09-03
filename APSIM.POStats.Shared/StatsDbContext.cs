@@ -69,8 +69,9 @@ namespace APSIM.POStats.Shared
             var pr = new PullRequestDetails();
 
             // Find the pull request. Should always exist if OpenPullRequest has been called.
-            pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == fromPullRequest.PullRequest)
-                    ?? throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.PullRequest}");
+            pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == fromPullRequest.PullRequest && pr.Commit == fromPullRequest.Commit);
+            if (pr == null)
+                throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.PullRequest}");
 
             foreach (ApsimFile file in fromPullRequest.Files)
                 Console.WriteLine($"File \"{file.Name}\" added to PR {fromPullRequest.PullRequest}");
@@ -80,9 +81,31 @@ namespace APSIM.POStats.Shared
 
             pr.Output += fromPullRequest.Output;
 
+            pr.CountReturned += 1;
+
             SaveChanges();
 
             return pr;
+        }
+
+        /// <summary>
+        /// Add file data to a pull request.
+        /// </summary>
+        /// <remarks>
+        /// Use case: A collector calls this method to add data to a pull request.
+        /// </remarks>
+        /// <param name="pullRequest">The pull request to copy the data from..</param>
+        /// <returns>Reference to stored PullRequest</returns>
+        public int GetNumberOfFilesInPullRequestRemaining(int pullrequestnumber, string commitid)
+        {
+            var pr = new PullRequestDetails();
+
+            // Find the pull request. Should always exist if OpenPullRequest has been called.
+            pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == pullrequestnumber && pr.Commit == commitid);
+            if (pr == null)
+                throw new Exception($"Cannot find POStats pull request number: {pullrequestnumber}");
+
+            return pr.CountTotal - pr.CountReturned;
         }
 
         public bool SaveChangesMultipleTries(int retries = 0)

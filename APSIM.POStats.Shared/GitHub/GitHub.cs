@@ -69,9 +69,9 @@ namespace APSIM.POStats.Shared.GitHub
                 state = "success";
 
             if (status == VariableComparison.Status.Running)
-                state = "pending";
+                state = "success"; //state = "pending";
 
-            string stateFormatted = status.ToString();
+            string stateFormatted = "In Development: " + status.ToString();
             if (!String.IsNullOrEmpty(message))
                 stateFormatted = message;
 
