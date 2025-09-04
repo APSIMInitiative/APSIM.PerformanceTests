@@ -17,5 +17,8 @@ namespace APSIM.POStats.Shared.Models
         public string Output { get; set; }
         public int? AcceptedPullRequestId { get; set; }
         public virtual PullRequestDetails AcceptedPullRequest { get; set; }
+
+        /// <summary>Statuses of the nodes that ran the tests. True = success, false = failure.</summary>
+        public virtual List<bool> NodeStatuses { get; set; }
     }
 }
