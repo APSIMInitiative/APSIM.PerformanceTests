@@ -5,6 +5,7 @@ using APSIM.POStats.Shared.Models;
 using APSIM.POStats.Shared.GitHub;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using APSIM.POStats.Portal.Models;
 
 namespace APSIM.POStats.Portal.Controllers
 {
@@ -94,7 +95,7 @@ namespace APSIM.POStats.Portal.Controllers
         /// <param name="pullrequestnumber">The number of the pull request to close.</param>
         /// <returns></returns>
         [HttpGet("close")]
-        public IActionResult Close(int pullrequestnumber, string commitid)
+        public async Task<IActionResult> Close(int pullrequestnumber, string commitid)
         {
             Console.WriteLine($"api/close called");
             
@@ -115,6 +116,7 @@ namespace APSIM.POStats.Portal.Controllers
 
                     VariableComparison.Status status = PullRequestFunctions.GetStatus(pullRequest);
                     GitHub.SetStatus(pullrequestnumber, commitid, status);
+                    await AzureBatchManager.CloseBatchPoolAsync(pullRequest.Pool);
                 }
                 catch (Exception ex)
                 {
