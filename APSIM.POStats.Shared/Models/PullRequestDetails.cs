@@ -26,5 +26,8 @@ namespace APSIM.POStats.Shared.Models
 
         /// <summary>Log outputs from validation that are returned</summary>
         public virtual List<string> Outputs { get; set; }
+
+        /// <summary>The name of the Azure Batch pool that was used to run tests for this pull request.</summary>
+        public string Pool { get; set; }
     }
 }
