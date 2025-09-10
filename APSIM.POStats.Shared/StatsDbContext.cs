@@ -1,4 +1,5 @@
 ﻿using APSIM.POStats.Shared.Models;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -45,14 +46,22 @@ namespace APSIM.POStats.Shared
             }
             pr.Commit = commitNumber;
             pr.Author = author;
+            pr.DateRun = DateTime.Now;
             pr.CountTotal = count;
-            pr.Output = "";
+
+            pr.DateStatsAccepted = null;
+            pr.AcceptedPullRequestId = null;
+            pr.AcceptedPullRequest = null;
 
             pr.Files ??= new();
             pr.Files.Clear();
-            pr.DateRun = DateTime.Now;
-            pr.DateStatsAccepted = null;
-            pr.AcceptedPullRequest = null;
+
+            pr.Outputs ??= new();
+            pr.Outputs.Clear();
+
+            pr.Status ??= new();
+            pr.Status.Clear();
+
             SaveChanges();
         }
 
@@ -79,9 +88,11 @@ namespace APSIM.POStats.Shared
             if (fromPullRequest.Files != null)
                 pr.Files.AddRange(fromPullRequest.Files);
 
-            pr.Output += fromPullRequest.Output;
+            if (fromPullRequest.Outputs != null)
+                pr.Outputs.AddRange(fromPullRequest.Outputs);
 
-            pr.CountReturned += 1;
+            if (fromPullRequest.Status != null)
+                pr.Status.AddRange(fromPullRequest.Status);
 
             SaveChanges();
 
@@ -96,7 +107,7 @@ namespace APSIM.POStats.Shared
         /// </remarks>
         /// <param name="pullRequest">The pull request to copy the data from..</param>
         /// <returns>Reference to stored PullRequest</returns>
-        public int GetNumberOfFilesInPullRequestRemaining(int pullrequestnumber, string commitid)
+        public int GetNumberOfCompletesInPullRequest(int pullrequestnumber, string commitid)
         {
             var pr = new PullRequestDetails();
 
@@ -105,7 +116,7 @@ namespace APSIM.POStats.Shared
             if (pr == null)
                 throw new Exception($"Cannot find POStats pull request number: {pullrequestnumber}");
 
-            return pr.CountTotal - pr.CountReturned;
+            return pr.Status.Count;
         }
 
         public bool SaveChangesMultipleTries(int retries = 0)

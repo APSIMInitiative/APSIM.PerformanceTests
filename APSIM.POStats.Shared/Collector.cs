@@ -42,7 +42,8 @@ namespace APSIM.POStats.Shared
             };
 
             string errorMessages = string.Empty;
-            pullRequest.Output = "";
+            pullRequest.Outputs = new List<string>();
+            pullRequest.Status = new List<bool>();
             foreach (var filePath in filePaths)
             {
                 try
@@ -63,10 +64,11 @@ namespace APSIM.POStats.Shared
                 {
                     errorMessages += ex.ToString() + "\n";
                 }
-                
+
             }
 
             FileInfo[] files = new DirectoryInfo("./").GetFiles("*stdout.txt", SearchOption.AllDirectories);
+            string log = "";
             foreach (FileInfo fileInfo in files)
             {
                 Console.WriteLine(fileInfo.FullName);
@@ -75,17 +77,24 @@ namespace APSIM.POStats.Shared
                     string text = "";
                     while ((text = sr.ReadLine()) != null)
                     {
-                        pullRequest.Output += text + "\n";
+                        log += text + "\n";
                     }
                 }
             }
 
             if (errorMessages.Length > 0)
             {
-                pullRequest.Output += errorMessages;
+                log += errorMessages;
                 pullRequest.Files.Clear();
+                pullRequest.Status.Add(false);
+            }
+            else
+            {
+                pullRequest.Status.Add(true);
             }
 
+            pullRequest.Outputs.Add(log);
+            
             return pullRequest;
         }
 

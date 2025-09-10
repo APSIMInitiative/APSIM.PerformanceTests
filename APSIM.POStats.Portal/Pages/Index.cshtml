@@ -80,6 +80,10 @@
                 <label for="AcceptedPullRequestNumber">Accepted pull request number:</label>
                 <input name="AcceptedPullRequestNumber" value="@Model.PullRequest.AcceptedPullRequest?.PullRequest" readonly />
             </div>
+            <div>
+                <label for="ReturnCount">Return Count:</label>
+                <input name="ReturnCount" value="@Model.PullRequest.Status.Count" readonly />
+            </div>
             <br />
             <br />
             <div>
@@ -188,9 +192,12 @@
             Logs:
             @if (Model.ShowLogs) 
             {
-                @foreach (string line in @Model.PullRequest.Output.Split("\n"))
+                @foreach (string log in Model.PullRequest.Outputs)
                 {
-                    @Html.Encode(line)<br />
+                    @foreach (string line in log.Split("\n"))
+                    {
+                        @Html.Encode(line)<br />
+                    }
                 }
             }
             else

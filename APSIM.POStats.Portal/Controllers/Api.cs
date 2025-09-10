@@ -28,7 +28,7 @@ namespace APSIM.POStats.Portal.Controllers
             Console.WriteLine($"Tick");
             PullRequestTimer timer = source as PullRequestTimer;
 
-            Task<string> response = WebUtilities.GetAsync($"{url}api/count?pullrequestnumber={timer.PullRequestNumber}&commitid={timer.CommitId}");
+            Task<string> response = WebUtilities.GetAsync($"{url}api/count?pullrequestnumber={timer.PullRequest}&commitid={timer.Commit}");
             response.Wait();
 
             string result = response.Result.ToString();
@@ -36,16 +36,14 @@ namespace APSIM.POStats.Portal.Controllers
             {
                 int count = int.Parse(result);
 
-                Console.WriteLine($"minutes");
                 double minutes = (DateTime.Now - timer.StartTime).TotalMinutes;
-                Console.WriteLine($"{timer.PullRequestNumber} ({timer.CommitId}): running for {Math.Round(minutes, 1)} minutes");
 
-                Console.WriteLine($"{count} == 0 || {minutes} >= 20");
-                if (count == 0 || minutes >= 20)
+                Console.WriteLine($"{timer.PullRequest} ({timer.Commit}): count={count} and minutes={Math.Round(minutes, 1)}");
+                if (minutes >= 20)
                 {
-                    response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequestNumber}&commitId={timer.CommitId}");
-                    response.Wait();
                     timer.Stop();
+                    response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequest}&commitId={timer.Commit}");
+                    response.Wait();
                 }
             }
         }
@@ -78,7 +76,7 @@ namespace APSIM.POStats.Portal.Controllers
                 statsDb.OpenPullRequest(pullrequestnumber, commitid, author, count);
 
                 // Create a timer to check how many files have been returned
-                PullRequestTimer finishTimer = new PullRequestTimer { Interval = 10000, PullRequestNumber = pullrequestnumber, CommitId = commitid };
+                PullRequestTimer finishTimer = new PullRequestTimer { Interval = 10000, PullRequest = pullrequestnumber, Commit = commitid };
                 finishTimer.Elapsed += OnCheckIfFinished;
                 finishTimer.AutoReset = true;
                 finishTimer.StartTime = DateTime.Now;
@@ -154,7 +152,7 @@ namespace APSIM.POStats.Portal.Controllers
             {
                 try
                 {
-                    var count = statsDb.GetNumberOfFilesInPullRequestRemaining(pullrequestnumber, commitid);
+                    var count = statsDb.GetNumberOfCompletesInPullRequest(pullrequestnumber, commitid);
                     Console.WriteLine($"{count}");
                     return Ok(count);
                 }

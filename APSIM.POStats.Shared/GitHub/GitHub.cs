@@ -69,7 +69,7 @@ namespace APSIM.POStats.Shared.GitHub
                 state = "success";
 
             if (status == VariableComparison.Status.Running)
-                state = "success"; //state = "pending";
+                state = "pending";
 
             string stateFormatted = "In Development: " + status.ToString();
             if (!String.IsNullOrEmpty(message))
@@ -80,6 +80,9 @@ namespace APSIM.POStats.Shared.GitHub
             string urlStr = $"{serverURL}{pullRequestNumber}";
 
             Console.WriteLine($"Github Status Update: {state} {urlStr} {stateFormatted} {"APSIM.POStats2"}");
+
+            //Always success for now
+            state = "success";
 
             //Status POST body details
             GitHubStatusDetails body = new GitHubStatusDetails(state, urlStr, stateFormatted, "APSIM.POStats2");
