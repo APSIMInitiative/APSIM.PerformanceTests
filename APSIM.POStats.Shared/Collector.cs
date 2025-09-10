@@ -30,7 +30,7 @@ namespace APSIM.POStats.Shared
         /// <param name="author"></param>
         /// <param name="runDate"></param>
         /// <param name="filePaths">A collection of file paths to search.</param>
-        public static PullRequestDetails RetrieveData(int pullId, string commitId, string author, DateTime runDate, IEnumerable<string> filePaths)
+        public static PullRequestDetails RetrieveData(int pullId, string commitId, string author, DateTime runDate, string pool, IEnumerable<string> filePaths)
         {
             var pullRequest = new PullRequestDetails()
             {
@@ -38,7 +38,8 @@ namespace APSIM.POStats.Shared
                 Commit = commitId,
                 Author = author,
                 DateRun = runDate,
-                Files = new List<ApsimFile>()
+                Files = new List<ApsimFile>(),
+                Pool = pool
             };
 
             string errorMessages = string.Empty;

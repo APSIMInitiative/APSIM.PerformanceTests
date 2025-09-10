@@ -27,7 +27,8 @@ namespace APSIM.POStats.Collector
                 Console.WriteLine("  3. (int) Commit Id");
                 Console.WriteLine("  4. (string) UserID");
                 Console.WriteLine("  5. (datetime) Date");
-                Console.WriteLine("  6. (string) Directories (space separated)");
+                Console.WriteLine("  6. (string) Azure pool");
+                Console.WriteLine("  7. (string) Directories (space separated)");
                 Console.WriteLine(@"  Example: APSIM.POStats.Collector Upload 1111 abcdef12345 2016.12.01-06:33 hol353 c:\Apsimx\Tests c:\Apsimx\UnderReview");
                 return 1;
             }
@@ -52,9 +53,12 @@ namespace APSIM.POStats.Collector
                 //get the run date
                 DateTime runDate = DateTime.ParseExact(args[4], "yyyy.M.d-HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal);
 
+                //get the pool name
+                string pool = args[5];
+
                 //get the file paths
                 List<string> filePaths = new List<string>();
-                for (int i = 5; i < args.Length; i++)
+                for (int i = 6; i < args.Length; i++)
                 {
                     if (File.Exists(args[i]))
                     {
@@ -64,8 +68,9 @@ namespace APSIM.POStats.Collector
                         throw new Exception($"File \"{args[i]}\" does not exist.");
                 }
 
+
                 //get the Pull Request details
-                PullRequestDetails pullRequest = Shared.Collector.RetrieveData(pullId, commitId, author, runDate, filePaths);
+                PullRequestDetails pullRequest = Shared.Collector.RetrieveData(pullId, commitId, author, runDate, pool, filePaths);
 
                 string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
                 Console.WriteLine($"{url}");
