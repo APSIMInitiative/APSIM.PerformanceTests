@@ -48,6 +48,7 @@ public class StatsDbTests
         PullRequestDetails prToAdd = new()
         {
             PullRequest = 1234,
+            Commit = "1",
             Files = new()
             {
                 new ApsimFile()

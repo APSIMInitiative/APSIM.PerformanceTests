@@ -12,6 +12,8 @@ public class TestsCollector
     private string path;
     private SqliteConnection database;
 
+    private string[] files;
+
     [SetUp]
     public void SetUp()
     {
@@ -27,14 +29,15 @@ public class TestsCollector
 
         var filename = Path.Combine(path, "Test.apsimx");
         using (var writer = new FileStream(filename, FileMode.Create))
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("APSIM.POStats.Tests.Test.apsimx"))
-                if (stream != null)
-                    stream.CopyTo(writer);
+        using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("APSIM.POStats.Tests.Test.apsimx"))
+            if (stream != null)
+                stream.CopyTo(writer);
 
         // Create an empty database.
         var dbFileName = Path.Combine(path, "Test.db");
         database = new SqliteConnection($"Data source={dbFileName}");
         database.Open();
+        files = Directory.GetFiles(path, "*.apsimx");
     }
 
     [TearDown]
@@ -66,9 +69,10 @@ public class TestsCollector
             " 1,2000-01-04, 200.0, 210.0" + Environment.NewLine
             ));
 
-        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", new string[] { path });
 
-        string jsonString = JsonSerializer.Serialize(pullRequest);;
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", files);
+
+        string jsonString = JsonSerializer.Serialize(pullRequest);
 
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(1));
         Assert.That(pullRequest.Files[0].Tables.Count, Is.EqualTo(2));
@@ -123,7 +127,7 @@ public class TestsCollector
             ));
         database.Close();
 
-        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", new string[] { path });
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", files);
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(0));
     }
 
@@ -142,7 +146,7 @@ public class TestsCollector
             ));
         database.Close();
 
-        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", new string[] { path });
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", files);
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(0));
     }
 
@@ -161,7 +165,7 @@ public class TestsCollector
             ));
         database.Close();
 
-        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", new string[] { path });
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", files);
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(1));
         Assert.That(pullRequest.Files[0].Tables.Count, Is.EqualTo(1));
 
@@ -189,7 +193,7 @@ public class TestsCollector
             ));
         database.Close();
 
-        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", new string[] { path });
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", files);
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(1));
         Assert.That(pullRequest.Files[0].Tables.Count, Is.EqualTo(1));
 
@@ -216,7 +220,7 @@ public class TestsCollector
             ));
         database.Close();
 
-        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", new string[] { path });
+        var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", files);
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(1));
         Assert.That(pullRequest.Files[0].Tables.Count, Is.EqualTo(1));
 
