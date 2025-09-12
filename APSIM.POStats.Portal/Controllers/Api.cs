@@ -19,6 +19,9 @@ namespace APSIM.POStats.Portal.Controllers
         /// <summary>Lock for adding to the db</summary>
         private static object _lock = new();
 
+        /// <summary>Final timeout in minutes. Controls how long to wait before finally closing a pull request.</summary>
+        private const double FINAL_TIMEOUT = 30.0;
+
         /// <summary>Event handler for finish timer.</summary>
         private static void OnCheckIfFinished(Object source, ElapsedEventArgs e)
         {
@@ -40,7 +43,7 @@ namespace APSIM.POStats.Portal.Controllers
                 double minutes = (DateTime.Now - timer.StartTime).TotalMinutes;
 
                 Console.WriteLine($"{timer.PullRequest} ({timer.Commit}): count={count} and minutes={Math.Round(minutes, 1)}");
-                if (minutes >= 20)
+                if (minutes >= FINAL_TIMEOUT)
                 {
                     timer.Stop();
                     response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequest}&commitId={timer.Commit}");

@@ -9,7 +9,7 @@ namespace APSIM.POStats.Portal.Models
     /// <summary>
     /// Class for managing Azure Batch resources.
     /// </summary>
-    public class AzureBatchManager
+    public static class AzureBatchManager
     {
 
         /// <summary>
@@ -27,10 +27,9 @@ namespace APSIM.POStats.Portal.Models
                 if (_batchClient == null)
                     throw new InvalidOperationException("Unable to get a Azure batch client while closing a pool.");
 
-                var pools = await _batchClient.PoolOperations.ListPools().ToListAsync();
-                CloudPool pool = pools.FirstOrDefault(p => p.Id == poolName);
-
+                CloudPool pool = _batchClient.PoolOperations.GetPoolAsync(poolName).Result ?? throw new InvalidOperationException($"Unable to find pool {poolName} while closing a pool.");
                 await _batchClient.PoolOperations.DeletePoolAsync(pool.Id);
+                Console.WriteLine($"Successfully deleted pool {poolName}.");
             }
             catch (BatchException be)
             {
@@ -64,9 +63,9 @@ namespace APSIM.POStats.Portal.Models
                 throw new Exception("Cannot find variable AZURE_BATCH_ACCOUNT_KEY");
 
             return BatchClient.Open(new BatchSharedKeyCredentials(
-                Environment.GetEnvironmentVariable("AZURE_BATCH_ACCOUNT_URL"),
-                Environment.GetEnvironmentVariable("AZURE_BATCH_ACCOUNT_NAME"),
-                Environment.GetEnvironmentVariable("AZURE_BATCH_ACCOUNT_KEY")));
+                accountUrl,
+                accountName,
+                primaryAccessKey));
         }
     }
 }
