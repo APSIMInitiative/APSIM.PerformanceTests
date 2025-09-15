@@ -61,10 +61,13 @@ namespace APSIM.POStats.Portal.Controllers
 
         /// <summary>Invoked by collector to open a pull request.</summary>
         /// <param name="pullrequestnumber">The number of the pull request to open.</param>
+        /// <param name="commitid">The commit id of the pull request.</param>
+        /// <param name="count">The number of expected validation tasks to be run.</param>
         /// <param name="author">The author of the pull request.</param>
+        /// <param name="pool">The name of the Azure Batch pool to be used for this pull request.</param>
         /// <returns></returns>
         [HttpGet("open")]
-        public IActionResult Open(int pullrequestnumber, string commitid, int count, string author)
+        public IActionResult Open(int pullrequestnumber, string commitid, int count, string author, string pool)
         {
             Console.WriteLine($"\"{author}\" opening PR \"{pullrequestnumber}\" with commit \"{commitid}\" and count \"{count}\"");
             if (pullrequestnumber == 0)
@@ -73,11 +76,13 @@ namespace APSIM.POStats.Portal.Controllers
                 return BadRequest("You must supply a commitid");
             if (string.IsNullOrEmpty(author))
                 return BadRequest("You must supply an author");
+            if (string.IsNullOrEmpty(pool))
+                return BadRequest("You must supply a pool name");
             try
             {
                 GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running, $"Running {count} Validation Tasks");
 
-                statsDb.OpenPullRequest(pullrequestnumber, commitid, author, count);
+                statsDb.OpenPullRequest(pullrequestnumber, commitid, author, count, pool);
 
                 // Create a timer to check how many files have been returned
                 PullRequestTimer finishTimer = new PullRequestTimer { Interval = 10000, PullRequest = pullrequestnumber, Commit = commitid };

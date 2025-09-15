@@ -34,7 +34,7 @@ namespace APSIM.POStats.Shared
         /// </remarks>
         /// <param name="pullRequestNumber">The pull request number.</param>
         /// <param name="author">The author of the pull request</param>
-        public void OpenPullRequest(int pullRequestNumber, string commitNumber, string author, int count)
+        public void OpenPullRequest(int pullRequestNumber, string commitNumber, string author, int count, string pool)
         {
             // Try and locate the pull request. If it doesn't exist, create a new pull request instance.
             // If it does exist, delete the old data.
@@ -61,6 +61,8 @@ namespace APSIM.POStats.Shared
 
             pr.Status ??= new();
             pr.Status.Clear();
+
+            pr.Pool = pool;
 
             SaveChanges();
         }
