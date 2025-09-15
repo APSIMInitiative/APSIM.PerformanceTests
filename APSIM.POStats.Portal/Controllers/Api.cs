@@ -119,6 +119,8 @@ namespace APSIM.POStats.Portal.Controllers
 
                     VariableComparison.Status status = PullRequestFunctions.GetStatus(pullRequest);
                     GitHub.SetStatus(pullrequestnumber, commitid, status);
+                    if (string.IsNullOrEmpty(pullRequest.Pool))
+                        throw new Exception("No pool associated with this pull request. Pool is required to close the Azure Batch pool.");
                     await AzureBatchManager.CloseBatchPoolAsync(pullRequest.Pool);
                 }
                 catch (Exception ex)

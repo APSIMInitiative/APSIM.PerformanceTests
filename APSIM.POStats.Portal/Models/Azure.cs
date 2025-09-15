@@ -27,18 +27,20 @@ namespace APSIM.POStats.Portal.Models
                 if (_batchClient == null)
                     throw new InvalidOperationException("Unable to get a Azure batch client while closing a pool.");
 
-                CloudPool pool = _batchClient.PoolOperations.GetPoolAsync(poolName).Result ?? throw new InvalidOperationException($"Unable to find pool {poolName} while closing a pool.");
+                CloudPool pool = _batchClient.PoolOperations.ListPools().Where(p => p.Id == poolName).FirstOrDefault();
+                if (pool == null)
+                    throw new InvalidOperationException($"Unable to find pool {poolName} while closing a pool.");
                 await _batchClient.PoolOperations.DeletePoolAsync(pool.Id);
                 Console.WriteLine($"Successfully deleted pool {poolName}.");
             }
             catch (BatchException be)
             {
-                Console.WriteLine(be.ToString());
+                Console.WriteLine($"Azure Batch pool with pool id {poolName} failed: " + be.ToString());
                 throw;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine($"Azure Batch pool with pool id {poolName} failed: " + e.ToString());
                 throw;
             }
         }

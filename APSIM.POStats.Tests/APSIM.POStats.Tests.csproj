@@ -33,4 +33,9 @@
     <EmbeddedResource Include="Test.apsimx" />
   </ItemGroup>
 
+  <!-- Include the .env file for testing -->
+  <!-- <ItemGroup>
+    <Content Include=".env" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup> -->
+
 </Project>
