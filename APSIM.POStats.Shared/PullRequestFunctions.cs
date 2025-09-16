@@ -43,11 +43,30 @@ namespace APSIM.POStats.Shared
         public static List<ApsimFileComparison> GetFileComparisons(PullRequestDetails pullRequest)
         {
             var files = new List<ApsimFileComparison>();
-            foreach (var currentFile in pullRequest.Files)
+            foreach (ApsimFile currentFile in pullRequest.Files)
             {
-                var acceptedFile = pullRequest.AcceptedPullRequest?.Files.Find(f => f.Name == currentFile.Name);
-                files.Add(new ApsimFileComparison(currentFile, acceptedFile));
+                if (!currentFile.Name.Contains("Wheat-"))
+                {
+                    ApsimFile acceptedFile = pullRequest.AcceptedPullRequest?.Files.Find(f => f.Name == currentFile.Name);
+                    files.Add(new ApsimFileComparison(currentFile, acceptedFile));
+                }
             }
+
+            //Merge Wheat back together
+            ApsimFile wheatFile = new ApsimFile();
+            wheatFile.Name = "Wheat";
+            foreach (ApsimFile currentFile in pullRequest.Files)
+            {
+                if (currentFile.Name.Contains("Wheat-"))
+                {
+                    wheatFile.Id = currentFile.Id;
+                    wheatFile.PullRequestId = currentFile.PullRequestId;
+                    wheatFile.PullRequest = currentFile.PullRequest;
+                    wheatFile.Tables.AddRange(currentFile.Tables);
+                }
+            }
+            ApsimFile acceptedWheat = pullRequest.AcceptedPullRequest?.Files.Find(f => f.Name == wheatFile.Name);
+            files.Add(new ApsimFileComparison(wheatFile, acceptedWheat));
 
             // Add in files that are in the accepted PR but not in the current PR.
             if (pullRequest.AcceptedPullRequest != null)
