@@ -14,5 +14,34 @@ namespace APSIM.POStats.Shared.Models
 
         [JsonIgnore]
         public virtual ApsimFile ApsimFile { get; set; }
+
+        public static List<Variable> MergeVariables(List<Variable> variablesA, List<Variable> variablesB)
+        {
+            List<Variable> newList = new List<Variable>();
+
+            foreach (Variable a in variablesA)
+            {
+                newList.Add(a);
+            }
+
+            foreach (Variable b in variablesB)
+            {
+                bool found = false;
+                foreach (Variable a in newList)
+                {
+                    if (a.Name == b.Name)
+                    {
+                        a.Data.AddRange(b.Data);
+                    }
+                }
+                if (!found)
+                    newList.Add(b);
+            }
+
+            foreach (Variable variable in newList)
+                VariableFunctions.EnsureStatsAreCalculated(variable, forceRecalculate: true);
+
+            return newList;
+        }
     }
 }
