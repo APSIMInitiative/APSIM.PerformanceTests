@@ -55,10 +55,14 @@ namespace APSIM.POStats.Shared
             //Merge Wheat back together
             ApsimFile wheatFile = new ApsimFile();
             wheatFile.Name = "Wheat";
+            wheatFile.Tables = new List<Table>();
             foreach (ApsimFile currentFile in pullRequest.Files)
             {
                 if (currentFile.Name.Contains("Wheat-"))
                 {
+                    wheatFile.Id = currentFile.Id;
+                    wheatFile.PullRequestId = currentFile.PullRequestId;
+                    wheatFile.PullRequest = currentFile.PullRequest;
                     wheatFile = ApsimFile.Merge(wheatFile, currentFile);
                 }
             }
