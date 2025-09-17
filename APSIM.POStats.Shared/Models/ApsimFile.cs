@@ -22,7 +22,7 @@ namespace APSIM.POStats.Shared.Models
             newFile.PullRequestId = fileA.PullRequestId;
             newFile.PullRequest = fileA.PullRequest;
 
-            fileA.Tables = new List<Table>();
+            newFile.Tables = new List<Table>();
             foreach (Table a in fileA.Tables)
             {
                 newFile.Tables.Add(a);
