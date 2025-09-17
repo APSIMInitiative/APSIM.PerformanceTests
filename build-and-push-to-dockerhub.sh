@@ -10,12 +10,20 @@ echo ""
 # build the image first
 ./build.sh
 
-simple-sha=$(git rev-parse --short HEAD)
+simplesha=$(git rev-parse --short HEAD)
 
-# push the images to Docker Hub
+# push the portal image
 docker push apsiminitiative/postats2-portal:latest
-docker push apsiminitiative/postats2-portal:$simple-sha
+
+# also tag with the git sha
+docker tag apsiminitiative/postats2-portal:latest apsiminitiative/postats2-portal:$simplesha
+docker push apsiminitiative/postats2-portal:$simplesha
+
+# push the collector image
 docker push apsiminitiative/postats2-collector:latest
-docker push apsiminitiative/postats2-collector:$simple-sha
+
+# also tag with the git sha
+docker tag apsiminitiative/postats2-collector:latest apsiminitiative/postats2-collector:$simplesha
+docker push apsiminitiative/postats2-collector:$simplesha
 
 echo "Done."
