@@ -10,8 +10,12 @@ echo ""
 # build the image first
 ./build.sh
 
+simple-sha=$(git rev-parse --short HEAD)
+
 # push the images to Docker Hub
 docker push apsiminitiative/postats2-portal:latest
+docker push apsiminitiative/postats2-portal:$simple-sha
 docker push apsiminitiative/postats2-collector:latest
+docker push apsiminitiative/postats2-collector:$simple-sha
 
 echo "Done."
