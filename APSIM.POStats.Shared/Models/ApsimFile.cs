@@ -36,6 +36,7 @@ namespace APSIM.POStats.Shared.Models
                     if (a.Name == b.Name)
                     {
                         a.Variables = Table.MergeVariables(a.Variables, b.Variables);
+                        found = true;
                     }
                 }
                 if (!found)

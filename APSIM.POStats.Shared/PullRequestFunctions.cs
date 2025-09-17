@@ -56,6 +56,7 @@ namespace APSIM.POStats.Shared
             ApsimFile wheatFile = new ApsimFile();
             wheatFile.Name = "Wheat";
             wheatFile.Tables = new List<Table>();
+
             foreach (ApsimFile currentFile in pullRequest.Files)
             {
                 if (currentFile.Name.Contains("Wheat-"))
@@ -63,9 +64,54 @@ namespace APSIM.POStats.Shared
                     wheatFile.Id = currentFile.Id;
                     wheatFile.PullRequestId = currentFile.PullRequestId;
                     wheatFile.PullRequest = currentFile.PullRequest;
-                    wheatFile = ApsimFile.Merge(wheatFile, currentFile);
+
+                    foreach (Table table in currentFile.Tables)
+                    {
+                        Table wheatTable = null;
+                        foreach (Table t in wheatFile.Tables)
+                            if (t.Name == table.Name)
+                                wheatTable = t;
+                        if (wheatTable == null)
+                        {
+                            wheatTable = new Table();
+                            wheatTable.Id = table.Id;
+                            wheatTable.Name = table.Name;
+                            wheatTable.Variables = new List<Variable>();
+                            wheatTable.ApsimFileId = table.ApsimFileId;
+                            wheatTable.ApsimFile = wheatFile;
+                            wheatFile.Tables.Add(wheatTable);
+                        }
+
+                        foreach (Variable variable in table.Variables)
+                        {
+                            Variable wheatVar = null;
+                            foreach (Variable v in wheatTable.Variables)
+                                if (v.Name == variable.Name)
+                                    wheatVar = v;
+                            if (wheatVar == null)
+                            {
+                                wheatVar = new Variable();
+                                wheatVar.Id = variable.Id;
+                                wheatVar.Name = variable.Name;
+                                wheatVar.N = variable.N;
+                                wheatVar.RMSE = variable.RMSE;
+                                wheatVar.NSE = variable.NSE;
+                                wheatVar.RSR = variable.RSR;
+                                wheatVar.TableId = wheatTable.Id;
+                                wheatVar.Table = wheatTable;
+                                wheatVar.Data = new List<VariableData>();
+                                wheatTable.Variables.Add(wheatVar);
+                            }
+                            wheatVar.Data.AddRange(variable.Data);
+                        }
+                    }
                 }
             }
+
+            foreach (Table table in wheatFile.Tables)
+                foreach (Variable variable in table.Variables)
+                    VariableFunctions.EnsureStatsAreCalculated(variable, forceRecalculate: true);
+
             ApsimFile acceptedWheat = pullRequest.AcceptedPullRequest?.Files.Find(f => f.Name == wheatFile.Name);
             files.Add(new ApsimFileComparison(wheatFile, acceptedWheat));
 

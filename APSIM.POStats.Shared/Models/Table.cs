@@ -32,14 +32,12 @@ namespace APSIM.POStats.Shared.Models
                     if (a.Name == b.Name)
                     {
                         a.Data.AddRange(b.Data);
+                        found = true;
                     }
                 }
                 if (!found)
                     newList.Add(b);
             }
-
-            foreach (Variable variable in newList)
-                VariableFunctions.EnsureStatsAreCalculated(variable, forceRecalculate: true);
 
             return newList;
         }
