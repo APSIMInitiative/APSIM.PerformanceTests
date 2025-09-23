@@ -1,9 +1,10 @@
 ﻿using APSIM.POStats.Shared.Models;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading;
+using SQLitePCL;
 
 namespace APSIM.POStats.Shared
 {
@@ -75,7 +76,7 @@ namespace APSIM.POStats.Shared
         /// </remarks>
         /// <param name="pullRequest">The pull request to copy the data from..</param>
         /// <returns>Reference to stored PullRequest</returns>
-        public PullRequestDetails AddDataToPullRequest(PullRequestDetails fromPullRequest, int retryCount = 0)
+        public PullRequestDetails AddDataToPullRequest(PullRequestDetails fromPullRequest)
         {
             var pr = new PullRequestDetails();
 
@@ -99,6 +100,91 @@ namespace APSIM.POStats.Shared
             SaveChanges();
 
             return pr;
+        }
+
+        /// <summary>Get a list of all files for a pull request.</summary>
+        /// <param name="pullRequest">The pull request.</param>
+        public static void MergeSplitFiles(PullRequestDetails pullRequest, string prefix, string newName)
+        {
+            //Merge back together any files that have been split
+            List<ApsimFile> wheatFiles = new List<ApsimFile>();
+
+            //Merge Wheat back together
+            ApsimFile wheatFile = new ApsimFile();
+            wheatFile.Name = newName;
+            wheatFile.Tables = new List<Table>();
+
+            foreach (ApsimFile currentFile in pullRequest.Files)
+            {
+                if (currentFile.Name.Contains(prefix))
+                {
+                    wheatFiles.Add(currentFile);
+
+                    foreach (Table table in currentFile.Tables)
+                    {
+                        Table wheatTable = null;
+                        foreach (Table t in wheatFile.Tables)
+                            if (t.Name == table.Name)
+                                wheatTable = t;
+
+                        if (wheatTable == null)
+                        {
+                            wheatTable = new Table();
+                            wheatTable.Name = table.Name;
+                            wheatTable.Variables = new List<Variable>();
+                            wheatFile.Tables.Add(wheatTable);
+                        }
+
+                        foreach (Variable variable in table.Variables)
+                        {
+                            Variable wheatVar = null;
+                            foreach (Variable v in wheatTable.Variables)
+                                if (v.Name == variable.Name)
+                                    wheatVar = v;
+                            if (wheatVar == null)
+                            {
+                                wheatVar = new Variable();
+                                wheatVar.Name = variable.Name;
+                                wheatVar.N = variable.N;
+                                wheatVar.RMSE = variable.RMSE;
+                                wheatVar.NSE = variable.NSE;
+                                wheatVar.RSR = variable.RSR;
+                                wheatVar.Data = new List<VariableData>();
+                                wheatTable.Variables.Add(wheatVar);
+                            }
+                            foreach (VariableData data in variable.Data)
+                            {
+                                VariableData wheatData = new VariableData();
+                                wheatData.Label = data.Label;
+                                wheatData.Predicted = data.Predicted;
+                                wheatData.Observed = data.Observed;
+                                wheatVar.Data.Add(wheatData);
+                            }
+                        }
+                    }
+                }
+            }
+
+            pullRequest.Files.Add(wheatFile);
+            //foreach (ApsimFile file in wheatFiles)
+            //{
+            //    pullRequest.Files.Remove(file);
+            //}
+            
+            // Calculate stats for each variable in each table in each file.
+            foreach (var file in pullRequest.Files)
+            {
+                Console.WriteLine(file.Name);
+                foreach (var table in file.Tables)
+                {
+                    foreach (var variable in table.Variables)
+                    {
+                        VariableFunctions.EnsureStatsAreCalculated(variable);
+                    }
+                }
+            }
+
+            //SaveChanges();
         }
 
         /// <summary>
@@ -162,9 +248,17 @@ namespace APSIM.POStats.Shared
 
             // Calculate stats for each variable in each table in each file.
             foreach (var file in pr.Files)
+            {
+                Console.WriteLine(file.Name);
                 foreach (var table in file.Tables)
+                {
                     foreach (var variable in table.Variables)
+                    {
                         VariableFunctions.EnsureStatsAreCalculated(variable);
+                    }
+                }
+            }
+
             SaveChanges();
             return pr;
         }

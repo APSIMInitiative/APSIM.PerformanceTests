@@ -32,23 +32,30 @@ namespace APSIM.POStats.Portal.Controllers
             Console.WriteLine($"Tick");
             PullRequestTimer timer = source as PullRequestTimer;
 
-            Task<string> response = WebUtilities.GetAsync($"{url}api/count?pullrequestnumber={timer.PullRequest}&commitid={timer.Commit}");
-            response.Wait();
-
-            string result = response.Result.ToString();
-            if (!string.IsNullOrEmpty(result))
+            try
             {
-                int count = int.Parse(result);
-
-                double minutes = (DateTime.Now - timer.StartTime).TotalMinutes;
-
-                Console.WriteLine($"{timer.PullRequest} ({timer.Commit}): count={count} and minutes={Math.Round(minutes, 1)}");
-                if (minutes >= FINAL_TIMEOUT)
+                Task<string> response = WebUtilities.GetAsync($"{url}api/count?pullrequestnumber={timer.PullRequest}&commitid={timer.Commit}");
+                response.Wait();
+                
+                string result = response.Result.ToString();
+                if (!string.IsNullOrEmpty(result))
                 {
-                    timer.Stop();
-                    response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequest}&commitId={timer.Commit}");
-                    response.Wait();
+                    int count = int.Parse(result);
+
+                    double minutes = (DateTime.Now - timer.StartTime).TotalMinutes;
+
+                    Console.WriteLine($"{timer.PullRequest} ({timer.Commit}): count={count} and minutes={Math.Round(minutes, 1)}");
+                    if (minutes >= FINAL_TIMEOUT)
+                    {
+                        timer.Stop();
+                        response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequest}&commitId={timer.Commit}");
+                        response.Wait();
+                    }
                 }
+            }
+            catch
+            {
+                timer.Stop();
             }
         }
 

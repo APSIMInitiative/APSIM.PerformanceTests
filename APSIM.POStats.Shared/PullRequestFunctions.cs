@@ -1,6 +1,7 @@
 ﻿using APSIM.POStats.Shared.Comparison;
 using APSIM.POStats.Shared.Models;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 
 namespace APSIM.POStats.Shared
@@ -42,78 +43,14 @@ namespace APSIM.POStats.Shared
         /// <param name="pullRequest">The pull request.</param>
         public static List<ApsimFileComparison> GetFileComparisons(PullRequestDetails pullRequest)
         {
+            StatsDbContext.MergeSplitFiles(pullRequest, "Wheat-", "Wheat");
+
             var files = new List<ApsimFileComparison>();
             foreach (ApsimFile currentFile in pullRequest.Files)
             {
-                if (!currentFile.Name.Contains("Wheat-"))
-                {
-                    ApsimFile acceptedFile = pullRequest.AcceptedPullRequest?.Files.Find(f => f.Name == currentFile.Name);
-                    files.Add(new ApsimFileComparison(currentFile, acceptedFile));
-                }
+                ApsimFile acceptedFile = pullRequest.AcceptedPullRequest?.Files.Find(f => f.Name == currentFile.Name);
+                files.Add(new ApsimFileComparison(currentFile, acceptedFile));
             }
-
-            //Merge Wheat back together
-            ApsimFile wheatFile = new ApsimFile();
-            wheatFile.Name = "Wheat";
-            wheatFile.Tables = new List<Table>();
-
-            foreach (ApsimFile currentFile in pullRequest.Files)
-            {
-                if (currentFile.Name.Contains("Wheat-"))
-                {
-                    wheatFile.Id = currentFile.Id;
-                    wheatFile.PullRequestId = currentFile.PullRequestId;
-                    wheatFile.PullRequest = currentFile.PullRequest;
-
-                    foreach (Table table in currentFile.Tables)
-                    {
-                        Table wheatTable = null;
-                        foreach (Table t in wheatFile.Tables)
-                            if (t.Name == table.Name)
-                                wheatTable = t;
-                        if (wheatTable == null)
-                        {
-                            wheatTable = new Table();
-                            wheatTable.Id = table.Id;
-                            wheatTable.Name = table.Name;
-                            wheatTable.Variables = new List<Variable>();
-                            wheatTable.ApsimFileId = table.ApsimFileId;
-                            wheatTable.ApsimFile = wheatFile;
-                            wheatFile.Tables.Add(wheatTable);
-                        }
-
-                        foreach (Variable variable in table.Variables)
-                        {
-                            Variable wheatVar = null;
-                            foreach (Variable v in wheatTable.Variables)
-                                if (v.Name == variable.Name)
-                                    wheatVar = v;
-                            if (wheatVar == null)
-                            {
-                                wheatVar = new Variable();
-                                wheatVar.Id = variable.Id;
-                                wheatVar.Name = variable.Name;
-                                wheatVar.N = variable.N;
-                                wheatVar.RMSE = variable.RMSE;
-                                wheatVar.NSE = variable.NSE;
-                                wheatVar.RSR = variable.RSR;
-                                wheatVar.TableId = wheatTable.Id;
-                                wheatVar.Table = wheatTable;
-                                wheatVar.Data = new List<VariableData>();
-                                wheatTable.Variables.Add(wheatVar);
-                            }
-                            wheatVar.Data.AddRange(variable.Data);
-                        }
-                    }
-                }
-            }
-
-            foreach (Table table in wheatFile.Tables)
-                foreach (Variable variable in table.Variables)
-                    VariableFunctions.EnsureStatsAreCalculated(variable, forceRecalculate: true);
-
-            ApsimFile acceptedWheat = pullRequest.AcceptedPullRequest?.Files.Find(f => f.Name == wheatFile.Name);
-            files.Add(new ApsimFileComparison(wheatFile, acceptedWheat));
 
             // Add in files that are in the accepted PR but not in the current PR.
             if (pullRequest.AcceptedPullRequest != null)
