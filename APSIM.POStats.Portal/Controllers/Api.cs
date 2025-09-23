@@ -45,7 +45,7 @@ namespace APSIM.POStats.Portal.Controllers
                     double minutes = (DateTime.Now - timer.StartTime).TotalMinutes;
 
                     Console.WriteLine($"{timer.PullRequest} ({timer.Commit}): count={count} and minutes={Math.Round(minutes, 1)}");
-                    if (minutes >= FINAL_TIMEOUT)
+                    if (minutes >= FINAL_TIMEOUT || count >= timer.CountTotal)
                     {
                         timer.Stop();
                         response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequest}&commitId={timer.Commit}");
@@ -92,7 +92,7 @@ namespace APSIM.POStats.Portal.Controllers
                 statsDb.OpenPullRequest(pullrequestnumber, commitid, author, count, pool);
 
                 // Create a timer to check how many files have been returned
-                PullRequestTimer finishTimer = new PullRequestTimer { Interval = 10000, PullRequest = pullrequestnumber, Commit = commitid };
+                PullRequestTimer finishTimer = new PullRequestTimer { Interval = 10000, PullRequest = pullrequestnumber, Commit = commitid, CountTotal = count };
                 finishTimer.Elapsed += OnCheckIfFinished;
                 finishTimer.AutoReset = true;
                 finishTimer.StartTime = DateTime.Now;

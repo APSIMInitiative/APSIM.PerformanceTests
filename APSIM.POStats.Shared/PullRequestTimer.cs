@@ -12,5 +12,8 @@ namespace APSIM.POStats.Shared
 
         /// <summary>Start Time</summary>
         public DateTime StartTime;
+
+        /// <summary>Number of nodes that should return</summary>
+        public int CountTotal;
     }
 }
