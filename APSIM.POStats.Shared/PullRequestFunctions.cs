@@ -43,8 +43,6 @@ namespace APSIM.POStats.Shared
         /// <param name="pullRequest">The pull request.</param>
         public static List<ApsimFileComparison> GetFileComparisons(PullRequestDetails pullRequest)
         {
-            StatsDbContext.MergeSplitFiles(pullRequest, "Wheat-", "Wheat");
-
             var files = new List<ApsimFileComparison>();
             foreach (ApsimFile currentFile in pullRequest.Files)
             {

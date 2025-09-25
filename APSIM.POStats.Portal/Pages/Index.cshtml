@@ -83,6 +83,19 @@
             <div>
                 <label for="ReturnCount">Return Count:</label>
                 <input name="ReturnCount" value="@Model.PullRequest.Status.Count" readonly />
+                <label for="TotalCount"> of </label>
+                <input name="TotalCount" value="@Model.PullRequest.CountTotal" readonly />
+            </div>
+            <div>
+                <label for="Status">Status: </label>
+                @if (@Model.PullRequest.Status.Count != @Model.PullRequest.CountTotal)
+                {
+                    <label style="color:orange;font-weight:bold">Running</label>
+                }
+                else
+                {
+                    <label style="color:green;font-weight:bold">Completed</label>
+                }
             </div>
             <br />
             <br />

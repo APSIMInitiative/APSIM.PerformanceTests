@@ -106,85 +106,83 @@ namespace APSIM.POStats.Shared
         /// <param name="pullRequest">The pull request.</param>
         public static void MergeSplitFiles(PullRequestDetails pullRequest, string prefix, string newName)
         {
-            //Merge back together any files that have been split
-            List<ApsimFile> wheatFiles = new List<ApsimFile>();
+            List<VariableData> copiedData = new List<VariableData>();
+            List<string> variableRef = new List<string>();
+            List<string> tableRef = new List<string>();
 
-            //Merge Wheat back together
-            ApsimFile wheatFile = new ApsimFile();
-            wheatFile.Name = newName;
-            wheatFile.Tables = new List<Table>();
+            //This looks like a weird way to do this, however for DBContext to work
+            //We cannot incrementally add data to the structure, otherwise it breaks
+            //So we have work everything out first, then work backwards filling in our 
+            //lists all at once before moving to the next variable/table.
 
+            //We will need to re-write this structure in the future to all for better
+            //data sorting and lookup.
+            List<ApsimFile> splitFiles = new List<ApsimFile>();
             foreach (ApsimFile currentFile in pullRequest.Files)
             {
                 if (currentFile.Name.Contains(prefix))
                 {
-                    wheatFiles.Add(currentFile);
-
+                    splitFiles.Add(currentFile);
                     foreach (Table table in currentFile.Tables)
                     {
-                        Table wheatTable = null;
-                        foreach (Table t in wheatFile.Tables)
-                            if (t.Name == table.Name)
-                                wheatTable = t;
-
-                        if (wheatTable == null)
-                        {
-                            wheatTable = new Table();
-                            wheatTable.Name = table.Name;
-                            wheatTable.Variables = new List<Variable>();
-                            wheatFile.Tables.Add(wheatTable);
-                        }
-
+                        if (!tableRef.Contains(table.Name))
+                            tableRef.Add(table.Name);
                         foreach (Variable variable in table.Variables)
                         {
-                            Variable wheatVar = null;
-                            foreach (Variable v in wheatTable.Variables)
-                                if (v.Name == variable.Name)
-                                    wheatVar = v;
-                            if (wheatVar == null)
-                            {
-                                wheatVar = new Variable();
-                                wheatVar.Name = variable.Name;
-                                wheatVar.N = variable.N;
-                                wheatVar.RMSE = variable.RMSE;
-                                wheatVar.NSE = variable.NSE;
-                                wheatVar.RSR = variable.RSR;
-                                wheatVar.Data = new List<VariableData>();
-                                wheatTable.Variables.Add(wheatVar);
-                            }
+                            if (!variableRef.Contains(variable.Name))
+                                variableRef.Add(variable.Name);
+
                             foreach (VariableData data in variable.Data)
-                            {
-                                VariableData wheatData = new VariableData();
-                                wheatData.Label = data.Label;
-                                wheatData.Predicted = data.Predicted;
-                                wheatData.Observed = data.Observed;
-                                wheatVar.Data.Add(wheatData);
-                            }
+                                copiedData.Add(data);
                         }
                     }
                 }
             }
 
-            pullRequest.Files.Add(wheatFile);
-            //foreach (ApsimFile file in wheatFiles)
-            //{
-            //    pullRequest.Files.Remove(file);
-            //}
-            
-            // Calculate stats for each variable in each table in each file.
-            foreach (var file in pullRequest.Files)
+            List<Table> tables = new List<Table>();
+            foreach (string table in tableRef.Distinct())
             {
-                Console.WriteLine(file.Name);
-                foreach (var table in file.Tables)
+                List<Variable> variables = new List<Variable>();
+                foreach (string variable in variableRef.Distinct())
                 {
-                    foreach (var variable in table.Variables)
+                    List<VariableData> datas = new List<VariableData>();
+                    foreach (VariableData data in copiedData)
                     {
-                        VariableFunctions.EnsureStatsAreCalculated(variable);
+                        if (data.Variable.Table.Name == table && data.Variable.Name == variable)
+                        {
+                            VariableData newData = new VariableData();
+                            newData.Label = data.Label;
+                            newData.Predicted = data.Predicted;
+                            newData.Observed = data.Observed;
+                            datas.Add(newData);
+                        }
                     }
+                    if (datas.Count() > 0)
+                    {
+                        Variable newVariable = new Variable();
+                        newVariable.Name = variable;
+                        newVariable.Data = datas;
+                        variables.Add(newVariable);
+                    }
+                }
+                if (variables.Count() > 0)
+                {
+                    Table newTable = new Table();
+                    newTable.Name = table;
+                    newTable.Variables = variables;
+                    tables.Add(newTable);
                 }
             }
 
-            //SaveChanges();
+            //Merge Wheat back together
+            ApsimFile combinedFile = new ApsimFile();
+            combinedFile.Name = newName;
+            combinedFile.Tables = tables;
+
+            pullRequest.Files.Add(combinedFile);
+            foreach (ApsimFile file in splitFiles)
+                pullRequest.Files.Remove(file);
+
         }
 
         /// <summary>
@@ -246,10 +244,12 @@ namespace APSIM.POStats.Shared
             // Assign the current accepted pull request.
             pr.AcceptedPullRequest = GetMostRecentAcceptedPullRequest();
 
+            StatsDbContext.MergeSplitFiles(pr, "Wheat-", "Wheat");
+            StatsDbContext.MergeSplitFiles(pr, "FAR-", "FAR");
+
             // Calculate stats for each variable in each table in each file.
             foreach (var file in pr.Files)
             {
-                Console.WriteLine(file.Name);
                 foreach (var table in file.Tables)
                 {
                     foreach (var variable in table.Variables)

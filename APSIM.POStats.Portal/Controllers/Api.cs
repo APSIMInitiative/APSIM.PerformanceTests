@@ -20,7 +20,7 @@ namespace APSIM.POStats.Portal.Controllers
         private static object _lock = new();
 
         /// <summary>Final timeout in minutes. Controls how long to wait before finally closing a pull request.</summary>
-        private const double FINAL_TIMEOUT = 30.0;
+        private const double FINAL_TIMEOUT = 40.0;
 
         /// <summary>Event handler for finish timer.</summary>
         private static void OnCheckIfFinished(Object source, ElapsedEventArgs e)
@@ -29,7 +29,6 @@ namespace APSIM.POStats.Portal.Controllers
             if (string.IsNullOrEmpty(url))
                 throw new Exception($"Cannot find environment variable POSTATS_UPLOAD_URL");
 
-            Console.WriteLine($"Tick");
             PullRequestTimer timer = source as PullRequestTimer;
 
             try
@@ -44,7 +43,7 @@ namespace APSIM.POStats.Portal.Controllers
 
                     double minutes = (DateTime.Now - timer.StartTime).TotalMinutes;
 
-                    Console.WriteLine($"{timer.PullRequest} ({timer.Commit}): count={count} and minutes={Math.Round(minutes, 1)}");
+                    //Console.WriteLine($"{timer.PullRequest} ({timer.Commit}): count={count} and minutes={Math.Round(minutes, 1)}");
                     if (minutes >= FINAL_TIMEOUT || count >= timer.CountTotal)
                     {
                         timer.Stop();
@@ -159,7 +158,7 @@ namespace APSIM.POStats.Portal.Controllers
         [HttpGet("count")]
         public IActionResult Count(int pullrequestnumber, string commitid)
         {
-            Console.WriteLine($"api/count");
+            //Console.WriteLine($"api/count");
             
             if (pullrequestnumber == 0)
                 return BadRequest("You must supply a pull request number");
@@ -172,7 +171,7 @@ namespace APSIM.POStats.Portal.Controllers
                 try
                 {
                     var count = statsDb.GetNumberOfCompletesInPullRequest(pullrequestnumber, commitid);
-                    Console.WriteLine($"{count}");
+                    //Console.WriteLine($"{count}");
                     return Ok(count);
                 }
                 catch (Exception ex)
@@ -197,7 +196,7 @@ namespace APSIM.POStats.Portal.Controllers
         [RequestSizeLimit(100_000_000)]
         public IActionResult PostAsync([FromBody]PullRequestDetails pullrequest)
         {
-            Console.WriteLine($"api/adddata called");
+            //Console.WriteLine($"api/adddata called");
 
             if (pullrequest == null)
                 return BadRequest("You must supply a pull request");
