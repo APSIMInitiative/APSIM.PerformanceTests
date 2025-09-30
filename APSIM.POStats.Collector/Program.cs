@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace APSIM.POStats.Collector
@@ -147,7 +148,7 @@ namespace APSIM.POStats.Collector
                 }
             }
         }
-        
+
         /// <summary>
         /// Upload method for Jenkins
         /// </summary>
@@ -179,19 +180,10 @@ namespace APSIM.POStats.Collector
                 pullRequest.Files.Clear();
                 pullRequest.Files.Add(file);
 
-                Console.WriteLine($"Sending POStats data to web api for file {file.Name}");
+                bool success = UploadStatsJenkinsSend(url, pullRequest, file.Name);
 
-                try 
-                {
-                    response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
-                    response.Wait();
-                }
-                catch (Exception exception)
-                {
-                    Console.WriteLine($"Error when collecting file {file.Name}");
-                    Console.WriteLine(exception.Message);
+                if (!success)
                     ok = false;
-                }
             }
 
             // Tell endpoint we're about to upload data.
@@ -204,6 +196,40 @@ namespace APSIM.POStats.Collector
             {
                 throw new Exception("Errors Uploading data to POStats");
             }
+        }
+
+        /// <summary>
+        /// Upload method for Jenkins
+        /// </summary>
+        /// <param name="pullRequest"></param>
+        /// <param name="urlEnvironmentVariable"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private static bool UploadStatsJenkinsSend(string url, PullRequestJenkins pullRequest, string filename)
+        {
+            int attempts = 0;
+            while (attempts < 4)
+            {
+                attempts += 1;
+                Console.WriteLine($"Sending POStats data to web api for file {filename}. Attempt {attempts}");
+                try
+                {
+                    Task<string> response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
+                    response.Wait();
+                    return true;
+                }
+                catch (Exception exception)
+                {
+                    Thread.Sleep(1000);
+                    if (attempts == 4)
+                    {
+                        Console.WriteLine($"Error when collecting file {filename}");
+                        Console.WriteLine(exception.Message);
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 }
