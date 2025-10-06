@@ -129,10 +129,19 @@ namespace APSIM.POStats.Portal.Controllers
                     // Send pass/fail to gitHub
                     var pullRequest = statsDb.ClosePullRequest(pullrequestnumber);
 
-                    VariableComparison.Status status = PullRequestFunctions.GetStatus(pullRequest);
-                    GitHub.SetStatus(pullrequestnumber, commitid, status);
+                    if (PullRequestFunctions.HasExceptionInLogs(pullRequest))
+                    {
+                        GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Missing, "Exception Thrown");
+                    }
+                    else
+                    {
+                        VariableComparison.Status status = PullRequestFunctions.GetStatus(pullRequest);
+                        GitHub.SetStatus(pullrequestnumber, commitid, status);
+                    }
+
                     if (string.IsNullOrEmpty(pullRequest.Pool))
                         throw new Exception("No pool associated with this pull request. Pool is required to close the Azure Batch pool.");
+                        
                     await AzureBatchManager.CloseBatchPoolAsync(pullRequest.Pool);
                 }
                 catch (Exception ex)
