@@ -49,6 +49,7 @@ namespace APSIM.POStats.Portal.Controllers
                         timer.Stop();
                         response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequest}&commitId={timer.Commit}");
                         response.Wait();
+                        GitHub.SetStatus(timer.PullRequest, timer.Commit, VariableComparison.Status.Missing, "Timeout Error");
                     }
                 }
             }
@@ -86,9 +87,9 @@ namespace APSIM.POStats.Portal.Controllers
                 return BadRequest("You must supply a pool name");
             try
             {
-                GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running, $"Running {count} Validation Tasks");
-
                 statsDb.OpenPullRequest(pullrequestnumber, commitid, author, count, pool);
+
+                GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running, $"Running {count} Validation Tasks");
 
                 // Create a timer to check how many files have been returned
                 PullRequestTimer finishTimer = new PullRequestTimer { Interval = 10000, PullRequest = pullrequestnumber, Commit = commitid, CountTotal = count };

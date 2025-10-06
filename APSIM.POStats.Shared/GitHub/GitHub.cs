@@ -58,20 +58,19 @@ namespace APSIM.POStats.Shared.GitHub
             if (pullRequestTask.State.ToLower() != "open")
                 throw new Exception($"Cannot set the status of a Pull Request that is not open (id: {pullRequestNumber})");
 
-            //if (!pullRequestTask.StatusURL.Contains(commitId))
-            //    throw new Exception($"Cannot set the status of a Pull Request as the commit id is not the latest (PR: {pullRequestNumber}, Commit:{commitId})");
+            if (!pullRequestTask.StatusURL.Contains(commitId))
+                throw new Exception($"Cannot set the status of a Pull Request as the commit id is not the latest (PR: {pullRequestNumber}, Commit:{commitId})");
 
             //check the status of POStats for this PR
             string state = "failure";
            
-
             if (status == VariableComparison.Status.Same)
                 state = "success";
 
             if (status == VariableComparison.Status.Running)
                 state = "pending";
 
-            string stateFormatted = "In Development: " + status.ToString();
+            string stateFormatted = status.ToString();
             if (!String.IsNullOrEmpty(message))
                 stateFormatted = message;
 
@@ -80,9 +79,6 @@ namespace APSIM.POStats.Shared.GitHub
             string urlStr = $"{serverURL}{pullRequestNumber}";
 
             Console.WriteLine($"Github Status Update: {state} {urlStr} {stateFormatted} {"APSIM.POStats2"}");
-
-            //Always success for now
-            state = "success";
 
             //Status POST body details
             GitHubStatusDetails body = new GitHubStatusDetails(state, urlStr, stateFormatted, "APSIM.POStats2");

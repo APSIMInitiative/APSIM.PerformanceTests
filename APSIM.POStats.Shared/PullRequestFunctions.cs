@@ -21,7 +21,7 @@ namespace APSIM.POStats.Shared
             {
                 if (file.Status != ApsimFileComparison.StatusType.NoChange)
                     return VariableComparison.Status.Different;
-                
+
                 foreach (var table in file.Tables)
                 {
                     if (table.Status != ApsimFileComparison.StatusType.NoChange)
@@ -88,6 +88,16 @@ namespace APSIM.POStats.Shared
                 foreach (var table in file.Tables)
                     foreach (var variable in table.Variables)
                         VariableFunctions.EnsureStatsAreCalculated(variable, forceRecalculate: true);
+        }
+
+        /// <summary>Update the stats in the specified pull request.</summary>
+        /// <param name="pullRequest"></param>
+        public static bool HasExceptionInLogs(PullRequestDetails pullRequest)
+        {
+            foreach (string log in pullRequest.Outputs)
+                if (log.Contains("Exception"))
+                    return true;
+            return false;
         }
     }
 }
