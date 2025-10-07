@@ -43,13 +43,14 @@ namespace APSIM.POStats.Portal.Controllers
 
                     double minutes = (DateTime.Now - timer.StartTime).TotalMinutes;
 
-                    //Console.WriteLine($"{timer.PullRequest} ({timer.Commit}): count={count} and minutes={Math.Round(minutes, 1)}");
                     if (minutes >= FINAL_TIMEOUT || count >= timer.CountTotal)
                     {
                         timer.Stop();
                         response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequest}&commitId={timer.Commit}");
                         response.Wait();
-                        GitHub.SetStatus(timer.PullRequest, timer.Commit, VariableComparison.Status.Missing, "Timeout Error");
+
+                        if (count < timer.CountTotal)
+                            GitHub.SetStatus(timer.PullRequest, timer.Commit, VariableComparison.Status.Missing, "Timeout Error");
                     }
                 }
             }
