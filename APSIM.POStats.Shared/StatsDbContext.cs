@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading;
-using SQLitePCL;
+using System.Diagnostics;
 
 namespace APSIM.POStats.Shared
 {
@@ -78,6 +78,10 @@ namespace APSIM.POStats.Shared
         /// <returns>Reference to stored PullRequest</returns>
         public PullRequestDetails AddDataToPullRequest(PullRequestDetails fromPullRequest)
         {
+            string file = fromPullRequest.Files.FirstOrDefault().Name;
+            string number = fromPullRequest.PullRequest.ToString();
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             var pr = new PullRequestDetails();
 
             // Find the pull request. Should always exist if OpenPullRequest has been called.
@@ -85,19 +89,24 @@ namespace APSIM.POStats.Shared
             if (pr == null)
                 throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.PullRequest}");
 
-            foreach (ApsimFile file in fromPullRequest.Files)
-                Console.WriteLine($"File \"{file.Name}\" added to PR {fromPullRequest.PullRequest}");
+            stopwatch.Stop();
+            Console.WriteLine($"\"{file}\" found PR {number} in {stopwatch.ElapsedMilliseconds} ms");
 
+            stopwatch = Stopwatch.StartNew();
             if (fromPullRequest.Files != null)
                 pr.Files.AddRange(fromPullRequest.Files);
 
             if (fromPullRequest.Outputs != null)
                 pr.Outputs.AddRange(fromPullRequest.Outputs);
 
-            if (fromPullRequest.Status != null)
-                pr.Status.AddRange(fromPullRequest.Status);
+            stopwatch.Stop();
+            Console.WriteLine($"\"{file}\" copied to PR {number} in {stopwatch.ElapsedMilliseconds} ms");
 
+            stopwatch = Stopwatch.StartNew();
             SaveChanges();
+
+            stopwatch.Stop();
+            Console.WriteLine($"\"{file}\" written to PR {number} in {stopwatch.ElapsedMilliseconds} ms");
 
             return pr;
         }
@@ -202,7 +211,7 @@ namespace APSIM.POStats.Shared
             if (pr == null)
                 throw new Exception($"Cannot find POStats pull request number: {pullrequestnumber}");
 
-            return pr.Status.Count;
+            return pr.Outputs.Count;
         }
 
         public bool SaveChangesMultipleTries(int retries = 0)

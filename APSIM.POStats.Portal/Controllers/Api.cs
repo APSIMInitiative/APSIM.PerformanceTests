@@ -93,7 +93,7 @@ namespace APSIM.POStats.Portal.Controllers
                 GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running, $"Running {count} Validation Tasks");
 
                 // Create a timer to check how many files have been returned
-                PullRequestTimer finishTimer = new PullRequestTimer { Interval = 10000, PullRequest = pullrequestnumber, Commit = commitid, CountTotal = count };
+                PullRequestTimer finishTimer = new PullRequestTimer { Interval = 60000, PullRequest = pullrequestnumber, Commit = commitid, CountTotal = count };
                 finishTimer.Elapsed += OnCheckIfFinished;
                 finishTimer.AutoReset = true;
                 finishTimer.StartTime = DateTime.Now;
@@ -182,7 +182,6 @@ namespace APSIM.POStats.Portal.Controllers
                 try
                 {
                     var count = statsDb.GetNumberOfCompletesInPullRequest(pullrequestnumber, commitid);
-                    //Console.WriteLine($"{count}");
                     return Ok(count);
                 }
                 catch (Exception ex)
@@ -207,31 +206,18 @@ namespace APSIM.POStats.Portal.Controllers
         [RequestSizeLimit(100_000_000)]
         public IActionResult PostAsync([FromBody]PullRequestDetails pullrequest)
         {
-            //Console.WriteLine($"api/adddata called");
-
             if (pullrequest == null)
                 return BadRequest("You must supply a pull request");
 
             lock (_lock)
             {
-                if (statsDb.PullRequestWithCommitExists(pullrequest.PullRequest, pullrequest.Commit))
+                try
                 {
-                    try
-                    {
-                        PullRequestDetails pr = statsDb.AddDataToPullRequest(pullrequest);
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest(ex.ToString());
-                    }
+                    PullRequestDetails pr = statsDb.AddDataToPullRequest(pullrequest);
                 }
-                else
+                catch (Exception ex)
                 {
-                    PullRequestDetails pr = statsDb.GetPullRequest(pullrequest.PullRequest);
-                    if (pr == null)
-                        return BadRequest($"A PR with {pullrequest.PullRequest} does not exist in the database");
-                    else
-                        return BadRequest($"A PR with {pullrequest.PullRequest} does exist, but has commit number {pr.Commit}, and you submitted a commit of {pullrequest.Commit}");
+                    return BadRequest(ex.ToString());
                 }
             }
             return Ok();
