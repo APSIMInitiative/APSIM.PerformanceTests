@@ -80,33 +80,38 @@ namespace APSIM.POStats.Shared
         {
             string file = fromPullRequest.Files.FirstOrDefault().Name;
             string number = fromPullRequest.PullRequest.ToString();
-            Stopwatch stopwatch = Stopwatch.StartNew();
+            //Stopwatch stopwatch = Stopwatch.StartNew();
 
             var pr = new PullRequestDetails();
 
             // Find the pull request. Should always exist if OpenPullRequest has been called.
-            pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == fromPullRequest.PullRequest && pr.Commit == fromPullRequest.Commit);
+            pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == fromPullRequest.PullRequest);
             if (pr == null)
                 throw new Exception($"Cannot find POStats pull request number: {fromPullRequest.PullRequest}");
+            if (pr.Commit != fromPullRequest.Commit)
+                throw new Exception($"PR {fromPullRequest.PullRequest}:{fromPullRequest.Commit} is not the latest commit {pr.Commit}, cannot save stats.");
 
-            stopwatch.Stop();
-            Console.WriteLine($"\"{file}\" found PR {number} in {stopwatch.ElapsedMilliseconds} ms");
+            //stopwatch.Stop();
+            //Console.WriteLine($"\"{file}\" found PR {number} in {stopwatch.ElapsedMilliseconds} ms");
 
-            stopwatch = Stopwatch.StartNew();
+            //stopwatch = Stopwatch.StartNew();
             if (fromPullRequest.Files != null)
                 pr.Files.AddRange(fromPullRequest.Files);
 
             if (fromPullRequest.Outputs != null)
                 pr.Outputs.AddRange(fromPullRequest.Outputs);
 
-            stopwatch.Stop();
-            Console.WriteLine($"\"{file}\" copied to PR {number} in {stopwatch.ElapsedMilliseconds} ms");
+            if (fromPullRequest.Status != null)
+                pr.Status.AddRange(fromPullRequest.Status);
 
-            stopwatch = Stopwatch.StartNew();
+            //stopwatch.Stop();
+            //Console.WriteLine($"\"{file}\" copied to PR {number} in {stopwatch.ElapsedMilliseconds} ms");
+
+            //stopwatch = Stopwatch.StartNew();
             SaveChanges();
 
-            stopwatch.Stop();
-            Console.WriteLine($"\"{file}\" written to PR {number} in {stopwatch.ElapsedMilliseconds} ms");
+            //stopwatch.Stop();
+            //Console.WriteLine($"\"{file}\" written to PR {number} in {stopwatch.ElapsedMilliseconds} ms");
 
             return pr;
         }
@@ -207,11 +212,13 @@ namespace APSIM.POStats.Shared
             var pr = new PullRequestDetails();
 
             // Find the pull request. Should always exist if OpenPullRequest has been called.
-            pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == pullrequestnumber && pr.Commit == commitid);
+            pr = PullRequests.FirstOrDefault(pr => pr.PullRequest == pullrequestnumber);
             if (pr == null)
                 throw new Exception($"Cannot find POStats pull request number: {pullrequestnumber}");
+            if (pr.Commit != pr.Commit)
+                throw new Exception($"PR {pullrequestnumber}:{commitid} is not the latest commit {pr.Commit}, cannot save stats.");
 
-            return pr.Outputs.Count;
+            return pr.Status.Count;
         }
 
         public bool SaveChangesMultipleTries(int retries = 0)

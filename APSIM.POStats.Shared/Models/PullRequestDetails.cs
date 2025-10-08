@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace APSIM.POStats.Shared.Models
 {
+    [Index(nameof(PullRequest), IsUnique = true)]
     public class PullRequestDetails
     {
         public int Id { get; set; }
