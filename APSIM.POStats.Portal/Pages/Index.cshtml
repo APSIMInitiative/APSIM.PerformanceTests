@@ -82,7 +82,7 @@
             </div>
             <div>
                 <label for="ReturnCount">Return Count:</label>
-                <input name="ReturnCount" value="@Model.PullRequest.Outputs.Count" readonly />
+                <input name="ReturnCount" value="@Model.PullRequest.Status.Count" readonly />
                 <label for="TotalCount"> of </label>
                 <input name="TotalCount" value="@Model.PullRequest.CountTotal" readonly />
             </div>
