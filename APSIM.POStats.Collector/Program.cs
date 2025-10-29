@@ -91,6 +91,7 @@ namespace APSIM.POStats.Collector
                     Stopwatch stopwatch = Stopwatch.StartNew();
                     UploadStats(pullRequest, url);
                     Console.WriteLine($"Elapsed time to send data to new web api: {stopwatch.Elapsed.TotalSeconds} seconds");
+                    stopwatch.Stop();
                 }
                 else if (command == "close")
                 {

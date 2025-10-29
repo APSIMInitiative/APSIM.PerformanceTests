@@ -78,8 +78,8 @@ namespace APSIM.POStats.Shared
         /// <returns>Reference to stored PullRequest</returns>
         public PullRequestDetails AddDataToPullRequest(PullRequestDetails fromPullRequest)
         {
-            string file = fromPullRequest.Files.FirstOrDefault().Name;
-            string number = fromPullRequest.PullRequest.ToString();
+            //string file = fromPullRequest.Files.FirstOrDefault().Name;
+            //string number = fromPullRequest.PullRequest.ToString();
             //Stopwatch stopwatch = Stopwatch.StartNew();
 
             var pr = new PullRequestDetails();
@@ -263,7 +263,7 @@ namespace APSIM.POStats.Shared
             StatsDbContext.MergeSplitFiles(pr, "Wheat-", "Wheat");
             StatsDbContext.MergeSplitFiles(pr, "FAR-", "FAR");
             StatsDbContext.MergeSplitFiles(pr, "WheatPhenology-", "WheatPhenology");
-            StatsDbContext.MergeSplitFiles(pr, "Eucalyptus-", "Eucalyptus");
+            //StatsDbContext.MergeSplitFiles(pr, "Eucalyptus-", "Eucalyptus");
 
             // Calculate stats for each variable in each table in each file.
             foreach (var file in pr.Files)

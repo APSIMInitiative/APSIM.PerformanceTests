@@ -92,7 +92,7 @@
                 {
                     <label style="color:red;font-weight:bold">Exception Thrown</label>
                 }
-                else if (@Model.PullRequest.Outputs.Count != @Model.PullRequest.CountTotal)
+                else if (@Model.PullRequest.Status.Count != @Model.PullRequest.CountTotal)
                 {
                     <label style="color:orange;font-weight:bold">Running</label>
                 }
