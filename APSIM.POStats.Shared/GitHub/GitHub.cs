@@ -78,10 +78,10 @@ namespace APSIM.POStats.Shared.GitHub
             string serverURL = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
             string urlStr = $"{serverURL}{pullRequestNumber}";
 
-            Console.WriteLine($"Github Status Update: {state} {urlStr} {stateFormatted} {"APSIM.POStats2"}");
+            Console.WriteLine($"Github Status Update: {state} {urlStr} {stateFormatted} {"APSIM Acceptance Tests"}");
 
             //Status POST body details
-            GitHubStatusDetails body = new GitHubStatusDetails(state, urlStr, stateFormatted, "APSIM.POStats2");
+            GitHubStatusDetails body = new GitHubStatusDetails(state, urlStr, stateFormatted, "APSIM Acceptance Tests");
 
             //Send POST request
             Task<string> response = WebUtilities.PostAsync(pullRequestTask.StatusURL, body, token);
