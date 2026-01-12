@@ -15,7 +15,7 @@ namespace APSIM.POStats.Portal.Pages
         private readonly StatsDbContext statsDb;
 
         /// <summary>The pull request to accept stats on.</summary>
-        private PullRequest pullRequest;
+        private PullRequestDetails pullRequest;
 
         /// <summary>Constructor</summary>
         public AcceptModel(StatsDbContext stats)
@@ -27,7 +27,7 @@ namespace APSIM.POStats.Portal.Pages
         public int PullRequestId => pullRequest.Id;
 
         /// <summary>The pull request .</summary>
-        public int PullRequestNumber => pullRequest.Number;
+        public int PullRequestNumber => pullRequest.PullRequest;
 
         /// <summary>Invoked when page is first loaded.</summary>
         /// <param name="id">The id of the pull request to work with.</param>
@@ -42,7 +42,7 @@ namespace APSIM.POStats.Portal.Pages
         public void OnPost()
         {
             var pullRequestNumber = Convert.ToInt32(Request.Form["PullRequestNumber"]);
-            pullRequest = statsDb.PullRequests.FirstOrDefault(pr => pr.Number == pullRequestNumber);
+            pullRequest = statsDb.PullRequests.FirstOrDefault(pr => pr.PullRequest == pullRequestNumber);
             if (pullRequest == null)
                 throw new Exception($"Cannot find pull request {PullRequestNumber}");
 
@@ -58,7 +58,7 @@ namespace APSIM.POStats.Portal.Pages
                 statsDb.SaveChanges();
 
                 // Send pass/fail to gitHub
-                GitHub.SetStatus(pullRequest.Number, pullRequest.LastCommit, VariableComparison.Status.Same);
+                GitHub.SetStatus(pullRequest.PullRequest, pullRequest.Commit, VariableComparison.Status.Same);
                 Response.Redirect($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase.Value}/{pullRequestNumber}");
             }
         }

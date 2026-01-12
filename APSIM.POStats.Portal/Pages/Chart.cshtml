@@ -59,12 +59,12 @@
                 'title': '@Model.Name',
                 'width': 600,
                 'height': 600,
-                hAxis: { title: 'Observed'/*, minValue: 0, maxValue: 800*/ },
-                vAxis: { title: 'Predicted'/*, minValue: 0, maxValue: 800*/ },
+                hAxis: { title: 'Observed' },
+                vAxis: { title: 'Predicted' },
                 legend: { position: 'right' },
-                trendlines: { 0: {} },    // Draw a trendline for data series 0.
+                trendlines: { 0: {}, 1: {} },    // Draw a trendline for data series 0 and 1
                 series: {
-                    2: { lineWidth: 1, pointSize: 0 } // Series 2 (1:1) is a line.
+                    2: { lineWidth: 1, pointSize: 0, color:'black' } // Series 2 (1:1) is a line.
                 }
             };
 

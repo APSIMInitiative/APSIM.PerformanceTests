@@ -12,6 +12,6 @@ namespace APSIM.POStats.Shared.Models
         [JsonIgnore]
         public int PullRequestId { get; set; }
         [JsonIgnore]
-        public virtual PullRequest PullRequest { get; set; }
+        public virtual PullRequestDetails PullRequest { get; set; }
     }
 }

@@ -28,7 +28,8 @@ namespace APSIM.POStats.Collector
                 Console.WriteLine("  3. (int) Commit Id");
                 Console.WriteLine("  4. (string) UserID");
                 Console.WriteLine("  5. (datetime) Date");
-                Console.WriteLine("  6. (string) Directories (space separated)");
+                Console.WriteLine("  6. (string) Azure pool");
+                Console.WriteLine("  7. (string) Directories (space separated)");
                 Console.WriteLine(@"  Example: APSIM.POStats.Collector Upload 1111 abcdef12345 2016.12.01-06:33 hol353 c:\Apsimx\Tests c:\Apsimx\UnderReview");
                 return 1;
             }
@@ -53,18 +54,24 @@ namespace APSIM.POStats.Collector
                 //get the run date
                 DateTime runDate = DateTime.ParseExact(args[4], "yyyy.M.d-HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal);
 
-                //get the directories
-                List<string> searchDirectories = new List<string>();
-                for (int i = 5; i < args.Length; i++)
+                //get the pool name
+                string pool = args[5];
+
+                //get the file paths
+                List<string> filePaths = new List<string>();
+                for (int i = 6; i < args.Length; i++)
                 {
-                    if (Directory.Exists(args[i]))
-                        searchDirectories.Add(args[i]);
+                    if (File.Exists(args[i]))
+                    {
+                        filePaths.Add(args[i]);
+                    }
                     else
-                        throw new Exception($"Directory \"{args[i]}\" does not exist.");
+                        throw new Exception($"File \"{args[i]}\" does not exist.");
                 }
 
+
                 //get the Pull Request details
-                PullRequest pullRequest = Shared.Collector.RetrieveData(pullId, commitId, author, runDate, searchDirectories);
+                PullRequestDetails pullRequest = Shared.Collector.RetrieveData(pullId, commitId, author, runDate, pool, filePaths);
 
                 string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
                 Console.WriteLine($"{url}");
@@ -76,7 +83,7 @@ namespace APSIM.POStats.Collector
                 if (command == "open")
                 {
                     // Tell endpoint we're about to upload data.
-                    Task<string> response = WebUtilities.GetAsync($"{url}/open?pullrequestnumber={pullRequest.Number}&commitnumber={pullRequest.LastCommit}&author={pullRequest.Author}");
+                    Task<string> response = WebUtilities.GetAsync($"{url}/open?pullrequestnumber={pullRequest.PullRequest}&commitnumber={pullRequest.Commit}&author={pullRequest.Author}");
                     response.Wait();
                 }
                 else if (command == "upload")
@@ -85,10 +92,11 @@ namespace APSIM.POStats.Collector
                     Stopwatch stopwatch = Stopwatch.StartNew();
                     UploadStats(pullRequest, url);
                     Console.WriteLine($"Elapsed time to send data to new web api: {stopwatch.Elapsed.TotalSeconds} seconds");
+                    stopwatch.Stop();
                 }
                 else if (command == "close")
                 {
-                    Task<string> response = WebUtilities.GetAsync($"{url}/close?pullrequestnumber={pullRequest.Number}&commitid={pullRequest.LastCommit}");
+                    Task<string> response = WebUtilities.GetAsync($"{url}/close?pullrequestnumber={pullRequest.PullRequest}&commitid={pullRequest.Commit}");
                     response.Wait();
                 }
                 //this is provided for Jenkins so it can continue to run with the original uploading code
@@ -97,7 +105,7 @@ namespace APSIM.POStats.Collector
                     //get the Pull Request details
                     PullRequestJenkins pullRequestJenkins = new PullRequestJenkins();
                     pullRequestJenkins.Id = pullRequest.Id;
-                    pullRequestJenkins.Number = pullRequest.Number;
+                    pullRequestJenkins.Number = pullRequest.PullRequest;
                     pullRequestJenkins.Author = pullRequest.Author;
                     pullRequestJenkins.DateRun = pullRequest.DateRun;
                     pullRequestJenkins.DateStatsAccepted = pullRequest.DateStatsAccepted;
@@ -126,25 +134,27 @@ namespace APSIM.POStats.Collector
         /// <param name="urlEnvironmentVariable"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        private static void UploadStats(PullRequest pullRequest, string url)
+        private static void UploadStats(PullRequestDetails pullRequest, string url)
         {
             List<ApsimFile> files = new();
             files.AddRange(pullRequest.Files);
-            foreach (var file in files)
-            {
-                // Upload data for one file only.
-                pullRequest.Files.Clear();
-                pullRequest.Files.Add(file);
 
-                try
+            //In the case we have no files produced, just send it back empty.
+            if (files.Count == 0)
+            {
+                Task<string> response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
+                response.Wait();
+            }
+            else
+            {
+                foreach (var file in files)
                 {
+                    // Upload data for one file only.
+                    pullRequest.Files = new List<ApsimFile>();
+                    pullRequest.Files.Add(file);
+
                     Task<string> response = WebUtilities.PostAsync($"{url}/adddata", pullRequest, null);
                     response.Wait();
-                }
-                catch (Exception exception)
-                {
-                    Console.WriteLine($"Error when collecting file {file.Name}");
-                    Console.WriteLine(exception.Message);
                 }
             }
         }

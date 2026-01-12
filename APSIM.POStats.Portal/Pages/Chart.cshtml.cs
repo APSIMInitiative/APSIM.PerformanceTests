@@ -54,8 +54,8 @@ namespace APSIM.POStats.Portal.Pages
 
             DataTable gdt = new DataTable();
             gdt.AddColumn(new Column(ColumnType.Number, "Observed", "Observed"));       // X
-            gdt.AddColumn(new Column(ColumnType.Number, "Accepted", "Accepted"));       // Accepted
-            gdt.AddColumn(new Column(ColumnType.Number, "Predicted", "Current"));       // Y
+            gdt.AddColumn(new Column(ColumnType.Number, "Accepted", "Old"));       // Y - old
+            gdt.AddColumn(new Column(ColumnType.Number, "Predicted", "New"));       // Y - new
 
             // Add in accepted values.
             VariableFunctions.GetData(accepted, out double[] acceptedPredicted, out double[] acceptedObserved, out string[] acceptedLabels);
@@ -69,8 +69,8 @@ namespace APSIM.POStats.Portal.Pages
                     {
                         var r = gdt.NewRow();
                         r.AddCell(new Cell(acceptedObserved[i], acceptedObserved[i].ToString("f3")));    // observed
-                        r.AddCell(new Cell(acceptedPredicted[i], $"{acceptedPredicted[i]:f3} ({acceptedLabels[i]})"));  // accepted
-                        r.AddCell(new Cell(null, null));    // current
+                        r.AddCell(new Cell(acceptedPredicted[i], $"{acceptedPredicted[i]:f3} ({acceptedLabels[i]})"));  // old
+                        r.AddCell(new Cell(null, null));    // new
                         gdt.AddRow(r);
                     }
                 }
@@ -84,8 +84,8 @@ namespace APSIM.POStats.Portal.Pages
             {
                 var r = gdt.NewRow();
                 r.AddCell(new Cell(observed[i], observed[i].ToString("f3")));           // observed
-                r.AddCell(new Cell(null, null));    // accepted
-                r.AddCell(new Cell(predicted[i], $"{predicted[i]:f3} ({labels[i]})"));  // current
+                r.AddCell(new Cell(null, null));    // old
+                r.AddCell(new Cell(predicted[i], $"{predicted[i]:f3} ({labels[i]})"));  // new
                 gdt.AddRow(r);
             }
 

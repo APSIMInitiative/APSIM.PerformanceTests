@@ -3,7 +3,7 @@
 #Run this script to build the docker images localled. Not used by github actions.
 
 docker build --target postats-build -t postats-build .
-docker build --target postats-collector -t apsiminitiative/postats-collector .
-docker build --target postats-portal -t apsiminitiative/postats-portal .
+docker build --target postats-collector -t apsiminitiative/postats2-collector .
+docker build --target postats-portal -t apsiminitiative/postats2-portal .
 
 docker rmi postats-build

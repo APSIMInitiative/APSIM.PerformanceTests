@@ -62,7 +62,7 @@ namespace APSIM.POStats.Shared
                     output += $"Response:\n{body}\n";
 
                     Console.WriteLine($"Error sending POST Request\n{output}");
-                    throw new Exception();
+                    throw new Exception($"Error sending POST Request\n{output}");
                 }
                 return body;
             }

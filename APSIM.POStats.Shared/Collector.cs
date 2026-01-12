@@ -30,47 +30,72 @@ namespace APSIM.POStats.Shared
         /// <param name="author"></param>
         /// <param name="runDate"></param>
         /// <param name="filePaths">A collection of file paths to search.</param>
-        public static PullRequest RetrieveData(int pullId, string commitId, string author, DateTime runDate, IEnumerable<string> filePaths)
+        public static PullRequestDetails RetrieveData(int pullId, string commitId, string author, DateTime runDate, string pool, IEnumerable<string> filePaths)
         {
-            var pullRequest = new PullRequest()
+            var pullRequest = new PullRequestDetails()
             {
-                Number = pullId,
-                LastCommit = commitId,
+                PullRequest = pullId,
+                Commit = commitId,
                 Author = author,
                 DateRun = runDate,
-                Files = new List<ApsimFile>()
+                Files = new List<ApsimFile>(),
+                Pool = pool
             };
 
             string errorMessages = string.Empty;
+            pullRequest.Outputs = new List<string>();
+            pullRequest.Status = new List<bool>();
             foreach (var filePath in filePaths)
             {
-                string currentPath = filePath.Trim();
-                DirectoryInfo info = new DirectoryInfo(@currentPath);
-                foreach (FileInfo fileInfo in info.GetFiles("*.apsimx", SearchOption.AllDirectories))
+                try
                 {
-                    try
+                    var stopwatch = Stopwatch.StartNew();
+                    var apsimFile = new ApsimFile()
                     {
-                        var stopwatch = Stopwatch.StartNew();
-                        var apsimFile = new ApsimFile()
-                        {
-                            Name = Path.GetFileNameWithoutExtension(fileInfo.FullName),
-                            PullRequest = pullRequest,
-                            PullRequestId = pullRequest.Id,
-                            Tables = GetTablesFromFile(fileInfo.FullName)
-                        };
-                        if (apsimFile.Tables.Count > 0)
-                            pullRequest.Files.Add(apsimFile);
-                        Console.WriteLine($"Read PO data from {fileInfo.FullName} in {stopwatch.Elapsed.Seconds} second(s).");
-                    }
-                    catch (Exception ex)
+                        Name = Path.GetFileNameWithoutExtension(filePath),
+                        PullRequest = pullRequest,
+                        PullRequestId = pullRequest.Id,
+                        Tables = GetTablesFromFile(filePath)
+                    };
+                    if (apsimFile.Tables.Count > 0)
+                        pullRequest.Files.Add(apsimFile);
+                    Console.WriteLine($"Read PO data from {filePath} in {stopwatch.Elapsed.Seconds} second(s).");
+                }
+                catch (Exception ex)
+                {
+                    errorMessages += ex.ToString() + "\n";
+                }
+
+            }
+
+            FileInfo[] files = new DirectoryInfo("./").GetFiles("*stdout.txt", SearchOption.AllDirectories);
+            string log = "";
+            foreach (FileInfo fileInfo in files)
+            {
+                Console.WriteLine(fileInfo.FullName);
+                using (StreamReader sr = fileInfo.OpenText())
+                {
+                    string text = "";
+                    while ((text = sr.ReadLine()) != null)
                     {
-                        errorMessages += ex.ToString();
+                        log += text + "\n";
                     }
                 }
             }
-            if (errorMessages.Length > 0)
-                throw new Exception(errorMessages);
 
+            if (errorMessages.Length > 0)
+            {
+                log += errorMessages;
+                pullRequest.Files.Clear();
+                pullRequest.Status.Add(false);
+            }
+            else
+            {
+                pullRequest.Status.Add(true);
+            }
+
+            pullRequest.Outputs.Add(log);
+            
             return pullRequest;
         }
 

@@ -5,6 +5,7 @@ using APSIM.POStats.Shared.Models;
 using APSIM.POStats.Shared.GitHub;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using APSIM.POStats.Portal.Models;
 
 namespace APSIM.POStats.Portal.Controllers
 {
@@ -15,16 +16,48 @@ namespace APSIM.POStats.Portal.Controllers
         /// <summary>The database context.</summary>
         private readonly StatsDbContext statsDb;
 
-        /// <summary>Event handler for timeout timer.</summary>
-        private static void OnTimeout(Object source, ElapsedEventArgs e)
+        /// <summary>Lock for adding to the db</summary>
+        private static object _lock = new();
+
+        /// <summary>Final timeout in minutes. Controls how long to wait before finally closing a pull request.</summary>
+        private const double FINAL_TIMEOUT = 40.0;
+
+        /// <summary>Event handler for finish timer.</summary>
+        private static void OnCheckIfFinished(Object source, ElapsedEventArgs e)
         {
             string url = Environment.GetEnvironmentVariable("POSTATS_UPLOAD_URL");
             if (string.IsNullOrEmpty(url))
                 throw new Exception($"Cannot find environment variable POSTATS_UPLOAD_URL");
 
-            TimeoutTimer timer = source as TimeoutTimer;
-            Task<string> response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequestNumber}&commitId={timer.CommitId}");
-            response.Wait();
+            PullRequestTimer timer = source as PullRequestTimer;
+
+            try
+            {
+                Task<string> response = WebUtilities.GetAsync($"{url}api/count?pullrequestnumber={timer.PullRequest}&commitid={timer.Commit}");
+                response.Wait();
+                
+                string result = response.Result.ToString();
+                if (!string.IsNullOrEmpty(result))
+                {
+                    int count = int.Parse(result);
+
+                    double minutes = (DateTime.Now - timer.StartTime).TotalMinutes;
+
+                    if (minutes >= FINAL_TIMEOUT || count >= timer.CountTotal)
+                    {
+                        timer.Stop();
+                        response = WebUtilities.GetAsync($"{url}api/close?pullRequestNumber={timer.PullRequest}&commitId={timer.Commit}");
+                        response.Wait();
+
+                        if (count < timer.CountTotal)
+                            GitHub.SetStatus(timer.PullRequest, timer.Commit, VariableComparison.Status.Missing, "Timeout Error");
+                    }
+                }
+            }
+            catch
+            {
+                timer.Stop();
+            }
         }
 
         /// <summary>Constructor.</summary>
@@ -36,10 +69,13 @@ namespace APSIM.POStats.Portal.Controllers
 
         /// <summary>Invoked by collector to open a pull request.</summary>
         /// <param name="pullrequestnumber">The number of the pull request to open.</param>
+        /// <param name="commitid">The commit id of the pull request.</param>
+        /// <param name="count">The number of expected validation tasks to be run.</param>
         /// <param name="author">The author of the pull request.</param>
+        /// <param name="pool">The name of the Azure Batch pool to be used for this pull request.</param>
         /// <returns></returns>
         [HttpGet("open")]
-        public IActionResult Open(int pullrequestnumber, string commitid, int count, string author)
+        public IActionResult Open(int pullrequestnumber, string commitid, int count, string author, string pool)
         {
             Console.WriteLine($"\"{author}\" opening PR \"{pullrequestnumber}\" with commit \"{commitid}\" and count \"{count}\"");
             if (pullrequestnumber == 0)
@@ -48,17 +84,20 @@ namespace APSIM.POStats.Portal.Controllers
                 return BadRequest("You must supply a commitid");
             if (string.IsNullOrEmpty(author))
                 return BadRequest("You must supply an author");
+            if (string.IsNullOrEmpty(pool))
+                return BadRequest("You must supply a pool name");
             try
             {
-                GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running);
+                statsDb.OpenPullRequest(pullrequestnumber, commitid, author, count, pool);
 
-                statsDb.OpenPullRequest(pullrequestnumber, commitid, author, count);
+                GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Running, $"Running {count} Validation Tasks");
 
-                // Create a timer to close the PR after 30 minutes
-                TimeoutTimer timeoutTimer = new TimeoutTimer {Interval=1800000, PullRequestNumber=pullrequestnumber, CommitId=commitid};
-                timeoutTimer.Elapsed += OnTimeout;
-                timeoutTimer.AutoReset = false;
-                timeoutTimer.Start();
+                // Create a timer to check how many files have been returned
+                PullRequestTimer finishTimer = new PullRequestTimer { Interval = 60000, PullRequest = pullrequestnumber, Commit = commitid, CountTotal = count };
+                finishTimer.Elapsed += OnCheckIfFinished;
+                finishTimer.AutoReset = true;
+                finishTimer.StartTime = DateTime.Now;
+                finishTimer.Start();
             }
             catch (Exception ex)
             {
@@ -72,7 +111,7 @@ namespace APSIM.POStats.Portal.Controllers
         /// <param name="pullrequestnumber">The number of the pull request to close.</param>
         /// <returns></returns>
         [HttpGet("close")]
-        public IActionResult Close(int pullrequestnumber, string commitid)
+        public async Task<IActionResult> Close(int pullrequestnumber, string commitid)
         {
             Console.WriteLine($"api/close called");
             
@@ -91,8 +130,20 @@ namespace APSIM.POStats.Portal.Controllers
                     // Send pass/fail to gitHub
                     var pullRequest = statsDb.ClosePullRequest(pullrequestnumber);
 
-                    VariableComparison.Status status = PullRequestFunctions.GetStatus(pullRequest);
-                    GitHub.SetStatus(pullrequestnumber, commitid, status);
+                    if (PullRequestFunctions.HasExceptionInLogs(pullRequest))
+                    {
+                        GitHub.SetStatus(pullrequestnumber, commitid, VariableComparison.Status.Missing, "Exception Thrown");
+                    }
+                    else
+                    {
+                        VariableComparison.Status status = PullRequestFunctions.GetStatus(pullRequest);
+                        GitHub.SetStatus(pullrequestnumber, commitid, status);
+                    }
+
+                    if (string.IsNullOrEmpty(pullRequest.Pool))
+                        throw new Exception("No pool associated with this pull request. Pool is required to close the Azure Batch pool.");
+                        
+                    await AzureBatchManager.CloseBatchPoolAsync(pullRequest.Pool);
                 }
                 catch (Exception ex)
                 {
@@ -101,14 +152,51 @@ namespace APSIM.POStats.Portal.Controllers
             }
             else
             {
-                PullRequest pr = statsDb.GetPullRequest(pullrequestnumber);
+                PullRequestDetails pr = statsDb.GetPullRequest(pullrequestnumber);
                 if (pr == null)
                     return BadRequest($"A PR with {pullrequestnumber} does not exist in the database");
                 else
-                    return BadRequest($"A PR with {pullrequestnumber} does exist, but has commit number {pr.LastCommit}, and you submitted a commit of {commitid}");
+                    return BadRequest($"A PR with {pullrequestnumber} does exist, but has commit number {pr.Commit}, and you submitted a commit of {commitid}");
             }
 
             return Ok();
+        }
+
+        /// <summary>Returns the number of files remaining for a pull request</summary>
+        /// <param name="pullrequestnumber">The number of the pull request.</param>
+        /// <param name="pullrequestnumber">The commit id of the pull request.</param>
+        /// <returns></returns>
+        [HttpGet("count")]
+        public IActionResult Count(int pullrequestnumber, string commitid)
+        {
+            //Console.WriteLine($"api/count");
+            
+            if (pullrequestnumber == 0)
+                return BadRequest("You must supply a pull request number");
+
+            if (commitid.Length == 0)
+                return BadRequest("You must supply a commit number");
+
+            if (statsDb.PullRequestWithCommitExists(pullrequestnumber, commitid))
+            {
+                try
+                {
+                    var count = statsDb.GetNumberOfCompletesInPullRequest(pullrequestnumber, commitid);
+                    return Ok(count);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.ToString());
+                }
+            }
+            else
+            {
+                PullRequestDetails pr = statsDb.GetPullRequest(pullrequestnumber);
+                if (pr == null)
+                    return BadRequest($"A PR with {pullrequestnumber} does not exist in the database");
+                else
+                    return BadRequest($"A PR with {pullrequestnumber} does exist, but has commit number {pr.Commit}, and you submitted a commit of {commitid}");
+            }
         }
 
         /// <summary>Invoked by collector to upload a pull request.</summary>
@@ -116,34 +204,22 @@ namespace APSIM.POStats.Portal.Controllers
         /// <returns></returns>
         [HttpPost("adddata")]
         [RequestSizeLimit(100_000_000)]
-        public IActionResult Post([FromBody]PullRequest pullrequest)
+        public IActionResult PostAsync([FromBody]PullRequestDetails pullrequest)
         {
-            Console.WriteLine($"api/adddata called");
-
             if (pullrequest == null)
                 return BadRequest("You must supply a pull request");
 
-            if (statsDb.PullRequestWithCommitExists(pullrequest.Number, pullrequest.LastCommit))
+            lock (_lock)
             {
-                Console.WriteLine($"Adding Data to PR \"{pullrequest.Number}\"");
                 try
                 {
-                    statsDb.AddDataToPullRequest(pullrequest);
+                    PullRequestDetails pr = statsDb.AddDataToPullRequest(pullrequest);
                 }
                 catch (Exception ex)
                 {
                     return BadRequest(ex.ToString());
                 }
             }
-            else
-            {
-                PullRequest pr = statsDb.GetPullRequest(pullrequest.Number);
-                if (pr == null)
-                    return BadRequest($"A PR with {pullrequest.Number} does not exist in the database");
-                else
-                    return BadRequest($"A PR with {pullrequest.Number} does exist, but has commit number {pr.LastCommit}, and you submitted a commit of {pullrequest.LastCommit}");
-            }
-
             return Ok();
         }
     }
