@@ -53,6 +53,7 @@ public class StatsDbTests
             {
                 new ApsimFile()
                 {
+                    Name = "Table",
                     Tables = new()
                     {
                         new Table()

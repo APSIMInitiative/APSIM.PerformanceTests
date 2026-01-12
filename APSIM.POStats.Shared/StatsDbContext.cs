@@ -193,10 +193,11 @@ namespace APSIM.POStats.Shared
             combinedFile.Name = newName;
             combinedFile.Tables = tables;
 
-            pullRequest.Files.Add(combinedFile);
+            if (combinedFile.Tables.Count > 0)
+                pullRequest.Files.Add(combinedFile);
+            
             foreach (ApsimFile file in splitFiles)
                 pullRequest.Files.Remove(file);
-
         }
 
         /// <summary>
