@@ -10,7 +10,7 @@ WORKDIR /code/APSIM.POStats.Portal/
 RUN dotnet publish -c Release -f net8.0 -r linux-x64 --no-self-contained --output /code/bin/postats-portal/
 
 # Create the POStats-Collector image without all the other project and source code
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS postats-collector
+FROM mcr.microsoft.com/dotnet/runtime:8.0 AS postats2-collector
 
 COPY --from=postats-build /code/bin/postats-collector/ /code/postats-collector/
 
@@ -23,7 +23,7 @@ ENTRYPOINT ["APSIM.POStats.Collector"]
 
 
 # Create the POStats-Portal image without all the other project and source code
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS postats-portal
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS postats2-portal
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 COPY --from=postats-build /code/bin/postats-portal/ /code/postats-portal/
