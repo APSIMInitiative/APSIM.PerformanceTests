@@ -69,15 +69,15 @@ namespace APSIM.POStats.Shared.Comparison
                     matchingAcceptedVariables.Add(acceptedVariable);
                     variables.Add(new VariableComparison(currentVariable, acceptedVariable));
                 }
-
-                // Add in variables that are in the accepted table but not in the current table.
-                if (Accepted != null)
-                {
-                    var variablesNotInCurrent = Accepted.Variables.Except(matchingAcceptedVariables);
-                    foreach (var acceptedTable in variablesNotInCurrent)
-                        variables.Add(new VariableComparison(null, acceptedTable));
-                }
             }
+            // Add in variables that are in the accepted table but not in the current table.
+            if (Accepted != null)
+            {
+                var variablesNotInCurrent = Accepted.Variables.Except(matchingAcceptedVariables);
+                foreach (var acceptedTable in variablesNotInCurrent)
+                    variables.Add(new VariableComparison(null, acceptedTable));
+            }
+
             return variables.OrderBy(v => v.Name).ToList();
         }
     }
