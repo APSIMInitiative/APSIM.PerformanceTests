@@ -71,7 +71,7 @@ namespace APSIM.POStats.Shared.Comparison
                 }
             }
             // Add in variables that are in the accepted table but not in the current table.
-            if (Accepted != null)
+            if (Accepted != null && Accepted.Variables != null)
             {
                 var variablesNotInCurrent = Accepted.Variables.Except(matchingAcceptedVariables);
                 foreach (var acceptedTable in variablesNotInCurrent)
