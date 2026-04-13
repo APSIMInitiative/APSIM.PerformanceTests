@@ -80,14 +80,14 @@ namespace APSIM.POStats.Shared.Comparison
                     var acceptedTable = Accepted?.Tables.Find(t => t.Name == currentTable.Name);
                     tables.Add(new TableComparison(currentTable, acceptedTable));
                 }
+            }
 
-                // Add in tables that are in the accepted file but not in the current file.
-                if (Accepted != null)
-                {
-                    var tablesNotInCurrent = Accepted.Tables.Except(tables.Select(t => t.Accepted));
-                    foreach (var acceptedTable in tablesNotInCurrent)
-                        tables.Add(new TableComparison(null, acceptedTable));
-                }
+            // Add in tables that are in the accepted file but not in the current file.
+            if (Accepted != null && Accepted.Tables != null)
+            {
+                var tablesNotInCurrent = Accepted.Tables.Except(tables.Select(t => t.Accepted));
+                foreach (var acceptedTable in tablesNotInCurrent)
+                    tables.Add(new TableComparison(null, acceptedTable));
             }
 
             return tables.OrderBy(t => t.Name).ToList();
