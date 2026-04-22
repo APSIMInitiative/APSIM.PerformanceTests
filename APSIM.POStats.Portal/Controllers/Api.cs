@@ -124,11 +124,11 @@ namespace APSIM.POStats.Portal.Controllers
             if (statsDb.PullRequestWithCommitExists(pullrequestnumber, commitid))
             {
                 Console.WriteLine($"Closing PR \"{pullrequestnumber} with commit {commitid}\"");
-
+                PullRequestDetails pullRequest = new();
                 try
                 {
                     // Send pass/fail to gitHub
-                    var pullRequest = statsDb.ClosePullRequest(pullrequestnumber);
+                    pullRequest = statsDb.ClosePullRequest(pullrequestnumber);
 
                     if (PullRequestFunctions.HasExceptionInLogs(pullRequest))
                     {
@@ -143,11 +143,24 @@ namespace APSIM.POStats.Portal.Controllers
                     if (string.IsNullOrEmpty(pullRequest.Pool))
                         throw new Exception("No pool associated with this pull request. Pool is required to close the Azure Batch pool.");
                         
-                    await AzureBatchManager.CloseBatchPoolAsync(pullRequest.Pool);
                 }
                 catch (Exception ex)
                 {
                     return BadRequest(ex.ToString());
+                }
+
+                // Close the Azure Batch pool
+                try
+                {                    
+                    await AzureBatchManager.CloseBatchPoolAsync(pullRequest.Pool);
+                }
+                catch(InvalidOperationException ex)
+                {
+                    // If we get an exception here, it likely means the pool was
+                    // already closed. 
+                    // Log the error, but do not return an error to the user as 
+                    // the PR was successfully closed in the database and GitHub.
+                    return Ok($"PR closed, but failed to close Azure Batch pool ({pullRequest.Pool}). Error: {ex}");
                 }
             }
             else
