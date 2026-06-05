@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace APSIM.POStats.Shared
@@ -49,7 +50,8 @@ namespace APSIM.POStats.Shared
                     response = await httpClient.PostAsync(requestUrl, new StringContent(jsonString, Encoding.UTF8, "application/json"));
                 }
                 
-                string body = await response.Content.ReadAsStringAsync();
+                string fullResponse = await response.Content.ReadAsStringAsync();
+                string body = GetHtmlBodyContent(fullResponse);
 
                 Console.WriteLine($"Status: {(int)response.StatusCode} {response.StatusCode}");
                 if (response.StatusCode >= HttpStatusCode.BadRequest)
@@ -61,8 +63,8 @@ namespace APSIM.POStats.Shared
                     output += $"Request:\n{response}\n";
                     output += $"Response:\n{body}\n";
 
-                    Console.WriteLine($"Error sending POST Request\n{output}");
-                    throw new Exception($"Error sending POST Request\n{output}");
+                    Console.WriteLine($"Error sending {type} for URL {requestUrl} Request\n{output}");
+                    throw new Exception($"Error sending {type} for URL {requestUrl} Request\n{output}");
                 }
                 return body;
             }
@@ -81,6 +83,24 @@ namespace APSIM.POStats.Shared
         public static async Task<string> PostAsync<T>(string requestUrl, T jsonObject, string authorizationToken = null)
         {
             return await RequestAsync(RequestType.POST, requestUrl, JsonSerializer.Serialize(jsonObject), authorizationToken);
+        }
+
+        /// <summary>
+        /// Extract the content of the body tag from an HTML response. If no body tag is found, return the original content.
+        /// </summary> 
+        /// <param name="content">The HTML content to extract the body from.</param>
+        /// <returns>The content of the body tag, or the original content if no body tag is found.</returns>
+        private static string GetHtmlBodyContent(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+                return content;
+
+            Match bodyMatch = Regex.Match(content, @"<body\b[^>]*>([\s\S]*?)</body>", RegexOptions.IgnoreCase);
+            if (bodyMatch.Success)
+            {
+                return bodyMatch.Groups[1].Value;
+            }
+            else return content;
         }
     }
 }
