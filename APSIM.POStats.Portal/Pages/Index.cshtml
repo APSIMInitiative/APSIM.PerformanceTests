@@ -1,8 +1,8 @@
-﻿@page "{pullRequestNumber:int=7867}"
+﻿@page "{pullRequestNumber:int?}"
 @model IndexModel
 @{
     ViewData["Title"] = "Home";
-    ViewData["ID"] = @Model.PullRequest.Id;
+    ViewData["ID"] = @Model.PullRequest?.Id;
 }
 @using APSIM.POStats.Shared;
 @using APSIM.POStats.Shared.Comparison;
@@ -16,6 +16,36 @@
 
 <div class="text-left">
     <h1 class="display-4">Predicted / Observed Stats</h1>
+    @if (Model.PullRequest == null)
+    {
+        <p>This site publishes validation and performance statistics for APSIM pull requests.</p>
+        <p>It is connected to the ApsimX GitHub repository and maintained by the APSIM Initiative to help contributors quickly review statistical changes in pull request results.</p>
+        <p>@Model.HomeMessage</p>
+
+        <h3>Recent Pull Requests</h3>
+        @if (Model.RecentPullRequests.Any())
+        {
+            <ul>
+                @foreach (var pullRequest in Model.RecentPullRequests)
+                {
+                    <li>
+                        <a asp-page="/Index" asp-route-pullRequestNumber="@pullRequest.PullRequest">
+                            PR #@pullRequest.PullRequest
+                        </a>
+                        <span> - @pullRequest.DateRun.ToString("yyyy-MM-dd HH:mm")</span>
+                        <span> - by @pullRequest.Author</span>
+                        <span> - commit @((pullRequest.Commit?.Length ?? 0) > 7 ? pullRequest.Commit.Substring(0, 7) : pullRequest.Commit)</span>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No pull requests were found in the stats database yet.</p>
+        }
+    }
+    else
+    {
     <div>
         <br />
 
@@ -33,19 +63,19 @@
                 <td class="ratings-table-column">***</td>
                 <td class="ratings-table-column">Very Good</td>
                 <td class="ratings-table-column">0.00 ≤ RSR ≤ 0.50</td>
-                <td class="ratings-table-column">0.75 < NSE ≤ 1.00</td>
+                <td class="ratings-table-column">0.75 &lt; NSE ≤ 1.00</td>
             </tr>
             <tr class="ratings-table-row">
                 <td class="ratings-table-column">**</td>
                 <td class="ratings-table-column">Good</td>
-                <td class="ratings-table-column">0.50 < RSR ≤ 0.60</td>
-                <td class="ratings-table-column">0.65 < NSE ≤ 0.75</td>
+                <td class="ratings-table-column">0.50 &lt; RSR ≤ 0.60</td>
+                <td class="ratings-table-column">0.65 &lt; NSE ≤ 0.75</td>
             </tr>
             <tr class="ratings-table-row">
                 <td class="ratings-table-column">*</td>
                 <td class="ratings-table-column">Satisfactory</td>
-                <td class="ratings-table-column">0.60 < RSR ≤ 0.70</td>
-                <td class="ratings-table-column">0.50 < NSE ≤ 0.65</td>
+                <td class="ratings-table-column">0.60 &lt; RSR ≤ 0.70</td>
+                <td class="ratings-table-column">0.50 &lt; NSE ≤ 0.65</td>
             </tr>
             <tr class="ratings-table-bottomrow">
                 <td class="ratings-table-column">&nbsp;</td>
@@ -234,4 +264,5 @@
                 }
             </div>
     </div>
+    }
 </div>

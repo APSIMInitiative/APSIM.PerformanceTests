@@ -33,6 +33,12 @@ namespace APSIM.POStats.Portal.Pages
         /// <summary>The pull request being analysed.</summary>
         public PullRequestDetails PullRequest { get; private set; }
 
+        /// <summary>Message shown on the home page when no pull request is selected.</summary>
+        public string HomeMessage { get; private set; }
+
+        /// <summary>Recent pull requests sorted by date (most recent first).</summary>
+        public List<PullRequestDetails> RecentPullRequests { get; private set; } = new List<PullRequestDetails>();
+
         /// <summary>The Url for the web site.</summary>
         public string BaseUrl { get { return $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}"; } }
 
@@ -40,11 +46,25 @@ namespace APSIM.POStats.Portal.Pages
 
         /// <summary>Invoked when page is first loaded.</summary>
         /// <param name="pullRequestNumber">The pull request to work with.</param>
-        public void OnGet(int pullRequestNumber)
+        public void OnGet(int? pullRequestNumber)
         {
-            PullRequest = statsDb.PullRequests.FirstOrDefault(pr => pr.PullRequest == pullRequestNumber);
+            RecentPullRequests = statsDb.PullRequests
+                .OrderByDescending(pr => pr.DateRun)
+                .Take(20)
+                .ToList();
+
+            if (!pullRequestNumber.HasValue)
+            {
+                HomeMessage = "Enter a pull request number in the URL to view validation stats.";
+                return;
+            }
+
+            PullRequest = statsDb.PullRequests.FirstOrDefault(pr => pr.PullRequest == pullRequestNumber.Value);
             if (PullRequest == null)
-                throw new Exception($"Cannot find pull request #{pullRequestNumber} in stats database");
+            {
+                HomeMessage = $"Cannot find pull request #{pullRequestNumber.Value} in stats database.";
+                return;
+            }
 
             VariableComparison.Status status = PullRequestFunctions.GetStatus(PullRequest);
         }
