@@ -95,12 +95,19 @@ namespace APSIM.POStats.Shared
             if (string.IsNullOrEmpty(content))
                 return content;
 
+            // Avoid regex work for non-HTML responses (e.g. JSON).
+            if (content.IndexOf("<body", StringComparison.OrdinalIgnoreCase) < 0)
+                return content;
+
             Match bodyMatch = Regex.Match(content, @"<body\b[^>]*>([\s\S]*?)</body>", RegexOptions.IgnoreCase);
-            if (bodyMatch.Success)
-            {
-                return bodyMatch.Groups[1].Value;
-            }
-            else return content;
+            string bodyHtml = bodyMatch.Success ? bodyMatch.Groups[1].Value : content;
+
+            // Convert to plain text for cleaner error output.
+            bodyHtml = Regex.Replace(bodyHtml, @"<script\b[^>]*>[\s\S]*?</script>", string.Empty, RegexOptions.IgnoreCase);
+            bodyHtml = Regex.Replace(bodyHtml, @"<style\b[^>]*>[\s\S]*?</style>", string.Empty, RegexOptions.IgnoreCase);
+            string text = Regex.Replace(bodyHtml, @"<[^>]+>", " ");
+            text = WebUtility.HtmlDecode(text);
+            return Regex.Replace(text, @"\s+", " ").Trim();
         }
     }
 }
