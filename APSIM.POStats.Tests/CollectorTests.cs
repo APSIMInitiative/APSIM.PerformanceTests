@@ -52,6 +52,10 @@ public class TestsCollector
     [Test]
     public void TestEnsureNormalCollectorOperationWorks()
     {
+        SqliteUtilities.CreateTable(database, DataTableUtilities.FromCSV("_PredictedObserved",
+            "Name,field_match_one,field_match_two,field_match_three,field_match_four" + Environment.NewLine +
+            "PO1,Date,,," + Environment.NewLine
+            ));
         SqliteUtilities.CreateTable(database, DataTableUtilities.FromCSV("_Simulations",
             "ID,Name" + Environment.NewLine +
             " 1,Sim1" + Environment.NewLine
@@ -154,6 +158,11 @@ public class TestsCollector
     [Test]
     public void EnsureObservedStringValuesInRowsAreIgnored()
     {
+        SqliteUtilities.CreateTable(database, DataTableUtilities.FromCSV("_PredictedObserved",
+            "Name,field_match_one,field_match_two,field_match_three,field_match_four" + Environment.NewLine +
+            "PO1,Date,,," + Environment.NewLine
+            ));
+
         SqliteUtilities.CreateTable(database, DataTableUtilities.FromCSV("_Simulations",
             "ID,Name" + Environment.NewLine +
             " 1,Sim1" + Environment.NewLine
@@ -182,6 +191,11 @@ public class TestsCollector
     [Test]
     public void EnsurePOTableNotUnderDataStoreIsFound()
     {
+        SqliteUtilities.CreateTable(database, DataTableUtilities.FromCSV("_PredictedObserved",
+            "Name,field_match_one,field_match_two,field_match_three,field_match_four" + Environment.NewLine +
+            "PO1,Date,,," + Environment.NewLine
+            ));
+
         SqliteUtilities.CreateTable(database, DataTableUtilities.FromCSV("_Simulations",
             "ID,Name" + Environment.NewLine +
             " 1,Sim1" + Environment.NewLine
@@ -208,6 +222,11 @@ public class TestsCollector
     [Test]
     public void EnsureCollectorFindsIntegers()
     {
+        SqliteUtilities.CreateTable(database, DataTableUtilities.FromCSV("_PredictedObserved",
+            "Name,field_match_one,field_match_two,field_match_three,field_match_four" + Environment.NewLine +
+            "PO1,Date,,," + Environment.NewLine
+            ));
+
         SqliteUtilities.CreateTable(database, DataTableUtilities.FromCSV("_Simulations",
             "ID,Name" + Environment.NewLine +
             " 1,Sim1" + Environment.NewLine

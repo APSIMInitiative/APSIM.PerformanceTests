@@ -142,8 +142,25 @@ namespace APSIM.POStats.Shared
                                     Data = new List<VariableData>()
                                 });
                             }
-                            var matchFields = GetMatchColumnNamesForTable(apsimxFileName, tableName)
-                                              .Where(f => f != "SimulationName");
+
+                            List<string> matchFields = new List<string>();
+                            IEnumerable<string> fields = ["field_match_one", "field_match_two", "field_match_three", "field_match_four"];
+                            using (SqliteCommand cmd = new SqliteCommand($"SELECT * FROM _PredictedObserved WHERE name = '{tableName}'", db))
+                            {
+                                using (SqliteDataReader reader = cmd.ExecuteReader())
+                                {
+                                    if (reader.HasRows)
+                                    {
+                                        reader.Read();
+                                        foreach(string field in fields)
+                                        {
+                                            string match = reader[field].ToString();
+                                            if (!string.IsNullOrEmpty(match) && match != "SimulationName")
+                                                matchFields.Add(match);
+                                        }
+                                    }
+                                }
+                            }
 
                             string selectSQL = $"SELECT * FROM {tableName}";
                             using (SqliteCommand cmd = new SqliteCommand(selectSQL, db))
@@ -225,34 +242,6 @@ namespace APSIM.POStats.Shared
                 }
             }
             return returnPairs;
-        }
-
-        /// <summary>
-        /// Get the column names that were used to match the predicted/observed data in a table.
-        /// </summary>
-        /// <param name="apsimxFileName">The .apsimx file that contains the match column names.</param>
-        /// <param name="tableName">The name of the table.</param>
-        /// <returns></returns>
-        private static IEnumerable<string> GetMatchColumnNamesForTable(string apsimxFileName, string tableName)
-        {
-            var options = new JsonDocumentOptions { AllowTrailingCommas = true };
-            using (JsonDocument document = JsonDocument.Parse(File.ReadAllText(apsimxFileName), options))
-            {
-                var rootNode = new JsonProxyForModel(document.RootElement);
-                var predictedObservedModel = rootNode.ChildrenRecursively
-                                            .FirstOrDefault(child => child.Type == "PredictedObserved" &&
-                                                                     child.Name == tableName);
-                if (predictedObservedModel == null)
-                    throw new Exception($"Cannot find predicted observed table {tableName} in file {apsimxFileName}");
-
-                var matchElements = new List<string>()
-                {
-                    predictedObservedModel.GetPropertyValue("FieldNameUsedForMatch"),
-                    predictedObservedModel.GetPropertyValue("FieldName2UsedForMatch"),
-                    predictedObservedModel.GetPropertyValue("FieldName3UsedForMatch")
-                };
-                return matchElements.Where(element => element != null);
-            }
         }
 
         /// <summary>
