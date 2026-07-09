@@ -60,6 +60,18 @@ namespace APSIM.POStats.Shared
                     if (apsimFile.Tables.Count > 0)
                         pullRequest.Files.Add(apsimFile);
                     Console.WriteLine($"Read PO data from {filePath} in {stopwatch.Elapsed.Seconds} second(s).");
+                    int total = 0;
+                    foreach(ApsimFile file in pullRequest.Files)
+                    {
+                        Console.WriteLine($"File {file.Name}");
+                        foreach(Table table in file.Tables)
+                        {
+                            Console.WriteLine($"Table: {table.Name} with {table.Variables.Count} variables");
+                            foreach(Variable variable in table.Variables)
+                                total += variable.Data.Count;
+                        }
+                    }
+                    Console.WriteLine($"Uploading {total} stats");
                 }
                 catch (Exception ex)
                 {
