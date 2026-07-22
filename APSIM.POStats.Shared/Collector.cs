@@ -164,7 +164,15 @@ namespace APSIM.POStats.Shared
                                     if (reader.HasRows)
                                     {
                                         reader.Read();
-                                        newTable.Comparision = reader["Comparision"].ToString();
+
+                                        bool hasComparisionColumn = false;
+                                        foreach (DataRow row in reader.GetSchemaTable().Rows)
+                                            if (row["ColumnName"].ToString() == "Comparision") 
+                                                hasComparisionColumn = true; 
+
+                                        if (hasComparisionColumn)
+                                            newTable.Comparision = reader["Comparision"].ToString();
+
                                         foreach(string field in fields)
                                         {
                                             string match = reader[field].ToString();
