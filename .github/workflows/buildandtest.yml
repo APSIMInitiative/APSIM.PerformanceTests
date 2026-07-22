@@ -14,12 +14,13 @@ jobs:
 
     steps:
       - name: Checkout Pull request branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{github.event.pull_request.head.repo.full_name}}
           ref: ${{github.event.pull_request.head.ref}}
+          allow-unsafe-pr-checkout: true
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install dependencies
