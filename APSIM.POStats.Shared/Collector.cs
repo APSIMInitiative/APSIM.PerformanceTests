@@ -164,6 +164,7 @@ namespace APSIM.POStats.Shared
                                     if (reader.HasRows)
                                     {
                                         reader.Read();
+                                        newTable.Comparision = reader["Comparision"].ToString();
                                         foreach(string field in fields)
                                         {
                                             string match = reader[field].ToString();
