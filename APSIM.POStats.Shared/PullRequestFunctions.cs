@@ -68,18 +68,18 @@ namespace APSIM.POStats.Shared
             List<ApsimFileComparison> files = new List<ApsimFileComparison>();
             foreach (ApsimFile file in pullRequest.Files)
             {
-                List<string> comparisionFiles = new List<string>();
+                List<string> comparisonFiles = new List<string>();
                 foreach (Table table in file.Tables)
                 {
-                    if (!string.IsNullOrEmpty(table.Comparision))
+                    if (!string.IsNullOrEmpty(table.Comparison))
                     {
-                        if (comparisionFiles.Contains(table.Comparision))
-                            comparisionFiles.Add(table.Comparision);
+                        if (comparisonFiles.Contains(table.Comparison))
+                            comparisonFiles.Add(table.Comparison);
                     }
                 }
-                foreach (string comparisionFile in comparisionFiles)
+                foreach (string comparisonFile in comparisonFiles)
                 {
-                    ApsimFile otherFile = pullRequest.Files.Find(f => f.Name == comparisionFile);
+                    ApsimFile otherFile = pullRequest.Files.Find(f => f.Name == comparisonFile);
                     files.Add(new ApsimFileComparison(file, otherFile));
                 }
             }

@@ -165,13 +165,13 @@ namespace APSIM.POStats.Shared
                                     {
                                         reader.Read();
 
-                                        bool hasComparisionColumn = false;
+                                        bool hasComparisonColumn = false;
                                         foreach (DataRow row in reader.GetSchemaTable().Rows)
-                                            if (row["ColumnName"].ToString() == "Comparision") 
-                                                hasComparisionColumn = true; 
+                                            if (row["ColumnName"].ToString() == "comparison") 
+                                                hasComparisonColumn = true; 
 
-                                        if (hasComparisionColumn)
-                                            newTable.Comparision = reader["Comparision"].ToString();
+                                        if (hasComparisonColumn)
+                                            newTable.Comparison = reader["comparison"].ToString();
 
                                         foreach(string field in fields)
                                         {
