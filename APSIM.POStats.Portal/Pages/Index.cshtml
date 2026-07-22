@@ -144,7 +144,7 @@
         {
             <table class="stats-table">
                 @{
-                    List<ApsimFileComparison> files = PullRequestFunctions.GetFileComparisons(Model.PullRequest);
+                    List<ApsimFileComparison> files = PullRequestFunctions.GetFileStats(Model.PullRequest);
                     if (Model.OnlyShowChangedStats)
                         PullRequestFunctions.RemoveSame(files);
                 }
@@ -207,6 +207,61 @@
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            </table>
+            <table class="stats-table">
+                @foreach (var file in PullRequestFunctions.GetFileComparisons(Model.PullRequest))
+                {
+                    <tr></tr>
+                    <tr>
+                        <td class="stats-table-heading" colspan="18">
+                            <b>@Html.Raw(IndexModel.EmitFileName(file))</b>
+                        </td>
+                    </tr>
+                    @foreach (var table in file.Tables)
+                    {
+                        <tr>
+                            <td class=".stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td class="stats-table-heading" colspan="2"><i>@Html.Raw(IndexModel.EmitTableName(@table))</i></td>
+                            <td class="stats-heading">&nbsp;&nbsp;</td>
+                            <td class="stats-heading" colspan="3">n</td>
+                            <td class="stats-heading">&nbsp;&nbsp;</td>
+                            <td class="stats-heading" colspan="3">RMSE</td>
+                            <td class="stats-heading">&nbsp;&nbsp;</td>
+                            <td class="stats-heading" colspan="3">NSE</td>
+                            <td class="stats-heading">&nbsp;&nbsp;</td>
+                            <td class="stats-heading" colspan="3">RSR</td>
+                        </tr>
+
+                        @foreach (var variable in table.VariableComparisons)
+                        {
+                            <tr>
+                                <td class="stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                <td class="stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                <td class="stats-variablename">@Html.Raw(IndexModel.EmitVariableName(@variable))</td>
+                                <td class="stats-cell">&nbsp;&nbsp;</td>
+
+                                <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.CurrentN, isAccepted: false))</td>
+                                <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.AcceptedN, isAccepted: true))</td>
+                                <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.NStatus))</td>
+                                <td class="stats-cell">&nbsp;&nbsp;</td>
+
+                                <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(variable.CurrentRMSE, 0, 6, isAccepted: false))</td>
+                                <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(variable.AcceptedRMSE, 0, 6, isAccepted: true))</td>
+                                <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.RMSEStatus))</td>
+                                <td class="stats-cell">&nbsp;&nbsp;</td>
+
+                                <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.CurrentNSE, 3, 0, isAccepted: false))</td>
+                                <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.AcceptedNSE, 3, 0, isAccepted: true))</td>
+                                <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.NSEStatus))@VariableFunctions.NSERating(variable.CurrentNSE)</td>
+                                <td class="stats-cell">&nbsp;&nbsp;</td>
+
+                                <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.CurrentRSR, 3, 0, isAccepted: false))</td>
+                                <td class="stats-cell">&nbsp;@Html.Raw(IndexModel.EmitNumber(@variable.AcceptedRSR, 3, 0, isAccepted: true))</td>
+                                <td class="stats-tick">@Html.Raw(IndexModel.EmitTickCross(variable.RSRStatus))@VariableFunctions.RSRRating(variable.CurrentRSR)</td>
+                            </tr>
                         }
                     }
                 }

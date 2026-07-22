@@ -17,7 +17,7 @@ namespace APSIM.POStats.Shared
         {
             bool allBetterOrSame = true;
             bool allSame = true;
-            foreach (var file in GetFileComparisons(pullRequest))
+            foreach (var file in GetFileStats(pullRequest))
             {
                 if (file.Status != ApsimFileComparison.StatusType.NoChange)
                     return VariableComparison.Status.Different;
@@ -41,7 +41,7 @@ namespace APSIM.POStats.Shared
 
         /// <summary>Get a list of all files for a pull request.</summary>
         /// <param name="pullRequest">The pull request.</param>
-        public static List<ApsimFileComparison> GetFileComparisons(PullRequestDetails pullRequest)
+        public static List<ApsimFileComparison> GetFileStats(PullRequestDetails pullRequest)
         {
             var files = new List<ApsimFileComparison>();
             foreach (ApsimFile currentFile in pullRequest.Files)
@@ -56,6 +56,32 @@ namespace APSIM.POStats.Shared
                 var filesNotInCurrent = pullRequest.AcceptedPullRequest.Files.Except(files.Select(f => f.Accepted));
                 foreach (var acceptedFile in filesNotInCurrent)
                     files.Add(new ApsimFileComparison(null, acceptedFile));
+            }
+
+            return files.OrderBy(f => f.Name).ToList();
+        }
+
+        /// <summary>Get a list of all files for a pull request.</summary>
+        /// <param name="pullRequest">The pull request.</param>
+        public static List<ApsimFileComparison> GetFileComparisons(PullRequestDetails pullRequest)
+        {
+            List<ApsimFileComparison> files = new List<ApsimFileComparison>();
+            foreach (ApsimFile file in pullRequest.Files)
+            {
+                List<string> comparisonFiles = new List<string>();
+                foreach (Table table in file.Tables)
+                {
+                    if (!string.IsNullOrEmpty(table.Comparison))
+                    {
+                        if (comparisonFiles.Contains(table.Comparison))
+                            comparisonFiles.Add(table.Comparison);
+                    }
+                }
+                foreach (string comparisonFile in comparisonFiles)
+                {
+                    ApsimFile otherFile = pullRequest.Files.Find(f => f.Name == comparisonFile);
+                    files.Add(new ApsimFileComparison(file, otherFile));
+                }
             }
 
             return files.OrderBy(f => f.Name).ToList();
