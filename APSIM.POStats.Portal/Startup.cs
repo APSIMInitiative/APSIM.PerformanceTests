@@ -38,7 +38,28 @@ namespace APSIM.POStats.Portal
             if (connectionString.Contains(".db"))
             {
                 Console.WriteLine("Using SQLite database");
-                services.AddDbContext<StatsDbContext>(options => options.UseLazyLoadingProxies().UseSqlite(connectionString));
+
+                // If the connection string is just a file path (e.g. "portal.db"),
+                // convert it to a proper Data Source connection string and ensure
+                // the directory and file exist so the provider can open it.
+                string sqliteConnectionString = connectionString;
+                if (!connectionString.Contains("="))
+                {
+                    var dbPath = System.IO.Path.IsPathRooted(connectionString)
+                                 ? connectionString
+                                 : System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), connectionString);
+
+                    var dbDir = System.IO.Path.GetDirectoryName(dbPath);
+                    if (!string.IsNullOrEmpty(dbDir) && !System.IO.Directory.Exists(dbDir))
+                        System.IO.Directory.CreateDirectory(dbDir);
+
+                    if (!System.IO.File.Exists(dbPath))
+                        System.IO.File.Create(dbPath).Dispose();
+
+                    sqliteConnectionString = $"Data Source={dbPath}";
+                }
+
+                services.AddDbContext<StatsDbContext>(options => options.UseLazyLoadingProxies().UseSqlite(sqliteConnectionString));
             }
             else
             {
