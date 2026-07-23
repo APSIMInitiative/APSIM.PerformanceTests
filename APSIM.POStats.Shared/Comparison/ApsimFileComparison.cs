@@ -30,7 +30,7 @@ namespace APSIM.POStats.Shared.Comparison
         { 
             get 
             { 
-                return Current.Name + " / " + Accepted.Name; 
+                return Current.Name + "/" + Accepted.Name; 
             } 
         }
 
