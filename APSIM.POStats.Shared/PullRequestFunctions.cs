@@ -70,13 +70,10 @@ namespace APSIM.POStats.Shared
             {
                 List<string> comparisonFiles = new List<string>();
                 foreach (Table table in file.Tables)
-                {
                     if (!string.IsNullOrEmpty(table.Comparison))
-                    {
-                        if (comparisonFiles.Contains(table.Comparison))
+                        if (!comparisonFiles.Contains(table.Comparison))
                             comparisonFiles.Add(table.Comparison);
-                    }
-                }
+                
                 foreach (string comparisonFile in comparisonFiles)
                 {
                     ApsimFile otherFile = pullRequest.Files.Find(f => f.Name == comparisonFile);
