@@ -23,6 +23,17 @@ namespace APSIM.POStats.Shared.Comparison
         /// <summary>Name of file.</summary>
         public string Name { get { if (Current != null) return Current.Name; else return Accepted.Name; } }
 
+        /// <summary>
+        /// Name of both current and accepted files
+        /// </summary>
+        public string CombinedName 
+        { 
+            get 
+            { 
+                return Current.Name + " / " + Accepted.Name; 
+            } 
+        }
+
         public enum StatusType
         {
             /// <summary>This is a new file (not in accepted).</summary>

@@ -1,7 +1,6 @@
 ﻿using APSIM.POStats.Shared.Comparison;
 using APSIM.POStats.Shared.Models;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 
 namespace APSIM.POStats.Shared

@@ -154,9 +154,30 @@
                     {
                         <tr></tr>
                         <tr>
-                            <td class="stats-table-heading" colspan="18">
-                                <b>@Html.Raw(IndexModel.EmitFileName(file))</b>
-                            </td>
+                            <td class="stats-table-heading"><b>@Html.Raw(IndexModel.EmitFileName(file))</b></td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+
+                            <td class="stats-table-heading" style="text-align:center">Curt</td>
+                            <td class="stats-table-heading" style="text-align:center">(Acpt)</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+
+                            <td class="stats-table-heading" style="text-align:center">Curt</td>
+                            <td class="stats-table-heading" style="text-align:center">(Acpt)</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+
+                            <td class="stats-table-heading" style="text-align:center">Curt</td>
+                            <td class="stats-table-heading" style="text-align:center">(Acpt)</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+
+                            <td class="stats-table-heading" style="text-align:center">Curt</td>
+                            <td class="stats-table-heading" style="text-align:center">(Acpt)</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
                         </tr>
                         @foreach (var table in file.Tables)
                         {
@@ -166,7 +187,7 @@
                                     <td class=".stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                                     <td class="stats-table-heading" colspan="2"><i>@Html.Raw(IndexModel.EmitTableName(@table))</i></td>
                                     <td class="stats-heading">&nbsp;&nbsp;</td>
-                                    <td class="stats-heading" colspan="3">n</td>
+                                    <td class="stats-heading" colspan="3">n Cur (Acc)</td>
                                     <td class="stats-heading">&nbsp;&nbsp;</td>
                                     <td class="stats-heading" colspan="3">RMSE</td>
                                     <td class="stats-heading">&nbsp;&nbsp;</td>
@@ -212,13 +233,36 @@
                 }
             </table>
             <table class="stats-table">
-                @foreach (var file in PullRequestFunctions.GetFileComparisons(Model.PullRequest))
+                @foreach (ApsimFileComparison file in PullRequestFunctions.GetFileComparisons(Model.PullRequest))
                 {
                     <tr></tr>
                     <tr>
-                        <td class="stats-table-heading" colspan="18">
-                            <b>@Html.Raw(IndexModel.EmitFileName(file))</b>
-                        </td>
+                        <tr>
+                            <td class="stats-table-heading"><b>@Html.Raw(file.CombinedName)</b></td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+
+                            <td class="stats-table-heading" style="text-align:center">Proto</td>
+                            <td class="stats-table-heading" style="text-align:center">(Valid)</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+
+                            <td class="stats-table-heading" style="text-align:center">Proto</td>
+                            <td class="stats-table-heading" style="text-align:center">(Valid)</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+
+                            <td class="stats-table-heading" style="text-align:center">Proto</td>
+                            <td class="stats-table-heading" style="text-align:center">(Valid)</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+
+                            <td class="stats-table-heading" style="text-align:center">Proto</td>
+                            <td class="stats-table-heading" style="text-align:center">(Valid)</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                            <td class="stats-table-heading">&nbsp;</td>
+                        </tr>
                     </tr>
                     @foreach (var table in file.Tables)
                     {
