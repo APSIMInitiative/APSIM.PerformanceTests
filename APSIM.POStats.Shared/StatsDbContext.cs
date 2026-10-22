@@ -268,6 +268,7 @@ namespace APSIM.POStats.Shared
             StatsDbContext.MergeSplitFiles(pr, "Barley-", "Barley");
             StatsDbContext.MergeSplitFiles(pr, "EKB 250603b-", "EKB 250603b");
             StatsDbContext.MergeSplitFiles(pr, "Pinus-", "Pinus");
+            StatsDbContext.MergeSplitFiles(pr, "BarleyWinterCereal-", "BarleyWinterCereal");
 
             // Calculate stats for each variable in each table in each file.
             foreach (var file in pr.Files)

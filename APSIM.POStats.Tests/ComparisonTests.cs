@@ -31,7 +31,7 @@ namespace APSIM.POStats.Tests
                 AcceptedPullRequest = acceptedPullRequest
             };
 
-            var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
+            var files = PullRequestFunctions.GetFileStats(currentPullRequest);
             Assert.That(files.Count(), Is.EqualTo(3));
 
             Assert.That(files.First(f => f.Name == "file1").Status, Is.EqualTo(ApsimFileComparison.StatusType.Missing));
@@ -75,7 +75,7 @@ namespace APSIM.POStats.Tests
                 AcceptedPullRequest = acceptedPullRequest
             };
 
-            var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
+            var files = PullRequestFunctions.GetFileStats(currentPullRequest);
             var tables = files.First().Tables;
             Assert.That(tables.Count(), Is.EqualTo(3));
 
@@ -104,7 +104,7 @@ namespace APSIM.POStats.Tests
                 },
             };
 
-            var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
+            var files = PullRequestFunctions.GetFileStats(currentPullRequest);
             var tables = files.First().Tables;
             Assert.That(tables.Count(), Is.EqualTo(2));
 
@@ -190,7 +190,7 @@ namespace APSIM.POStats.Tests
                 AcceptedPullRequest = acceptedPullRequest
             };
 
-            var fileComparisons = PullRequestFunctions.GetFileComparisons(currentPullRequest);
+            var fileComparisons = PullRequestFunctions.GetFileStats(currentPullRequest);
             var table = fileComparisons.First().Tables.First();
             var variables = table.VariableComparisons;
 
@@ -251,7 +251,7 @@ namespace APSIM.POStats.Tests
                 },
             };
 
-            var file = PullRequestFunctions.GetFileComparisons(currentPullRequest);
+            var file = PullRequestFunctions.GetFileStats(currentPullRequest);
             var table = file.First().Tables.First();
             var variables = table.VariableComparisons;
 
@@ -457,7 +457,7 @@ namespace APSIM.POStats.Tests
                 AcceptedPullRequest = acceptedPullRequest
             };
 
-            var file = PullRequestFunctions.GetFileComparisons(currentPullRequest);
+            var file = PullRequestFunctions.GetFileStats(currentPullRequest);
             var table = file.First().Tables.First();
             var variables = table.VariableComparisons;
 
@@ -556,7 +556,7 @@ namespace APSIM.POStats.Tests
                 AcceptedPullRequest = acceptedPullRequest
             };
 
-            var files = PullRequestFunctions.GetFileComparisons(currentPullRequest);
+            var files = PullRequestFunctions.GetFileStats(currentPullRequest);
             var tables = files.First().Tables;
             Assert.That(tables.Count(), Is.EqualTo(2));
 
