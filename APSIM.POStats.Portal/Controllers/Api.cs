@@ -238,8 +238,8 @@ namespace APSIM.POStats.Portal.Controllers
             return Ok();
         }
 
-        /// <summary>Invoked by collector to close a pull request.</summary>
-        /// <param name="pullrequestnumber">The number of the pull request to close.</param>
+        /// <summary>Endpoint to download a stats page as a csv</summary>
+        /// <param name="pullrequestnumber">The number of the pull request to download.</param>
         /// <returns></returns>
         [HttpGet("download")]
         public async Task<IActionResult> Download(int pullrequestnumber)
