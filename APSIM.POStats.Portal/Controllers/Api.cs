@@ -6,6 +6,8 @@ using APSIM.POStats.Shared.GitHub;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using APSIM.POStats.Portal.Models;
+using APSIM.POStats.Shared.Comparison;
+using System.Collections.Generic;
 
 namespace APSIM.POStats.Portal.Controllers
 {
@@ -234,6 +236,42 @@ namespace APSIM.POStats.Portal.Controllers
                 }
             }
             return Ok();
+        }
+
+        /// <summary>Invoked by collector to close a pull request.</summary>
+        /// <param name="pullrequestnumber">The number of the pull request to close.</param>
+        /// <returns></returns>
+        [HttpGet("download")]
+        public async Task<IActionResult> Download(int pullrequestnumber)
+        {
+            Console.WriteLine($"api/download");
+            
+            if (pullrequestnumber == 0)
+                return BadRequest("You must supply a pull request number");
+
+            PullRequestDetails pr = statsDb.GetPullRequest(pullrequestnumber);
+            if (pr == null)
+                return BadRequest($"Pull Request {pullrequestnumber} not found");
+
+            List<ApsimFileComparison> files = PullRequestFunctions.GetFileStats(pr);
+
+            string text = "file,table,variable,n_current,n_accepted,rmse_current,rmse_accepted,nse_current,nse_accepted,rsr_current,rsr_accepted\n";
+            foreach (ApsimFileComparison file in files)
+            {
+                string fileName = file.Name;
+                foreach (TableComparison table in file.Tables)
+                {
+                    string tableName = table.Name;
+                    foreach (VariableComparison variable in table.VariableComparisons)
+                    {
+                        string variableName = variable.Name;
+                        text += $"{fileName},{tableName},{variableName},{variable.CurrentN},{variable.AcceptedN},{variable.CurrentRMSE},{variable.AcceptedRMSE},{variable.CurrentNSE},{variable.AcceptedNSE},{variable.CurrentRSR},{variable.AcceptedRSR}\n";
+                    }
+                }
+            }
+
+            byte[] output = System.Text.Encoding.UTF8.GetBytes(text);
+            return File(output, "text/plain", $"{pullrequestnumber}.csv");
         }
     }
 }
