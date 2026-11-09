@@ -39,9 +39,11 @@ namespace APSIM.POStats.Shared.Comparison
         { 
             get 
             {
-                if (Current != null) 
+                if (Current == null && Accepted == null) 
+                    return "Error"; 
+                else if (Current == null) 
                     return "None/" +  Accepted.Name; 
-                else if (Accepted != null) 
+                else if (Accepted == null) 
                     return Current.Name + "/None"; 
                 else
                     return Current.Name + "/" + Accepted.Name; 
