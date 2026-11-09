@@ -50,9 +50,14 @@ namespace APSIM.POStats.Shared
                 try
                 {
                     var stopwatch = Stopwatch.StartNew();
+                    string name = Path.GetDirectoryName(filePath) + "/" + Path.GetFileNameWithoutExtension(filePath);
+                    name = name.Replace("\\", "/");
+                    name = name.Replace("/wd/", "");
+                    name = name.Replace("Tests/", "");
+                    name = name.Replace("/", "_");
                     var apsimFile = new ApsimFile()
                     {
-                        Name = Path.GetFileNameWithoutExtension(filePath),
+                        Name = name,
                         PullRequest = pullRequest,
                         PullRequestId = pullRequest.Id,
                         Tables = GetTablesFromFile(filePath)
