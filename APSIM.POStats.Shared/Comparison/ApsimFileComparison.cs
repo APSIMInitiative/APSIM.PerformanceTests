@@ -21,7 +21,16 @@ namespace APSIM.POStats.Shared.Comparison
         public ApsimFile Accepted { get; private set; } = null;
 
         /// <summary>Name of file.</summary>
-        public string Name { get { if (Current != null) return Current.Name; else return Accepted.Name; } }
+        public string Name 
+        { 
+            get 
+            { 
+                if (Current != null) 
+                    return Current.Name; 
+                else 
+                    return Accepted.Name; 
+            } 
+        }
 
         /// <summary>
         /// Name of both current and accepted files
@@ -29,9 +38,14 @@ namespace APSIM.POStats.Shared.Comparison
         public string CombinedName 
         { 
             get 
-            { 
-                return Current.Name + "/" + Accepted.Name; 
-            } 
+            {
+                if (Current != null) 
+                    return "None/" +  Accepted.Name; 
+                else if (Accepted != null) 
+                    return Current.Name + "/None"; 
+                else
+                    return Current.Name + "/" + Accepted.Name; 
+            }
         }
 
         public enum StatusType
