@@ -144,7 +144,6 @@
                                 <td class="stats-table-heading"><b>@Html.Raw(IndexModel.EmitFileName(file))</b></td>
                                 <td class="stats-table-heading">&nbsp;</td>
                                 <td class="stats-table-heading">&nbsp;</td>
-                                <td class="stats-table-heading">&nbsp;</td>
 
                                 <td class="stats-table-heading" style="text-align:center">Curt</td>
                                 <td class="stats-table-heading" style="text-align:center">(Acpt)</td>
@@ -171,7 +170,6 @@
                                 @if (IndexModel.FilterVariables(files, Model.Filter, file.Name, table.Name, ""))
                                 {
                                     <tr>
-                                        <td class=".stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                                         <td class="stats-table-heading" colspan="2"><i>@Html.Raw(IndexModel.EmitTableName(@table))</i></td>
                                         <td class="stats-heading">&nbsp;&nbsp;</td>
                                         <td class="stats-heading" colspan="3">n</td>
@@ -188,7 +186,6 @@
                                         @if (IndexModel.FilterVariables(files, Model.Filter, file.Name, table.Name, variable.Name))
                                         {
                                             <tr>
-                                                <td class="stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                                                 <td class="stats-variablename">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                                                 <td class="stats-variablename"><a asp-page="/Chart" asp-route-id="@variable.Id">@Html.Raw(IndexModel.EmitVariableName(@variable))</a></td>
                                                 <td class="stats-cell">&nbsp;&nbsp;</td>
