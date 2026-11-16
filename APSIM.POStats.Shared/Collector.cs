@@ -206,8 +206,11 @@ namespace APSIM.POStats.Shared
                                             if (observedValue is int || observedValue is Int64)
                                                 observedValue = Convert.ToDouble(observedValue);
 
-                                            if (predictedValue is double)
+                                            if (predictedValue is double predictedValueAsDouble)
                                             {
+                                                if (double.IsInfinity(predictedValueAsDouble))
+                                                    predictedValueAsDouble = double.NaN;
+
                                                 double observedValueAsDouble = double.NaN;
                                                 if (observedValue is double)
                                                     observedValueAsDouble = (double)observedValue;
@@ -220,7 +223,7 @@ namespace APSIM.POStats.Shared
                                                 {
                                                     var data = new VariableData()
                                                     {
-                                                        Predicted = Convert.ToDouble(predictedValue),
+                                                        Predicted = predictedValueAsDouble,
                                                         Observed = observedValueAsDouble,
                                                         Label = CreateLabel(reader, matchFields, simulationIdNamePairs)
                                                     };
