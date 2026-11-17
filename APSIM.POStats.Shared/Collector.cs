@@ -218,8 +218,8 @@ namespace APSIM.POStats.Shared
                                                     if (!double.TryParse(observedValue.ToString(), out observedValueAsDouble))
                                                         observedValueAsDouble = double.NaN;
 
-                                                // Only add data point if observed value is now a double.
-                                                if (!double.IsNaN(observedValueAsDouble))
+                                                // Only persist values MySQL can represent as numeric literals.
+                                                if (double.IsFinite(predictedValueAsDouble) && double.IsFinite(observedValueAsDouble))
                                                 {
                                                     var data = new VariableData()
                                                     {
