@@ -80,7 +80,11 @@ namespace APSIM.POStats.Shared
 
         public static async Task<string> PostAsync<T>(string requestUrl, T jsonObject, string authorizationToken = null)
         {
-            return await RequestAsync(RequestType.POST, requestUrl, JsonSerializer.Serialize(jsonObject), authorizationToken);
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals
+            };
+            return await RequestAsync(RequestType.POST, requestUrl, JsonSerializer.Serialize(jsonObject, options), authorizationToken);
         }
     }
 }

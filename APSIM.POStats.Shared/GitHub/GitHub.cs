@@ -26,9 +26,14 @@ namespace APSIM.POStats.Shared.GitHub
             Task<string> response = WebUtilities.GetAsync(url, token);
             response.Wait();
 
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals
+            };
+
             //deseralize json response
-            Dictionary<string, object> dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(response.Result);
-            Dictionary<string, object> user = JsonSerializer.Deserialize<Dictionary<string, object>>(dictionary["user"].ToString());
+            Dictionary<string, object> dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(response.Result, options);
+            Dictionary<string, object> user = JsonSerializer.Deserialize<Dictionary<string, object>>(dictionary["user"].ToString(), options);
 
             //get variables we need
             int number = Convert.ToInt32(dictionary["number"].ToString());
