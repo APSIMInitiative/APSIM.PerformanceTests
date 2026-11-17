@@ -76,7 +76,11 @@ public class TestsCollector
 
         var pullRequest = Collector.RetrieveData(1234, "1", null, new DateTime(2000, 1, 1), "workflo-pool", files);
 
-        string jsonString = JsonSerializer.Serialize(pullRequest);
+        JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals
+        };
+        string jsonString = JsonSerializer.Serialize(pullRequest, options);
 
         Assert.That(pullRequest.Files.ToList().Count, Is.EqualTo(1));
         Assert.That(pullRequest.Files[0].Tables.Count, Is.EqualTo(2));
