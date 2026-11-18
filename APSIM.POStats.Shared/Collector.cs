@@ -50,14 +50,9 @@ namespace APSIM.POStats.Shared
                 try
                 {
                     var stopwatch = Stopwatch.StartNew();
-                    string name = Path.GetDirectoryName(filePath) + "/" + Path.GetFileNameWithoutExtension(filePath);
-                    name = name.Replace("\\", "/");
-                    name = name.Replace("/wd/", "");
-                    name = name.Replace("Tests/", "");
-                    name = name.Replace("/", "_");
                     var apsimFile = new ApsimFile()
                     {
-                        Name = name,
+                        Name = GetReformattedFileName(filePath),
                         PullRequest = pullRequest,
                         PullRequestId = pullRequest.Id,
                         Tables = GetTablesFromFile(filePath)
@@ -114,6 +109,28 @@ namespace APSIM.POStats.Shared
             pullRequest.Outputs.Add(log);
             
             return pullRequest;
+        }
+
+        private static string GetReformattedFileName(string filePath)
+        {
+            string name = Path.GetDirectoryName(filePath) + "/" + Path.GetFileNameWithoutExtension(filePath);
+            name = name.Replace("\\", "/");
+            name = name.Replace("/wd/", "");
+            name = name.Replace("Tests/", "");
+            return name.Replace("/", "_");
+        }
+
+        private static string GetComparisonFileName(string comparison, string apsimxFileName)
+        {
+            if (!comparison.EndsWith(".apsimx", StringComparison.OrdinalIgnoreCase))
+                return comparison;
+
+            comparison = comparison.Replace('\\', Path.DirectorySeparatorChar)
+                                   .Replace('/', Path.DirectorySeparatorChar);
+            string comparisonPath = Path.GetFullPath(comparison, Path.GetDirectoryName(Path.GetFullPath(apsimxFileName)));
+            if (!Path.IsPathRooted(apsimxFileName))
+                comparisonPath = Path.GetRelativePath(Directory.GetCurrentDirectory(), comparisonPath);
+            return GetReformattedFileName(comparisonPath);
         }
 
         /// <summary>
@@ -176,7 +193,7 @@ namespace APSIM.POStats.Shared
                                                 hasComparisonColumn = true; 
 
                                         if (hasComparisonColumn)
-                                            newTable.Comparison = reader["comparison"].ToString();
+                                            newTable.Comparison = GetComparisonFileName(reader["comparison"].ToString(), apsimxFileName);
 
                                         foreach(string field in fields)
                                         {

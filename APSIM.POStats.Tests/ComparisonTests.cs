@@ -4,11 +4,67 @@ using APSIM.POStats.Shared.Models;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+using System.IO;
+using Microsoft.Data.Sqlite;
 
 namespace APSIM.POStats.Tests
 {
     public class ComparisonTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public void CollectedComparisonPathsMatchCollectedFileNames(bool useBackslashes)
+        {
+            string root = Path.Combine(Path.GetTempPath(), "postats-comparison-" + Guid.NewGuid());
+            string sourceDirectory = Path.Combine(root, "wd", "Prototypes", "BarleyWinterCereal");
+            string targetDirectory = Path.Combine(root, "wd", "Tests", "Validation", "Barley");
+            string otherDirectory = Path.Combine(root, "wd", "Tests", "Other");
+            Directory.CreateDirectory(sourceDirectory);
+            Directory.CreateDirectory(targetDirectory);
+            Directory.CreateDirectory(otherDirectory);
+            string source = Path.Combine(sourceDirectory, "BarleyWinterCereal.apsimx");
+            string target = Path.Combine(targetDirectory, "Barley.apsimx");
+            string other = Path.Combine(otherDirectory, "Barley.apsimx");
+            try
+            {
+                string reference = Path.GetRelativePath(sourceDirectory, target);
+                reference = useBackslashes ? reference.Replace('/', '\\') : reference.Replace('\\', '/');
+                CreateCollectorInput(source, reference);
+                CreateCollectorInput(target, "");
+                CreateCollectorInput(other, "");
+
+                var pullRequest = Collector.RetrieveData(1, "commit", "author", DateTime.Now, "pool", new[] { source, other, target });
+                Assert.That(pullRequest.Status, Is.EqualTo(new[] { true }), string.Join("\n", pullRequest.Outputs));
+                var comparison = PullRequestFunctions.GetFileComparisons(pullRequest).Single();
+                Assert.That(comparison.Current.Name, Is.EqualTo(pullRequest.Files[0].Name));
+                Assert.That(comparison.Accepted, Is.SameAs(pullRequest.Files[2]));
+                Assert.That(comparison.Tables.Single().VariableComparisons.Single().AcceptedN, Is.EqualTo(1));
+            }
+            finally
+            {
+                SqliteConnection.ClearAllPools();
+                Directory.Delete(root, recursive: true);
+            }
+        }
+
+        private static void CreateCollectorInput(string filePath, string comparison)
+        {
+            File.WriteAllText(filePath, "");
+            using var db = new SqliteConnection($"Data Source={Path.ChangeExtension(filePath, ".db")}");
+            db.Open();
+            using var command = db.CreateCommand();
+            command.CommandText = @"CREATE TABLE _Simulations (ID INTEGER, Name TEXT);
+                INSERT INTO _Simulations VALUES (1, 'Sim1');
+                CREATE TABLE _PredictedObserved (name TEXT, comparison TEXT, field_match_one TEXT,
+                    field_match_two TEXT, field_match_three TEXT, field_match_four TEXT);
+                INSERT INTO _PredictedObserved VALUES ('PO', $comparison, 'SimulationName', '', '', '');
+                CREATE TABLE PO (SimulationID INTEGER, ""Predicted.A"" REAL, ""Observed.A"" REAL);
+                INSERT INTO PO VALUES (1, 1.0, 1.0);";
+            command.Parameters.AddWithValue("$comparison", comparison);
+            command.ExecuteNonQuery();
+        }
+
         /// <summary>Ensure the ApsimFileComparison status works.</summary>
         [Test]
         public void FileStatusWorks()
